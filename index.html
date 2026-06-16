@@ -267,6 +267,47 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .btn-modal.del{ border-color:var(--danger); color:var(--danger); }
 .btn-modal.del:hover{ background:var(--danger); color:#fff; }
 
+/* ===== ESPACIO POR EMPRESA ===== */
+.ws-head{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+.ws-back{ padding:9px 14px; border:1px solid var(--chip-border); background:var(--bg-surface); color:var(--text-secondary);
+  border-radius:11px; cursor:pointer; font-weight:700; font-size:13px; transition:var(--transition); }
+.ws-back:hover{ border-color:var(--wc,var(--accent)); color:var(--text-primary); }
+.ws-title{ font-size:24px; font-weight:800; color:var(--wc,var(--accent)); }
+.ws-grid{ display:grid; grid-template-columns:1fr 1fr 1.1fr; gap:16px; align-items:start; }
+@media(max-width:1100px){ .ws-grid{ grid-template-columns:1fr; } }
+.ws-card{ background:var(--bg-surface); border:1px solid var(--chip-border); border-top:4px solid var(--wc,var(--accent));
+  border-radius:14px; padding:16px; box-shadow:var(--shadow-md); margin-bottom:16px; }
+.ws-card h4{ font-size:14px; font-weight:800; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+.ws-add{ display:flex; gap:6px; margin-bottom:12px; }
+.ws-add input{ flex:1; padding:9px 11px; font-size:12px; border:1px solid var(--chip-border); border-radius:9px; background:var(--bg-tile); color:var(--text-primary); font-family:inherit; }
+.ws-add input:focus{ outline:none; border-color:var(--wc,var(--accent)); }
+.ws-add button{ padding:0 12px; background:var(--wc,var(--accent)); color:#fff; border:none; border-radius:9px; font-weight:800; font-size:16px; cursor:pointer; }
+/* post-its */
+.notes-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.postit{ border-radius:10px; padding:12px; font-size:13px; font-weight:600; min-height:84px; position:relative;
+  box-shadow:var(--shadow-md); color:#2a1a10; line-height:1.4; word-break:break-word; }
+.postit .x{ position:absolute; top:6px; right:8px; cursor:pointer; opacity:.5; font-weight:800; }
+.postit .x:hover{ opacity:1; }
+.postit .when{ display:block; margin-top:8px; font-size:9px; font-weight:700; opacity:.55; }
+.list-item{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:10px 12px; background:var(--bg-tile);
+  border-radius:10px; border-left:4px solid var(--wc,var(--accent)); margin-bottom:8px; font-size:13px; }
+.list-item .x{ cursor:pointer; opacity:.5; } .list-item .x:hover{ opacity:1; }
+/* chat */
+.chat-card{ display:flex; flex-direction:column; height:560px; }
+.chat-log{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:4px; margin-bottom:10px; }
+.bubble{ max-width:88%; padding:10px 13px; border-radius:12px; font-size:13px; line-height:1.45; white-space:pre-wrap; }
+.bubble.user{ align-self:flex-end; background:var(--wc,var(--accent)); color:#fff; border-bottom-right-radius:4px; }
+.bubble.ai{ align-self:flex-start; background:var(--bg-tile); border:1px solid var(--chip-border); border-bottom-left-radius:4px; }
+.bubble.sys{ align-self:center; font-size:11px; color:var(--text-tertiary); font-style:italic; }
+.chat-input{ display:flex; gap:8px; }
+.chat-input textarea{ flex:1; padding:10px 12px; border:1px solid var(--chip-border); border-radius:10px; background:var(--bg-tile);
+  color:var(--text-primary); font-family:inherit; font-size:13px; resize:none; height:46px; }
+.chat-input textarea:focus{ outline:none; border-color:var(--wc,var(--accent)); }
+.chat-input button{ padding:0 16px; background:var(--wc,var(--accent)); color:#fff; border:none; border-radius:10px; font-weight:800; cursor:pointer; }
+.chat-input button:disabled{ opacity:.5; cursor:default; }
+.proj-name{ cursor:pointer; }
+.proj-open{ font-size:11px; color:var(--text-tertiary); font-weight:700; }
+
 ::-webkit-scrollbar{ width:8px; height:8px; }
 ::-webkit-scrollbar-track{ background:var(--bg-tile); }
 ::-webkit-scrollbar-thumb{ background:var(--accent); border-radius:4px; }
@@ -332,6 +373,48 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     <div class="section-title">📋 Proyectos</div>
     <div class="section-sub">Captura ideas por proyecto → "Convertir en tarea" la manda a su To-Do. Cada tarea es la misma en todo el sistema: si la editas o tachas aquí, se actualiza en todos lados.</div>
     <div class="proj-grid" id="projGrid"></div>
+  </div>
+
+  <!-- ===== ESPACIO POR EMPRESA ===== -->
+  <div class="page" id="page-workspace" style="--wc:var(--accent)">
+    <div class="ws-head">
+      <button class="ws-back" onclick="showPage('proyectos')">← Proyectos</button>
+      <div class="ws-title" id="wsTitle">Empresa</div>
+    </div>
+    <div class="section-sub" id="wsSub">Tu espacio de trabajo: notas, ideas, temas a futuro, tu To-Do y tu copiloto Claude.</div>
+    <div class="ws-grid">
+      <div>
+        <div class="ws-card">
+          <h4>📝 Notas <span class="proj-open">post-it</span></h4>
+          <div class="ws-add"><input id="wsNoteInput" placeholder="Escribe una nota…"><button onclick="addNote()">＋</button></div>
+          <div class="notes-grid" id="wsNotes"></div>
+        </div>
+        <div class="ws-card">
+          <h4>🔮 Temas a futuro</h4>
+          <div class="ws-add"><input id="wsTemaInput" placeholder="Tema o idea para ver después…"><button onclick="addTema()">＋</button></div>
+          <div id="wsTemas"></div>
+        </div>
+      </div>
+      <div>
+        <div class="ws-card">
+          <h4>💡 Ideas por convertir</h4>
+          <div class="ws-add"><input id="wsIdeaInput" placeholder="Suelta una idea…"><button onclick="addIdeaWS()">＋</button></div>
+          <div id="wsIdeas"></div>
+        </div>
+        <div class="ws-card">
+          <h4>📋 To-Do <span class="proj-open" id="wsTodoCount"></span></h4>
+          <div id="wsTodos"></div>
+        </div>
+      </div>
+      <div class="ws-card chat-card">
+        <h4>🤖 Claude — tu copiloto</h4>
+        <div class="chat-log" id="wsChat"></div>
+        <div class="chat-input">
+          <textarea id="wsChatInput" placeholder="Cuéntale un problema o tema y pídele que te ayude a sintetizar…"></textarea>
+          <button id="wsChatSend" onclick="sendChat()">➤</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ===== INBOX & SEMANA ===== -->
@@ -470,6 +553,7 @@ let S=JSON.parse(localStorage.getItem(STORE)||'null')||{
   ]
 };
 let seq=Math.max(0,...S.tasks.map(t=>t.id))+1;
+S.notes=S.notes||{}; S.temas=S.temas||{}; S.chats=S.chats||{};  // espacios por empresa
 function save(){ localStorage.setItem(STORE,JSON.stringify(S)); }
 
 /* ===== HELPERS ===== */
@@ -579,7 +663,7 @@ function renderProjects(){
     const todos=S.tasks.filter(t=>t.project===pk&&t.stage==='todo');
     const done=S.tasks.filter(t=>t.project===pk&&t.stage==='done');
     return `<div class="proj-col" style="--pc:${P.color}">
-      <div class="proj-head"><div class="proj-name">${P.emoji} ${P.name}</div><div class="proj-count">${todos.length} activas · ${done.length} ✓</div></div>
+      <div class="proj-head"><div class="proj-name" onclick="openWorkspace('${pk}')">${P.emoji} ${P.name} <span class="proj-open">abrir →</span></div><div class="proj-count">${todos.length} activas · ${done.length} ✓</div></div>
       <div class="proj-capture"><input placeholder="Idea o pendiente…" data-proj="${pk}" onkeydown="if(event.key==='Enter')projCapture('${pk}',this)"><button onclick="projCapture('${pk}',this.previousElementSibling)">＋</button></div>
       <div class="proj-tasks">
         ${ideas.length?`<div class="mini-section">💡 Ideas por convertir</div>`+ideas.map(t=>`<div class="task-card idea" data-id="${t.id}">
@@ -740,14 +824,80 @@ function renderWeek(){
   document.getElementById('weekGrid').innerHTML=html;
 }
 
-/* ----- NAV / THEME / INIT ----- */
-document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
+/* ----- ESPACIO POR EMPRESA ----- */
+let wsCompany=null;
+const POSTIT=['#FFE08A','#FFB7A0','#B7E3C0','#A8D8F0','#E0C3F0','#FFD0E0'];
+function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+b.dataset.page).classList.add('active');
-  if(b.dataset.page==='semana')document.getElementById('captureInput').focus();
-}));
+  const pg=document.getElementById('page-'+id); if(pg)pg.classList.add('active');
+  const navId=id==='workspace'?'proyectos':id;
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.page===navId));
+  if(id==='workspace')renderWorkspace();
+  if(id==='semana')document.getElementById('captureInput').focus();
+  window.scrollTo(0,0);
+}
+function openWorkspace(pk){ wsCompany=pk; showPage('workspace'); }
+function renderWorkspace(){
+  const pk=wsCompany; if(!pk)return; const P=PROJECTS[pk];
+  document.getElementById('page-workspace').style.setProperty('--wc',P.color);
+  document.getElementById('wsTitle').textContent=`${P.emoji} ${P.name}`;
+  // notas
+  const notes=S.notes[pk]||[];
+  document.getElementById('wsNotes').innerHTML=notes.length?notes.map(n=>`<div class="postit" style="background:${POSTIT[n.id%POSTIT.length]}"><span class="x" onclick="delNote(${n.id})">✕</span>${n.text}<span class="when">${new Date(n.t).toLocaleDateString('es-MX',{day:'numeric',month:'short'})}</span></div>`).join(''):'<div style="grid-column:1/-1;color:var(--text-tertiary);font-size:12px">Sin notas aún.</div>';
+  // temas
+  const temas=S.temas[pk]||[];
+  document.getElementById('wsTemas').innerHTML=temas.length?temas.map(t=>`<div class="list-item"><span>🔮 ${t.text}</span><span class="x" onclick="delTema(${t.id})">✕</span></div>`).join(''):'<div style="color:var(--text-tertiary);font-size:12px">Sin temas aún.</div>';
+  // ideas
+  const ideas=S.tasks.filter(t=>t.project===pk&&t.stage==='inbox');
+  document.getElementById('wsIdeas').innerHTML=ideas.length?ideas.map(t=>`<div class="list-item"><span>💡 ${t.title}</span><span style="display:flex;gap:8px;flex-shrink:0"><button class="icon-btn process" onclick="convertTask(${t.id})">Convertir</button><span class="x" onclick="delById(${t.id})">✕</span></span></div>`).join(''):'<div style="color:var(--text-tertiary);font-size:12px">Sin ideas pendientes.</div>';
+  // todos
+  const todos=S.tasks.filter(t=>t.project===pk&&t.stage!=='inbox');
+  document.getElementById('wsTodoCount').textContent=`${todos.filter(t=>t.stage==='todo').length} activas`;
+  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(taskCardHTML).join(''):'<div style="color:var(--text-tertiary);font-size:12px">Sin tareas.</div>';
+  renderChat();
+}
+function addNote(){ const i=document.getElementById('wsNoteInput'),v=i.value.trim(); if(!v)return;
+  (S.notes[wsCompany]=S.notes[wsCompany]||[]).unshift({id:Date.now(),text:v,t:Date.now()}); i.value=''; save(); renderWorkspace(); }
+function delNote(id){ S.notes[wsCompany]=(S.notes[wsCompany]||[]).filter(n=>n.id!==id); save(); renderWorkspace(); }
+function addTema(){ const i=document.getElementById('wsTemaInput'),v=i.value.trim(); if(!v)return;
+  (S.temas[wsCompany]=S.temas[wsCompany]||[]).unshift({id:Date.now(),text:v}); i.value=''; save(); renderWorkspace(); }
+function delTema(id){ S.temas[wsCompany]=(S.temas[wsCompany]||[]).filter(t=>t.id!==id); save(); renderWorkspace(); }
+function addIdeaWS(){ const i=document.getElementById('wsIdeaInput'),v=i.value.trim(); if(!v)return;
+  S.tasks.push({id:seq++,title:v,project:wsCompany,type:'arquitecto',prio:'idea',dur:30,block:null,stage:'inbox'}); i.value=''; save(); renderAll(); renderWorkspace(); }
+
+/* ----- CHAT CLAUDE ----- */
+function renderChat(){
+  const log=S.chats[wsCompany]||[];
+  const el=document.getElementById('wsChat');
+  el.innerHTML=log.length?log.map(m=>`<div class="bubble ${m.role==='user'?'user':'ai'}">${m.content.replace(/</g,'&lt;')}</div>`).join(''):'<div class="bubble sys">Suéltale un problema o varios temas y te ayuda a ordenarlos y a definir el siguiente paso.</div>';
+  el.scrollTop=el.scrollHeight;
+}
+async function sendChat(){
+  const i=document.getElementById('wsChatInput'),v=i.value.trim(); if(!v||!wsCompany)return;
+  const P=PROJECTS[wsCompany];
+  const log=S.chats[wsCompany]=S.chats[wsCompany]||[];
+  log.push({role:'user',content:v}); i.value=''; save(); renderChat();
+  const btn=document.getElementById('wsChatSend'); btn.disabled=true;
+  const el=document.getElementById('wsChat');
+  el.innerHTML+='<div class="bubble ai" id="thinking">Pensando…</div>'; el.scrollTop=el.scrollHeight;
+  const system=`Eres el copiloto estratégico de Dante Báez para ${P.name}. Ayúdalo a pensar con claridad: toma problemas o temas dispersos y sintetízalos en ideas accionables, prioriza por impacto y sugiere el siguiente paso concreto. Distingue entre tareas de Arquitecto (construir sistemas que lo liberan) y Mecánico (operación). Responde directo, breve y práctico, en español. Su filosofía: "Eres el Arquitecto, no el albañil. El miedo es gasolina, la fe el volante."`;
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({system,messages:log.map(m=>({role:m.role,content:m.content}))})});
+    const data=await r.json();
+    const reply=(data&&data.reply)||'No recibí respuesta.';
+    log.push({role:'assistant',content:reply}); save(); renderChat();
+  }catch(e){
+    document.getElementById('thinking')?.remove();
+    log.push({role:'assistant',content:'⚠️ No me pude conectar a Claude. Esto funciona ya en el sitio publicado (Vercel) una vez configurada la API key. En local/archivo no hay servidor.'});
+    save(); renderChat();
+  }finally{ btn.disabled=false; }
+}
+document.getElementById('wsChatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
+['wsNoteInput','wsTemaInput','wsIdeaInput'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ ({wsNoteInput:addNote,wsTemaInput:addTema,wsIdeaInput:addIdeaWS})[id](); } }));
+
+/* ----- NAV / THEME / INIT ----- */
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 document.getElementById('themeBtn').addEventListener('click',()=>{
   const r=document.documentElement, light=r.getAttribute('data-theme')==='light';
   r.setAttribute('data-theme',light?'dark':'light');
