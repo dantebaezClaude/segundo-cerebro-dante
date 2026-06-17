@@ -311,6 +311,57 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 ::-webkit-scrollbar{ width:8px; height:8px; }
 ::-webkit-scrollbar-track{ background:var(--bg-tile); }
 ::-webkit-scrollbar-thumb{ background:var(--accent); border-radius:4px; }
+
+/* ===== POST-IT / NOTAS RÁPIDAS ===== */
+.navbar-right{ display:flex; align-items:center; gap:7px; }
+.postit-btn{ position:relative; padding:10px 14px; border:1px solid var(--chip-border);
+  background:var(--bg-tile); color:var(--text-primary); border-radius:11px; cursor:pointer;
+  font-weight:700; font-size:13px; transition:var(--transition); }
+.postit-btn:hover{ border-color:var(--accent); }
+.postit-count{ position:absolute; top:-7px; right:-7px; min-width:18px; height:18px; padding:0 4px;
+  background:var(--danger); color:#fff; border-radius:9px; font-size:11px; font-weight:800;
+  display:none; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+.postit-count.show{ display:flex; }
+
+.postit-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:998; display:none; }
+.postit-overlay.open{ display:block; }
+
+.postit-panel{ position:fixed; top:78px; right:18px; width:340px; max-width:calc(100vw - 36px);
+  max-height:calc(100vh - 100px); background:var(--bg-surface); border:1px solid var(--chip-border);
+  border-radius:18px; box-shadow:var(--shadow-lg); z-index:999; display:none; flex-direction:column;
+  overflow:hidden; }
+.postit-panel.open{ display:flex; animation:postitIn .18s cubic-bezier(.4,0,.2,1); }
+@keyframes postitIn{ from{ opacity:0; transform:translateY(-8px) scale(.98); } to{ opacity:1; transform:none; } }
+.postit-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+  border-bottom:1px solid var(--chip-border); background:var(--bg-tile); }
+.postit-head h3{ font-size:15px; font-weight:800; display:flex; align-items:center; gap:8px; }
+.postit-close{ width:30px; height:30px; border:none; background:transparent; color:var(--text-secondary);
+  border-radius:8px; cursor:pointer; font-size:20px; line-height:1; transition:var(--transition); }
+.postit-close:hover{ background:var(--danger); color:#fff; }
+.postit-new{ padding:12px 16px; border-bottom:1px solid var(--chip-border); }
+.postit-new textarea{ width:100%; min-height:54px; resize:vertical; border:1px solid var(--chip-border);
+  background:var(--bg-app); color:var(--text-primary); border-radius:10px; padding:10px 12px;
+  font-family:inherit; font-size:14px; }
+.postit-new textarea:focus{ outline:none; border-color:var(--accent); }
+.postit-add{ margin-top:8px; width:100%; padding:9px; border:none; background:var(--accent);
+  color:var(--on-accent); border-radius:10px; font-weight:800; font-size:13px; cursor:pointer;
+  transition:var(--transition); }
+.postit-add:hover{ filter:brightness(1.08); }
+.postit-list{ padding:12px 16px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.postit-empty{ text-align:center; color:var(--text-tertiary); font-size:13px; padding:24px 8px; }
+.postit-note{ position:relative; background:linear-gradient(180deg,#FFE08A,#FFD45E); color:#4a3700;
+  border-radius:4px 4px 10px 4px; padding:12px 30px 12px 14px; font-size:14px; line-height:1.4;
+  white-space:pre-wrap; word-break:break-word; box-shadow:0 4px 10px rgba(0,0,0,.25);
+  font-family:'Segoe Print','Comic Sans MS',-apple-system,sans-serif; }
+.postit-note:nth-child(3n){ background:linear-gradient(180deg,#BDE8B0,#9FDD8E); color:#234217; }
+.postit-note:nth-child(3n+1){ background:linear-gradient(180deg,#FFC9D4,#FFAEC0); color:#5a1a2a; }
+.postit-note .pn-time{ display:block; margin-top:7px; font-size:10px; opacity:.6; font-weight:700; font-family:-apple-system,sans-serif; }
+.postit-note .pn-del{ position:absolute; top:6px; right:6px; width:20px; height:20px; border:none;
+  background:rgba(0,0,0,.12); color:inherit; border-radius:6px; cursor:pointer; font-size:14px;
+  line-height:1; opacity:0; transition:var(--transition); }
+.postit-note:hover .pn-del{ opacity:1; }
+.postit-note .pn-del:hover{ background:rgba(0,0,0,.3); color:#fff; }
+@media(max-width:520px){ .postit-panel{ right:8px; left:8px; width:auto; } }
 </style>
 </head>
 <body>
@@ -327,7 +378,24 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
       <button class="nav-btn" data-page="kpis">📈 KPIs</button>
       <button class="nav-btn" data-page="config">🧭 Configurador</button>
     </div>
-    <button class="theme-toggle" id="themeBtn">☀️ Claro</button>
+    <div class="navbar-right">
+      <button class="postit-btn" id="postitBtn">📝 Notas<span class="postit-count" id="postitCount">0</span></button>
+      <button class="theme-toggle" id="themeBtn">☀️ Claro</button>
+    </div>
+  </div>
+
+  <!-- ===== POST-IT / NOTAS RÁPIDAS ===== -->
+  <div class="postit-overlay" id="postitOverlay"></div>
+  <div class="postit-panel" id="postitPanel" role="dialog" aria-label="Notas rápidas">
+    <div class="postit-head">
+      <h3>📝 Notas rápidas</h3>
+      <button class="postit-close" id="postitCloseBtn" title="Cerrar">×</button>
+    </div>
+    <div class="postit-new">
+      <textarea id="postitInput" placeholder="Anota una idea o pendiente…  (Ctrl+Enter para guardar)"></textarea>
+      <button class="postit-add" id="postitAddBtn">➕ Agregar nota</button>
+    </div>
+    <div class="postit-list" id="postitList"></div>
   </div>
 
   <div class="mantra">"Eres el <b>Arquitecto</b>, no el albañil. El miedo es gasolina. La fe, el volante."</div>
@@ -554,6 +622,7 @@ let S=JSON.parse(localStorage.getItem(STORE)||'null')||{
 };
 let seq=Math.max(0,...S.tasks.map(t=>t.id))+1;
 S.notes=S.notes||{}; S.temas=S.temas||{}; S.chats=S.chats||{};  // espacios por empresa
+S.postits=S.postits||[];  // notas rápidas tipo post-it
 function save(){ localStorage.setItem(STORE,JSON.stringify(S)); }
 
 /* ===== HELPERS ===== */
@@ -903,6 +972,37 @@ document.getElementById('themeBtn').addEventListener('click',()=>{
   r.setAttribute('data-theme',light?'dark':'light');
   document.getElementById('themeBtn').textContent=light?'☀️ Claro':'🌙 Oscuro';
 });
+
+/* ----- POST-IT / NOTAS RÁPIDAS ----- */
+const PIpanel=document.getElementById('postitPanel'), PIoverlay=document.getElementById('postitOverlay'),
+      PIinput=document.getElementById('postitInput'), PIlist=document.getElementById('postitList'),
+      PIcount=document.getElementById('postitCount');
+function piTime(t){ const d=new Date(t), now=new Date();
+  const sameDay=d.toDateString()===now.toDateString();
+  const hh=d.getHours().toString().padStart(2,'0'), mm=d.getMinutes().toString().padStart(2,'0');
+  return sameDay?('Hoy '+hh+':'+mm):(d.getDate()+'/'+(d.getMonth()+1)+' '+hh+':'+mm); }
+function piRender(){
+  const n=S.postits.length;
+  PIcount.textContent=n; PIcount.classList.toggle('show',n>0);
+  if(!n){ PIlist.innerHTML='<div class="postit-empty">Sin notas todavía.<br>Escribe arriba y dale ➕</div>'; return; }
+  PIlist.innerHTML=S.postits.slice().reverse().map(p=>
+    '<div class="postit-note"><button class="pn-del" data-id="'+p.id+'" title="Borrar">×</button>'+
+    escapeHtml(p.text)+'<span class="pn-time">'+piTime(p.t)+'</span></div>').join('');
+  PIlist.querySelectorAll('.pn-del').forEach(b=>b.addEventListener('click',()=>piDelete(+b.dataset.id)));
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function piAdd(){ const v=PIinput.value.trim(); if(!v)return;
+  S.postits.push({id:Date.now(),text:v,t:Date.now()}); PIinput.value=''; save(); piRender(); PIinput.focus(); }
+function piDelete(id){ S.postits=S.postits.filter(p=>p.id!==id); save(); piRender(); }
+function piOpen(){ PIpanel.classList.add('open'); PIoverlay.classList.add('open'); PIinput.focus(); }
+function piClose(){ PIpanel.classList.remove('open'); PIoverlay.classList.remove('open'); }
+document.getElementById('postitBtn').addEventListener('click',()=>{ PIpanel.classList.contains('open')?piClose():piOpen(); });
+document.getElementById('postitCloseBtn').addEventListener('click',piClose);
+document.getElementById('postitAddBtn').addEventListener('click',piAdd);
+PIoverlay.addEventListener('click',piClose);
+PIinput.addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))piAdd(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape')piClose(); });
+piRender();
 document.getElementById('captureBtn').addEventListener('click',addCapture);
 document.getElementById('captureInput').addEventListener('keydown',e=>{ if(e.key==='Enter')addCapture(); });
 document.getElementById('diaryBtn').addEventListener('click',addDiary);
