@@ -596,29 +596,12 @@ const blockById=id=>BLOCKS.find(b=>b.id===id);
 /* ===== ESTADO (fuente única) ===== */
 const STORE='dante_cerebro_v3';
 let S=JSON.parse(localStorage.getItem(STORE)||'null')||{
-  tasks:[
-    {id:1,title:'Acabar automatización del funnel',project:'sistema',type:'arquitecto',prio:'fuego',dur:90,block:'sagrado',stage:'todo'},
-    {id:2,title:'Precios diario de proveedores',project:'viasana',type:'arquitecto',prio:'fuego',dur:60,block:'sagrado',stage:'todo'},
-    {id:3,title:'Junta de operación — feedback',project:'viasana',type:'arquitecto',prio:'fuego',dur:20,block:'operacion',stage:'todo'},
-    {id:4,title:'Junta estratégica — Algorithmics',project:'algorithmics',type:'arquitecto',prio:'importante',dur:60,block:null,stage:'todo'},
-    {id:5,title:'Crear GPTs — Cultura organizacional',project:'sistema',type:'arquitecto',prio:'sistema',dur:45,block:'sistemas',stage:'todo'},
-    {id:6,title:'Preparar webinar (3 secretos)',project:'marca',type:'arquitecto',prio:'importante',dur:90,block:'lanzamiento',stage:'todo'},
-    {id:7,title:'Biblia, oración y pensamiento',project:'personal',type:'arquitecto',prio:'importante',dur:90,block:'arranque',stage:'done'},
-    {id:8,title:'Revisar leads y cambiar etapas',project:'viasana',type:'arquitecto',prio:'fuego',dur:45,block:'sagrado',stage:'done'},
-    {id:9,title:'Mandar videos de Ads a edición',project:'marca',type:'mecanico',prio:'importante',dur:30,block:'sistemas',stage:'done'},
-    {id:10,title:'Aprender GPT y Gemini',project:'sistema',type:'mecanico',prio:'sistema',dur:30,block:null,stage:'todo'},
-    {id:11,title:'Automatizar CRM: lista de precios semanal',project:'viasana',type:'arquitecto',prio:'idea',dur:60,block:null,stage:'inbox'},
-    {id:12,title:'Buyer persona detallado de clientes',project:'marca',type:'arquitecto',prio:'idea',dur:45,block:null,stage:'inbox'},
-    {id:13,title:'Match consolidados vs inventario',project:'viasana',type:'arquitecto',prio:'idea',dur:60,block:null,stage:'inbox'},
-    {id:14,title:'Carruseles marca personal en Canva IA',project:'marca',type:'mecanico',prio:'idea',dur:30,block:null,stage:'inbox'}
-  ],
+  tasks:[],
   config:{
     goalArq:15, goalMec:10,
     rules:{ maxFuegos:3, protegeSagrado:true, lanzamientoDiario:true }
   },
-  diary:[
-    {id:1,text:'Cené y platiqué en familia sin celular',t:Date.now()-3600e3}
-  ]
+  diary:[]
 };
 let seq=Math.max(0,...S.tasks.map(t=>t.id))+1;
 S.notes=S.notes||{}; S.temas=S.temas||{}; S.chats=S.chats||{};  // espacios por empresa
