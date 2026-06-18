@@ -618,10 +618,11 @@ const PROJECTS={
   chilaquiles:{name:'Chilaquiles',emoji:'🌶️',color:'#D2452C'},
   marca:{name:'Marca Personal',emoji:'📚',color:'#9B6BD6'},
   algorithmics:{name:'Algorithmics',emoji:'🧮',color:'#4A90D9'},
+  domy:{name:'DOMY (MKT)',emoji:'📣',color:'#C2569B'},
   sistema:{name:'Sistema',emoji:'⚙️',color:'#9a8278'},
   personal:{name:'Personal',emoji:'👨‍👩‍👧',color:'#E87EA1'}
 };
-const MAIN_PROJECTS=['viasana','chilaquiles','marca','algorithmics'];
+const MAIN_PROJECTS=['viasana','chilaquiles','marca','algorithmics','domy'];
 const DEFAULT_BLOCKS=[
   {id:'arranque',time:'7:30 - 9:00 AM',label:'🌅 Arranque Espiritual',color:'#E0A53C'},
   {id:'lanzamiento',time:'9:30 - 11:00 AM',label:'🚀 Lanzamiento',color:'#FF7E4D'},
@@ -686,6 +687,39 @@ let seq=Math.max(0,...S.tasks.map(t=>t.id))+1;
 S.notes=S.notes||{}; S.temas=S.temas||{}; S.chats=S.chats||{};  // espacios por empresa
 S.postits=S.postits||[];  // notas rápidas tipo post-it
 S.blocks=(S.blocks&&S.blocks.length)?S.blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS));  // bloques editables del día
+
+/* ===== IDEAS DEL PDF (van al Inbox, no al To-Do oficial) ===== */
+const PDF_IDEAS=[
+  {project:'viasana',type:'arquitecto',dur:90,title:'Estructura de Drive Vía Sana: archivo maestro de compras/ventas, registro diario del mercado por nota de voz (fecha, proveedor, factura, producto, unidad, $/kilo, notas), históricos, ventas SICAR y un archivo que alimente reportes con IA — con acceso a las IAs'},
+  {project:'viasana',type:'arquitecto',dur:60,title:'Estudio de fluctuación de precios de compra de insumos con IA (subir compras diarias en Sheets y analizar tendencias)'},
+  {project:'viasana',type:'arquitecto',dur:60,title:'Definir estructura ideal de personal RH (ej. 6 pickers, 4 choferes, 2 oficina, 2 gerencias Betty+Tyler, 1 encargado de turno, 2 compras) y tareas de alto valor; incluir contrataciones, bajas y horas extras'},
+  {project:'viasana',type:'arquitecto',dur:45,title:'Cultura organizacional: dedicar tiempo, energía y presupuesto, trabajarla con Tyler'},
+  {project:'viasana',type:'arquitecto',dur:45,title:'Plan de transición de dirección a Tyler: qué necesita para tomar el control total con solo mentoría nuestra'},
+  {project:'viasana',type:'arquitecto',dur:45,title:'Capacitación en IA del equipo: aprender y enseñar GPT y Gemini'},
+  {project:'viasana',type:'mecanico',dur:30,title:'Mermas: acomodar mercancía con detalle con clientes (repollos chicos, cebolla con machetazo, etc.)'},
+  {project:'viasana',type:'arquitecto',dur:45,title:'Estrategia repollo (Braulio, Peckers): evaluar vender sin pelar y con detalle, y si conviene el precio'},
+  {project:'viasana',type:'mecanico',dur:30,title:'Estandarizar pelado: definir cantidad exacta de tomatillo y cebolla (en cajas)'},
+  {project:'viasana',type:'arquitecto',dur:45,title:'Cuarto frío: repisa con báscula adentro, básculas en cebolla/tomatillo e islas con báscula (zanahoria, chiles, tomate saladet, calabaza) para reducir entradas/salidas'},
+  {project:'viasana',type:'mecanico',dur:30,title:'Revisar limón persa chico (qué hacer) y la alta merma de calabaza bola y coliflor'},
+  {project:'viasana',type:'mecanico',dur:20,title:'Revisar calidad de tomate salsero vs saladet cuando se pone feo'},
+  {project:'viasana',type:'arquitecto',dur:60,title:'Preparar junta con Luci: visión, pagos, sueldos (Ximena, Uriel, bonos, Tyler), finanzas y nómina por puesto, estrategia repollo Braulio, números de Algorithmics y equipo (RH Betty, contrataciones, cultura, GPTs)'},
+  {project:'marca',type:'mecanico',dur:30,title:'Curso Hotmart: poner el resumen del curso en todas las opciones de LMbook'},
+  {project:'marca',type:'arquitecto',dur:30,title:'Explorar Vima como creadora de marketing/contenido sin pagarle'},
+  {project:'domy',type:'arquitecto',dur:45,title:'BGI: implementar WhatsApp automatizado (hoy no lo usan)'},
+  {project:'domy',type:'arquitecto',dur:30,title:'BGI: contenido estilo Mara — YouTube con muchas preguntas para elevar la conciencia'},
+  {project:'domy',type:'mecanico',dur:30,title:'BGI: marketing con Melissa — YouTube y Zoom al mismo tiempo'},
+  {project:'personal',type:'mecanico',dur:15,title:'CASA: poner calendario en la puerta con metas (comida, etc.)'},
+  {project:'personal',type:'mecanico',dur:15,title:'CASA: buscar un espacio para pensar'},
+  {project:'personal',type:'arquitecto',dur:45,title:'Crecimiento espiritual: revisar las palabras proféticas y hacer un plan basado en ellas'},
+  {project:'personal',type:'arquitecto',dur:45,title:'Ejercicio de visión: ¿qué haría si tuviera todo el dinero del mundo? + mentalidad de riqueza (lo clave es en quién nos convertimos, la persona capaz de generarla)'},
+  {project:'personal',type:'arquitecto',dur:60,title:'Desarrollo personal: leer El sutil arte de que te importe un carajo, estudiar video de Brian Tracy (frenos mentales, responsabilidad vs culpa) y liderazgo Deuteronomio 1:15 (delegar, formar líderes, niveles 1000/100/50/10)'},
+  {project:'sistema',type:'arquitecto',dur:45,title:'Mapas de IA (Claude) por proyecto: estructurar mapas/agentes de IA por cada empresa'}
+];
+if(!S.ideasPDF){
+  let nid=Math.max(0,...S.tasks.map(t=>t.id))+1;
+  PDF_IDEAS.forEach(o=>S.tasks.push(Object.assign({id:nid++,prio:'idea',block:null,stage:'inbox'},o)));
+  S.ideasPDF=true; seq=Math.max(0,...S.tasks.map(t=>t.id))+1; save();
+}
 
 /* ===== MIGRACIÓN: metas por periodo + fecha en tareas hechas ===== */
 // Antes solo había meta semanal (goalArq/goalMec). Ahora hay meta diaria, semanal y mensual.
