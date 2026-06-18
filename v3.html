@@ -277,6 +277,28 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .fo-btn{background:var(--accent);color:var(--on-accent);border:none;border-radius:14px;padding:14px 34px;font-weight:800;font-size:15px;cursor:pointer}
 .fo-x{position:absolute;top:18px;right:20px;background:var(--tile);border:none;color:var(--text2);width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer}
 .art-note{font-size:10px;color:var(--text3);opacity:.7;text-align:center;border:1px dashed var(--line);border-radius:10px;padding:8px;margin-top:8px}
+/* ---- botón y estado de pánico (ultra importante) ---- */
+.panic-btn{background:var(--tile);border:none;color:var(--text2);border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.panic-btn.on{background:var(--red);color:#fff}
+.task.ultra{border-left-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
+.task.ultra .tt::after{content:' 🚨';font-size:12px}
+.btask.ultra{border-left-color:var(--red)}
+/* ---- pop-up de pánico ---- */
+.panic-ovl{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;display:none;align-items:center;justify-content:center;padding:22px}
+.panic-ovl.on{display:flex;animation:fade .25s}
+.panic-box{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--red);border-radius:20px;box-shadow:var(--sh);overflow:hidden;animation:rise .35s cubic-bezier(.22,1,.36,1)}
+.panic-top{background:var(--red);color:#fff;padding:15px 18px}
+.panic-top h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px}
+.panic-top p{font-size:12px;opacity:.92;margin-top:3px;line-height:1.4}
+.panic-list{padding:14px 16px;max-height:48vh;overflow-y:auto;display:flex;flex-direction:column;gap:9px}
+.panic-item{display:flex;align-items:center;gap:11px;background:var(--tile);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:5px 12px 12px 5px;padding:12px}
+.panic-item .pchk{width:24px;height:24px;border-radius:8px;border:2px solid var(--red);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.15s}
+.panic-item .pchk:hover{background:var(--red)}
+.panic-item .ptxt{font-size:13px;font-weight:700;flex:1}
+.panic-item .ptag{font-size:10px;color:var(--text3)}
+.panic-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px}
+.panic-foot button{flex:1;border:1px solid var(--line);background:var(--tile);color:var(--text2);border-radius:11px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
+.panic-empty{text-align:center;color:var(--green);font-size:14px;font-weight:800;padding:20px}
 </style>
 </head>
 <body>
@@ -499,6 +521,18 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
     <div class="sh-body"><div class="menu-actions" id="taskActions"></div></div>
   </div>
 
+  <!-- pop-up de pánico (ultra importantes) -->
+  <div class="panic-ovl" id="panicOvl">
+    <div class="panic-box">
+      <div class="panic-top">
+        <h3>🚨 Ultra importantes de hoy</h3>
+        <p>No están agendadas en un bloque, pero HAY que hacerlas hoy. Se quitan solas al palomearlas.</p>
+      </div>
+      <div class="panic-list" id="panicList"></div>
+      <div class="panic-foot"><button onclick="closePanic()">Ahora no (reaparece al recargar)</button></div>
+    </div>
+  </div>
+
   <!-- focus timer -->
   <div class="focus-overlay" id="focusOverlay">
     <button class="fo-x" onclick="stopFocus()">✕</button>
@@ -531,8 +565,8 @@ const SB_URL='https://qetocoxizvumespgocij.supabase.co';
 const SB_KEY='sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
 const SBH={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
 const PRIO2F={fuego:3,importante:2,sistema:1,idea:1};
-function rowToTask(r){return {id:r.id,t:r.title,e:r.project,ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id};}
-function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,actualizado_en:new Date().toISOString()};}
+function rowToTask(r){return {id:r.id,t:r.title,e:r.project,ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id,panic:!!r.panic};}
+function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,panic:!!t.panic,actualizado_en:new Date().toISOString()};}
 async function cloudLoad(){const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return (await r.json()).map(rowToTask);}
 async function cloudPatch(t){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+t.id,{method:'PATCH',headers:SBH,body:JSON.stringify(taskToRow(t))});}catch(e){console.warn('cloud patch',e);}}
 async function cloudInsert(t){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify(taskToRow(t))});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('cloud insert',e);return null;}}
@@ -564,9 +598,10 @@ function render(){
   const loose=TASKS.filter(t=>t.stage==='todo'&&!t.block);
   document.getElementById('loose-cnt').textContent=loose.length+' sin bloque';
   document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
-    <div class="task" style="--tc:${TC[t.id]||'var(--accent)'}">
+    <div class="task${t.panic?' ultra':''}" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
       <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span></div>
       <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>
+        <button class="panic-btn${t.panic?' on':''}" onclick="togglePanic('${t.id}')" title="Botón de pánico: ultra importante">🚨</button>
         <button class="assign" onclick="pickBlock('${t.id}')">📌 Asignar</button>
         <button class="assign" style="background:var(--tile);color:var(--text2)" onclick="openTaskMenu('${t.id}')">⋯</button></div>
     </div>`).join(''):'<div class="art-note">🎉 Todo acomodado en tu día.</div>';
@@ -576,14 +611,14 @@ function render(){
     return `<div class="block ${b.active?'active':''}" style="--bc:${b.c}">
       <div class="bh"><span class="btime">${b.time}</span>${b.active?'<span class="nowtag">ahora</span>':''}</div>
       <div class="bt">${b.label}</div>
-      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}" style="--bc:${b.c}"><div class="chk" onclick="toggleDone('${t.id}')">${t.done?'✓':''}</div><span style="flex:1">${t.t}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asigna una desde arriba ↑</div>'}
+      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}${t.panic?' ultra':''}" style="--bc:${t.panic?'var(--red)':b.c}"><div class="chk" onclick="toggleDone('${t.id}')">${t.done?'✓':''}</div><span style="flex:1">${t.panic?'🚨 ':''}${t.t}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asigna una desde arriba ↑</div>'}
     </div>`;
   }).join('');
 
   document.getElementById('hoyMinis').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
     return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${c.h}</div><div class="sub">${c.done} hechas hoy</div></div>`;}).join('');
 }
-function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
+function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(document.getElementById('panicOvl').classList.contains('on'))renderPanic();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
 
 /* ---- confetti de celebración ---- */
 const CFCOL=['#FF7E4D','#43B584','#9B6BD6','#E0A53C','#E87EA1','#4A90D9'];
@@ -676,6 +711,23 @@ async function convertNote(i){const v=NOTES[i];NOTES.splice(i,1);renderNotes();
   const realId=await cloudInsert(t);if(realId){t.id=realId;render();}}
 function openNotes(){renderNotes();openSheet('notesSheet');}
 
+/* ---- BOTÓN DE PÁNICO 🚨 (ultra importante: aparece en el pop-up cada refresh) ---- */
+function togglePanic(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.panic=!t.panic;cloudPatch(t);render();renderPanic();
+  toast(t.panic?'🚨 Marcada ultra importante · saldrá en el pop-up':'Quitada de ultra importantes');}
+function panicPending(){return TASKS.filter(t=>t.panic&&!t.done&&t.stage!=='trash');}
+function renderPanic(){
+  const list=panicPending(),el=document.getElementById('panicList');if(!el)return;
+  el.innerHTML=list.length?list.map(t=>`<div class="panic-item">
+      <div class="pchk" onclick="panicCheck('${t.id}')" title="Marcar realizada"></div>
+      <div><div class="ptxt">${t.t}</div><div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div></div>
+    </div>`).join(''):'<div class="panic-empty">🎉 ¡Todas hechas! Sin pendientes ultra importantes.</div>';
+}
+function panicCheck(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=true;t.stage='done';cloudPatch(t);render();renderPanic();confetti();
+  if(panicPending().length===0)setTimeout(closePanic,700);}
+function openPanic(){renderPanic();document.getElementById('panicOvl').classList.add('on');}
+function closePanic(){document.getElementById('panicOvl').classList.remove('on');}
+function maybeShowPanic(){ if(panicPending().length){ openPanic(); } }
+
 /* ---- foco del día: eliminar (reaparece al recargar) ---- */
 function deleteFocus(){document.getElementById('focusWrap').style.display='none';toast('🗑️ Foco ocultado — reaparece al recargar');}
 
@@ -693,6 +745,7 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
     h+=`<button onclick="startFocusTask('${id}');closeSheets()">▶ Empezar en foco</button>`;
     h+=`<button onclick="toggleDone('${id}');closeSheets()">✅ Marcar realizada</button>`;
   } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
+  h+=`<button onclick="togglePanic('${id}');closeSheets()">${t.panic?'✅ Quitar de ultra importante':'🚨 Botón de pánico (ultra importante)'}</button>`;
   h+=`<button onclick="pickBlock('${id}')">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
   if(t.block)h+=`<button onclick="unassign('${id}')">⬆️ Quitar del bloque (Por acomodar)</button>`;
   h+=`<button class="danger" onclick="sendToTrash('${id}')">🗑️ Enviar a papelera</button>`;
@@ -735,6 +788,7 @@ renderInbox();renderNotes();renderProj();
 (async function init(){
   try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
   render();renderProj();renderTrash();animateRing();
+  setTimeout(maybeShowPanic,600);
 })();
 </script>
 </body>
