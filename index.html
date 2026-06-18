@@ -438,6 +438,7 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 
   <!-- ===== HOY ===== -->
   <div class="page active" id="page-hoy">
+    <div class="period-bar" id="hoyPeriod"></div>
     <div class="balance-section">
       <div class="balance-badge-top" id="balBadge">En equilibrio</div>
       <div class="gauge-container">
@@ -447,7 +448,7 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
         </svg>
         <div class="gauge-number" id="gaugeNum">0</div>
         <div class="gauge-max">/ 100</div>
-        <div class="gauge-label">Balance del día</div>
+        <div class="gauge-label" id="gaugeLabel">Balance del día</div>
         <div class="gauge-legend">
           <div class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Equilibrio</div>
           <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Atención</div>
@@ -724,7 +725,7 @@ function periodSegHTML(){
 }
 function renderPeriodBars(){
   const html=`<div class="period-seg">${periodSegHTML()}</div><span class="period-hint">Viendo resultados de <b>${PERIOD_LABEL[S.config.period]}</b></span>`;
-  ['kpiPeriod','cfgPeriod'].forEach(id=>{ const el=document.getElementById(id); if(el)el.innerHTML=html; });
+  ['hoyPeriod','kpiPeriod','cfgPeriod'].forEach(id=>{ const el=document.getElementById(id); if(el)el.innerHTML=html; });
 }
 function setPeriod(p){ S.config.period=p; save(); renderAll(); }
 
@@ -753,25 +754,29 @@ function renderNotifs(){
 }
 
 /* ----- BALANCE ----- */
+const BAL_LABEL={dia:'del día',sem:'de la semana',mes:'del mes'};
 function renderBalance(){
-  const todo=S.tasks.filter(t=>t.stage!=='inbox');
-  const done=todo.filter(t=>t.stage==='done');
+  const per=S.config.period, perLabel=PERIOD_LABEL[per];
+  const activeTodo=S.tasks.filter(t=>t.stage==='todo').length;   // lo que sigue en tu plato
+  const done=doneInPeriod();                                      // realizadas dentro del periodo
   const minDone=done.reduce((a,t)=>a+t.dur,0);
-  const score=todo.length?Math.round(done.length/todo.length*100):0;
+  const denom=done.length+activeTodo;                             // hechas (periodo) + activas
+  const score=denom?Math.round(done.length/denom*100):0;
   document.getElementById('gaugeNum').textContent=score;
   const circ=440, arc=Math.round(circ*score/100);
   const g=document.getElementById('gaugeArc');
   g.setAttribute('stroke-dasharray',`${arc} ${circ}`);
   g.setAttribute('stroke', score>=66?'var(--success)':score>=33?'var(--accent)':'var(--danger)');
   document.getElementById('balBadge').textContent= score>=66?'En equilibrio':score>=33?'Atención':'Riesgo';
+  document.getElementById('gaugeLabel').textContent='Balance '+BAL_LABEL[per];
   const arqMin=done.filter(t=>t.type==='arquitecto').reduce((a,t)=>a+t.dur,0);
-  const apagados=S.tasks.filter(t=>t.stage==='done'&&t.prio==='fuego').length;
+  const apagados=doneInPeriod(t=>t.prio==='fuego').length;        // fuegos apagados en el periodo
   document.getElementById('balCards').innerHTML=`
-    <div class="balance-card"><div class="balance-card-label">✅ Completadas</div><div class="balance-card-number">${done.length}</div><div class="balance-card-detail">de ${todo.length} activas</div></div>
-    <div class="balance-card"><div class="balance-card-label">⏱️ Tiempo hecho</div><div class="balance-card-number">${fmtH(minDone)}</div><div class="balance-card-detail">registrado</div></div>
-    <div class="balance-card"><div class="balance-card-label">🏛️ Arquitecto</div><div class="balance-card-number">${fmtH(arqMin)}</div><div class="balance-card-detail">de visión</div></div>
-    <div class="balance-card"><div class="balance-card-label">🔥 Fuegos</div><div class="balance-card-number">${S.tasks.filter(t=>t.stage==='todo'&&t.prio==='fuego').length}</div><div class="balance-card-detail">activos</div></div>
-    <div class="balance-card"><div class="balance-card-label">🧯 Apagados</div><div class="balance-card-number">${apagados}</div><div class="balance-card-detail">fuegos resueltos</div></div>`;
+    <div class="balance-card"><div class="balance-card-label">✅ Completadas</div><div class="balance-card-number">${done.length}</div><div class="balance-card-detail">${perLabel} · ${activeTodo} activas</div></div>
+    <div class="balance-card"><div class="balance-card-label">⏱️ Tiempo hecho</div><div class="balance-card-number">${fmtH(minDone)}</div><div class="balance-card-detail">${perLabel}</div></div>
+    <div class="balance-card"><div class="balance-card-label">🏛️ Arquitecto</div><div class="balance-card-number">${fmtH(arqMin)}</div><div class="balance-card-detail">de visión ${perLabel}</div></div>
+    <div class="balance-card"><div class="balance-card-label">🔥 Fuegos</div><div class="balance-card-number">${S.tasks.filter(t=>t.stage==='todo'&&t.prio==='fuego').length}</div><div class="balance-card-detail">activos ahora</div></div>
+    <div class="balance-card"><div class="balance-card-label">🧯 Apagados</div><div class="balance-card-number">${apagados}</div><div class="balance-card-detail">${perLabel}</div></div>`;
 }
 
 /* ----- TODO ACTIVO (HOY) ----- */
