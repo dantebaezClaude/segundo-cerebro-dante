@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🧠 Segundo Cerebro — Rediseño v3 Premium (Prototipo)</title>
+<style>
+/* ===== Prototipo de rediseño v2 · mobile-first · para VoBo de Dante ===== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+/* ---- TEMA (variables viven en .shell para poder cambiar a claro) ---- */
+.shell{
+  --bg:#160C09; --bg2:#1F0F0A; --panel:#20120D; --surface:#271812; --tile:#30201A;
+  --text:#FFEEE2; --text2:#FFB591; --text3:#CBA796;
+  --accent:#FF7E4D; --cherry:#8E2014;
+  --green:#43B584; --red:#D2452C; --amber:#E0A53C; --purple:#9B6BD6; --blue:#4A90D9; --pink:#E87EA1;
+  --on-accent:#160C09; --line:#3C261E; --sh:0 8px 28px rgba(0,0,0,.42);
+  position:relative;width:100%;max-width:440px;min-height:100vh;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.6);color:var(--text)}
+.shell.light{
+  --bg:#FFFCF6; --bg2:#F1E9D6; --panel:#FFFFFF; --surface:#FFFFFF; --tile:#F7F2E4;
+  --text:#5D0703; --text2:#8A3B22; --text3:#7A5A4E;
+  --accent:#FC703C; --cherry:#A8542F;
+  --green:#2E8C63; --red:#C5471F; --on-accent:#FFFCF6; --line:#FBD3BC; --sh:0 8px 28px rgba(93,7,3,.12)}
+@media(min-width:480px){ body{padding:22px 0} .shell{min-height:auto;height:900px;border-radius:34px;border:9px solid #2b2422} }
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 15px 96px}
+.scroll::-webkit-scrollbar{width:0}
+.screen{display:none;animation:fade .3s ease}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ===== v3 PREMIUM · animaciones y pulido ===== */
+/* aurora viva detrás del contenido */
+.shell::before{content:'';position:absolute;inset:-40% -20% auto;height:60%;z-index:0;pointer-events:none;
+  background:radial-gradient(50% 60% at 30% 30%,rgba(255,126,77,.18),transparent 70%),radial-gradient(45% 55% at 80% 20%,rgba(155,107,214,.16),transparent 70%);
+  filter:blur(10px);animation:aurora 14s ease-in-out infinite alternate}
+@keyframes aurora{0%{transform:translate(-4%,-2%) scale(1)}100%{transform:translate(6%,4%) scale(1.15)}}
+.scroll{position:relative;z-index:1}
+/* entrada escalonada de los bloques de cada pantalla */
+.screen.on>*{animation:rise .5s cubic-bezier(.22,1,.36,1) both}
+.screen.on>*:nth-child(1){animation-delay:.03s}.screen.on>*:nth-child(2){animation-delay:.08s}
+.screen.on>*:nth-child(3){animation-delay:.13s}.screen.on>*:nth-child(4){animation-delay:.18s}
+.screen.on>*:nth-child(5){animation-delay:.23s}.screen.on>*:nth-child(6){animation-delay:.28s}
+.screen.on>*:nth-child(n+7){animation-delay:.32s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* tarjeta foco con brillo sutil que respira */
+.card.focus{position:relative;overflow:hidden}
+.card.focus::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);animation:sheen 5.5s ease-in-out infinite}
+@keyframes sheen{0%,60%{left:-60%}85%,100%{left:130%}}
+/* botones con realce al presionar */
+.btn,.iconbtn,.assign,.btask-menu{transition:transform .12s ease, filter .15s ease, background .2s}
+.btn:active{transform:scale(.96)}
+.btn-pri:hover{filter:brightness(1.05)}
+/* check pop */
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.chk.justdone{animation:pop .35s ease}
+/* racha que late */
+.streak{animation:beat 2.4s ease-in-out infinite}
+@keyframes beat{0%,92%,100%{transform:scale(1)}96%{transform:scale(1.12)}}
+/* barras que crecen */
+.bar i,.htrack i{transition:width .9s cubic-bezier(.22,1,.36,1)}
+/* nav activo con saltito */
+.nav button.on .ic{animation:navpop .3s ease}
+@keyframes navpop{0%{transform:translateY(0)}50%{transform:translateY(-4px) scale(1.15)}100%{transform:translateY(0)}}
+/* sheets con resorte */
+.sheet{transition:transform .42s cubic-bezier(.34,1.4,.5,1) !important}
+/* hero del Arquitecto (arte Higgsfield) */
+.hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:13px;border:1px solid var(--line);box-shadow:var(--sh);min-height:122px}
+.hero img{width:100%;height:160px;object-fit:cover;display:block;animation:slowzoom 18s ease-in-out infinite alternate}
+@keyframes slowzoom{from{transform:scale(1)}to{transform:scale(1.08)}}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,12,9,.15) 0%,rgba(22,12,9,.82) 100%)}
+.hero .hero-txt{position:absolute;left:15px;bottom:13px;right:15px}
+.hero .hero-k{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent)}
+.hero .hero-h{font-size:18px;font-weight:800;color:#fff;margin-top:2px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.hero .hero-emoji{position:absolute;top:11px;right:13px;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:800;color:#fff}
+.avatar-img{width:42px;height:42px;border-radius:13px;object-fit:cover;border:1px solid var(--line);flex-shrink:0}
+/* confetti */
+#confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:58;display:none}
+#confetti.on{display:block}
+/* respeta usuarios que prefieren menos movimiento */
+@media(prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+
+/* ---- topbar ---- */
+.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px}
+.hi-date{font-size:12px;color:var(--text3)}
+.hi-name{font-size:20px;font-weight:800;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.streak{display:inline-flex;align-items:center;gap:4px;background:var(--tile);border:1px solid var(--line);
+  border-radius:20px;padding:3px 9px;font-size:11px;font-weight:800;color:var(--accent)}
+.top-actions{display:flex;gap:7px;flex-shrink:0}
+.iconbtn{position:relative;width:40px;height:40px;border-radius:12px;background:var(--tile);border:1px solid var(--line);
+  color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.iconbtn .badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;background:var(--red);color:#fff;
+  border-radius:9px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+/* ---- segmented periodo ---- */
+.seg{display:flex;gap:5px;background:var(--tile);border:1px solid var(--line);border-radius:13px;padding:5px;margin-bottom:14px}
+.seg button{flex:1;border:none;background:transparent;color:var(--text2);font-weight:800;font-size:13px;padding:8px 0;border-radius:9px;cursor:pointer;transition:.2s;font-family:inherit}
+.seg button.on{background:var(--accent);color:var(--on-accent);box-shadow:0 3px 10px rgba(255,126,77,.3)}
+
+/* ---- cards genéricas ---- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--sh);margin-bottom:13px}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
+.focus{border-left:4px solid var(--accent);border-radius:5px 18px 18px 5px}
+.focus .kicker{color:var(--accent)}
+.focus h2{font-size:18px;font-weight:800;margin-bottom:5px}
+.focus p{font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.5}
+.row{display:flex;gap:9px}
+.btn{flex:1;border:none;border-radius:12px;padding:12px 0;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-pri{background:var(--accent);color:var(--on-accent)}
+.btn-ghost{flex:0 0 48px;background:var(--tile);color:var(--text2)}
+.sect{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin:18px 2px 11px;display:flex;justify-content:space-between;align-items:center}
+.sect .cnt{font-size:11px;color:var(--text3)}
+.mantra{text-align:center;font-size:12px;font-style:italic;color:var(--text3);opacity:.8;margin:16px 0 4px}
+.mantra b{color:var(--accent);font-style:normal}
+
+/* ---- balance ---- */
+.bal{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.ring{position:relative;width:74px;height:74px;flex-shrink:0}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800}
+.bal-txt .t{font-size:14px;font-weight:800;margin-bottom:3px}
+.bal-txt .s{font-size:12px;color:var(--text3);line-height:1.5}
+.balcards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.balc{background:var(--tile);border-radius:11px;padding:9px;text-align:center}
+.balc .v{font-size:16px;font-weight:800}
+.balc .l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px}
+
+/* ---- bloques del día (calendario) + tareas dentro ---- */
+.block{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--bc,var(--accent));
+  border-radius:5px 14px 14px 5px;padding:11px 12px;margin-bottom:9px}
+.block.active{box-shadow:0 0 0 2px color-mix(in srgb,var(--bc) 40%,transparent)}
+.block .bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.block .bt{font-size:13px;font-weight:800}
+.block .btime{font-size:10px;font-weight:800;color:var(--bc);text-transform:uppercase;letter-spacing:.3px}
+.block .nowtag{font-size:9px;background:var(--bc);color:#fff;border-radius:5px;padding:2px 7px;font-weight:800;text-transform:uppercase}
+.btask{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--bc);
+  border-radius:4px 8px 8px 4px;padding:7px 9px;font-size:12px;font-weight:600;margin-top:5px}
+.btask .chk{width:18px;height:18px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px}
+.btask.done{opacity:.5}.btask.done span{text-decoration:line-through}.btask.done .chk{background:var(--green);border-color:var(--green);color:#fff}
+.bempty{font-size:11px;color:var(--text3);font-style:italic;opacity:.6;padding:5px;text-align:center;border:1px dashed var(--line);border-radius:8px;margin-top:5px}
+
+/* ---- tarea suelta (por acomodar / to-do) ---- */
+.task{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tc,var(--accent));border-radius:6px 14px 14px 6px;padding:12px;margin-bottom:9px}
+.task .tt{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;gap:8px;align-items:flex-start}
+.task .chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
+.meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding-left:28px}
+.tag{background:var(--tile);border-radius:7px;padding:3px 8px;font-size:10px;font-weight:700;color:var(--text2)}
+.assign{margin-left:auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:5px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.fire{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:2px 4px}
+.fire button{width:20px;height:20px;border:none;background:var(--tile);color:var(--text);border-radius:6px;font-weight:800;font-size:14px;cursor:pointer}
+.fire .fl{font-size:11px;min-width:22px;text-align:center;letter-spacing:-2px}
+
+/* ---- minis empresas / kanban ---- */
+.minis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--mc,var(--accent));border-radius:14px;padding:12px;cursor:pointer}
+.mini .n{font-size:13px;font-weight:800;color:var(--mc);display:flex;align-items:center;gap:5px;justify-content:space-between}
+.mini .big{font-size:18px;font-weight:800;margin-top:5px}
+.mini .sub{font-size:10px;color:var(--text3)}
+.mini .open{font-size:10px;color:var(--text3);font-weight:700}
+
+/* ---- captura inbox ---- */
+.capture{display:flex;gap:8px;margin-bottom:12px}
+.capture input{flex:1;background:var(--surface);border:2px solid var(--line);border-radius:13px;padding:13px;color:var(--text);font-family:inherit;font-size:14px}
+.capture input:focus{outline:none;border-color:var(--accent)}
+.capture button{background:var(--accent);border:none;color:var(--on-accent);border-radius:13px;padding:0 18px;font-weight:800;cursor:pointer;font-family:inherit}
+.inbox{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:5px 12px 12px 5px;padding:11px;margin-bottom:8px;font-size:13px}
+.inbox .convert{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+/* mapa semana */
+.weekmap{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px}
+.daycol{flex:0 0 120px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px}
+.daycol h4{font-size:11px;font-weight:800;text-align:center;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.daycol .blk{font-size:10px;color:var(--text2);margin-bottom:5px}
+.daycol .blk b{display:block;color:var(--text);font-size:10px}
+.gold{display:flex;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.gold .num{font-size:20px;font-weight:800;color:var(--accent)}
+.gold .tx{font-size:12px;line-height:1.4}
+
+/* ---- KPI ---- */
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:11px}
+.kpi .kt{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kpi .name{font-size:13px;font-weight:800;color:var(--kc,var(--accent));display:flex;gap:6px;align-items:center}
+.kpi .pct{font-size:12px;color:var(--text3)}
+.bar{height:9px;background:var(--tile);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.kpi .stats{display:flex;gap:18px;margin-bottom:9px}
+.kpi .stats .v{font-size:18px;font-weight:800}.kpi .stats .l{font-size:10px;color:var(--text3)}
+.goal{font-size:11px;color:var(--text3);margin-top:8px}
+.hrow{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.hrow:first-child{border-top:none}.hrow.now .hl{color:var(--accent)}
+.hl{font-size:11px;font-weight:800;color:var(--text2)}.hl small{display:block;font-size:9px;color:var(--text3)}
+.htrack{height:13px;background:var(--tile);border-radius:7px;overflow:hidden;display:flex}
+.hval{font-size:11px;font-weight:800;min-width:54px;text-align:right}.hval small{color:var(--text3)}
+
+/* ---- metas / reglas / diario ---- */
+.goalrow{margin-bottom:15px}.goalrow .lab{font-size:13px;font-weight:800;margin-bottom:8px}
+.periods{display:flex;gap:8px;margin-bottom:9px}
+.per{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:6px;text-align:center}
+.per.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,126,77,.18)}
+.per label{font-size:9px;text-transform:uppercase;color:var(--text3);font-weight:800;display:block}
+.per input{width:100%;border:none;background:transparent;color:var(--text);text-align:center;font-weight:800;font-size:15px;font-family:inherit}
+.per input:focus{outline:none}
+.rule{display:flex;gap:11px;align-items:flex-start;background:var(--tile);border-left:4px solid var(--accent);border-radius:5px 11px 11px 5px;padding:12px;margin-bottom:9px}
+.rule .b{flex:1}.rule .rt{font-size:13px;font-weight:800}.rule .rd{font-size:11px;color:var(--text3);margin-top:2px}
+.sw{width:44px;height:25px;border-radius:14px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:.2s}
+.sw.on{background:var(--green)}.sw::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}.sw.on::after{left:22px}
+.miniadd{display:flex;gap:8px;margin:11px 0}
+.miniadd input{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:10px;color:var(--text);font-family:inherit;font-size:13px}
+.miniadd input:focus{outline:none;border-color:var(--accent)}
+.miniadd button{border:none;color:#fff;border-radius:11px;padding:0 15px;font-weight:800;font-size:18px;cursor:pointer;background:var(--accent)}
+.dia{display:flex;justify-content:space-between;gap:10px;background:var(--tile);border-left:4px solid var(--green);border-radius:5px 10px 10px 5px;padding:11px;font-size:13px;margin-bottom:8px}
+.dia .w{font-size:10px;color:var(--text3)}
+
+/* ---- workspace por empresa ---- */
+.ws-back{background:var(--tile);border:1px solid var(--line);color:var(--text2);border-radius:11px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px}
+.ws-title{font-size:22px;font-weight:800;color:var(--wc,var(--accent));margin-bottom:3px}
+.postgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.postit{border-radius:4px 4px 11px 4px;padding:11px;font-size:12px;font-weight:600;min-height:70px;color:#4a3700;line-height:1.4;box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.postit:nth-child(3n){background:#BDE8B0}.postit:nth-child(3n+1){background:#FFC9D4}.postit:nth-child(3n+2){background:#FFE08A}
+.note-conv{margin-top:9px;width:100%;background:rgba(0,0,0,.16);border:none;color:#3a2a10;border-radius:7px;padding:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.note-conv:active{transform:scale(.97)}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--tile);border-left:4px solid var(--wc,var(--accent));border-radius:5px 10px 10px 5px;padding:10px;margin-bottom:7px;font-size:13px}
+.li .conv{background:transparent;border:1px solid var(--wc);color:var(--wc);border-radius:8px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;margin-bottom:10px}
+.bub{max-width:85%;padding:9px 12px;border-radius:12px;font-size:12px;line-height:1.4}
+.bub.u{align-self:flex-end;background:var(--wc,var(--accent));color:#fff;border-bottom-right-radius:4px}
+.bub.a{align-self:flex-start;background:var(--tile);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chatin{display:flex;gap:8px}
+.chatin input{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:10px;color:var(--text);font-family:inherit;font-size:13px}
+.chatin input:focus{outline:none;border-color:var(--wc,var(--accent))}
+.chatin button{border:none;color:#fff;border-radius:11px;padding:0 14px;font-weight:800;cursor:pointer;background:var(--wc,var(--accent))}
+
+/* ---- nav inferior ---- */
+.nav{position:absolute;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);display:flex;padding:8px 4px;z-index:20}
+.nav button{flex:1;border:none;background:transparent;color:var(--text3);font-family:inherit;font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;transition:.15s}
+.nav button .ic{font-size:20px;line-height:1}
+.nav button.on{color:var(--accent)}
+
+/* ---- toast ---- */
+.toast{position:absolute;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);background:var(--green);color:#fff;font-weight:800;font-size:13px;padding:11px 18px;border-radius:13px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.3s;z-index:60;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---- overlays / bottom sheets ---- */
+.ovl{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:45;display:none}
+.ovl.on{display:block}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);border-radius:20px 20px 0 0;
+  z-index:50;transform:translateY(100%);transition:.28s cubic-bezier(.4,0,.2,1);max-height:80%;display:flex;flex-direction:column}
+.sheet.on{transform:translateY(0)}
+.sheet .sh-head{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line)}
+.sheet .sh-head h3{font-size:15px;font-weight:800}
+.sheet .sh-x{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer}
+.sheet .sh-body{padding:14px 16px;overflow-y:auto}
+.noteadd{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.noteadd textarea{background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:11px;color:var(--text);font-family:inherit;font-size:14px;resize:vertical;min-height:54px}
+.noteadd textarea:focus{outline:none;border-color:var(--accent)}
+.noteadd button{background:var(--accent);color:var(--on-accent);border:none;border-radius:11px;padding:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.blockpick{display:flex;flex-direction:column;gap:8px}
+.blockpick button{display:flex;justify-content:space-between;align-items:center;background:var(--tile);border:1px solid var(--line);border-left:4px solid var(--bc);border-radius:5px 11px 11px 5px;padding:12px;color:var(--text);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
+.blockpick button small{color:var(--text3);font-weight:600}
+.menu-actions{display:flex;flex-direction:column;gap:8px}
+.menu-actions .mt{font-size:12px;color:var(--text3);font-weight:600;padding:0 2px 4px}
+.menu-actions button{display:flex;align-items:center;gap:9px;background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:13px;color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%}
+.menu-actions button:active{transform:scale(.98)}
+.menu-actions button.danger{color:var(--red);border-color:var(--red)}
+.btask-menu{margin-left:auto;background:transparent;border:none;color:var(--text3);font-size:17px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+
+/* ---- focus timer ---- */
+.focus-overlay{position:absolute;inset:0;background:var(--bg2);z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.focus-overlay.on{display:flex;animation:fade .3s}
+.focus-overlay .lbl{font-size:13px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.focus-overlay h2{font-size:24px;font-weight:800;margin:8px 0 26px;color:var(--text)}
+.timer{font-size:58px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
+.focus-overlay .hint{font-size:12px;color:var(--text3);margin:8px 0 30px;max-width:240px;line-height:1.5}
+.fo-btn{background:var(--accent);color:var(--on-accent);border:none;border-radius:14px;padding:14px 34px;font-weight:800;font-size:15px;cursor:pointer}
+.fo-x{position:absolute;top:18px;right:20px;background:var(--tile);border:none;color:var(--text2);width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer}
+.art-note{font-size:10px;color:var(--text3);opacity:.7;text-align:center;border:1px dashed var(--line);border-radius:10px;padding:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <div class="scroll" id="scroll">
+
+    <!-- ================= HOY ================= -->
+    <div class="screen on" id="s-hoy">
+      <div class="top">
+        <div style="display:flex;gap:11px;align-items:center">
+          <img class="avatar-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="Arquitecto">
+          <div>
+            <div class="hi-date">Jueves 18 de junio · buenos días</div>
+            <div class="hi-name">Hola, Dante 👋 <span class="streak">🔥 4 días</span></div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Tema">🌙</button>
+          <button class="iconbtn" onclick="openNotes()" title="Notas">📝<span class="badge" id="noteBadge">2</span></button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="El Arquitecto">
+        <div class="veil"></div>
+        <div class="hero-emoji">🎨 arte por Higgsfield</div>
+        <div class="hero-txt"><div class="hero-k">Modo Arquitecto</div><div class="hero-h">Construye sistemas, no apagues fuegos.</div></div>
+      </div>
+
+      <div class="seg" id="periodHoy">
+        <button class="on" data-p="dia">Día</button><button data-p="sem">Semana</button><button data-p="mes">Mes</button>
+      </div>
+
+      <div id="focusWrap">
+        <div class="card focus">
+          <div class="kicker" style="display:flex;justify-content:space-between;align-items:center">
+            <span>⚡ Tu foco de hoy · Día Digital</span>
+            <button onclick="deleteFocus()" title="Eliminar foco" style="background:transparent;border:none;color:var(--text3);font-size:15px;cursor:pointer;line-height:1;padding:0">🗑️</button>
+          </div>
+          <h2>Avanzar el Lanzamiento</h2>
+          <p>Tu capitalización más rápida. Un bloque, sin distracciones. 9:30–11:00 AM.</p>
+          <div class="row">
+            <button class="btn btn-pri" onclick="startFocus('Lanzamiento')">▶ Empezar bloque</button>
+            <button class="btn btn-ghost" onclick="toast('Lo dejamos para después 👍')">⋯</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="bal">
+          <div class="ring">
+            <svg viewBox="0 0 74 74" width="74" height="74"><circle cx="37" cy="37" r="31" fill="none" stroke="var(--tile)" stroke-width="8"/><circle id="ringArc" cx="37" cy="37" r="31" fill="none" stroke="var(--green)" stroke-width="8" stroke-linecap="round" stroke-dasharray="117 195" transform="rotate(-90 37 37)"/></svg>
+            <div class="num" id="ringNum">60</div>
+          </div>
+          <div class="bal-txt"><div class="t">Vas bien <span id="balLabel">hoy</span> 🔥</div><div class="s" id="balSub">3 de 5 fuegos apagados · 3.3 h de Arquitecto.</div></div>
+        </div>
+        <div class="balcards">
+          <div class="balc"><div class="v">14</div><div class="l">✅ Hechas</div></div>
+          <div class="balc"><div class="v">7.3h</div><div class="l">⏱️ Tiempo</div></div>
+          <div class="balc"><div class="v">5</div><div class="l">🔥 Fuegos</div></div>
+        </div>
+      </div>
+
+      <div class="sect">📥 Por acomodar en tu día <span class="cnt" id="loose-cnt"></span></div>
+      <div id="looseList"></div>
+
+      <div class="sect">⏰ Tu día por bloques</div>
+      <div id="blocksList"></div>
+
+      <div class="sect">🏢 Hoy por empresa</div>
+      <div class="minis" id="hoyMinis"></div>
+
+      <div class="mantra">"Eres el <b>Arquitecto</b>, no el albañil. El miedo es gasolina, la fe el volante."</div>
+      <div class="art-note">🎨 Aquí pueden ir ilustraciones custom de Higgsfield (avatar Arquitecto · ícono por empresa).</div>
+    </div>
+
+    <!-- ================= PROYECTOS ================= -->
+    <div class="screen" id="s-proyectos">
+      <div class="top"><div><div class="hi-date">Cada empresa abre su propio espacio editable</div><div class="hi-name">📋 Proyectos</div></div></div>
+      <div class="minis" id="projGrid"></div>
+      <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
+    </div>
+
+    <!-- ================= WORKSPACE EMPRESA ================= -->
+    <div class="screen" id="s-workspace">
+      <button class="ws-back" onclick="go('proyectos')">← Proyectos</button>
+      <div class="ws-title" id="wsTitle">Empresa</div>
+      <div class="hi-date" id="wsSub" style="margin-bottom:14px">Tu espacio: notas, ideas, temas, To-Do y copiloto.</div>
+
+      <div class="sect">📝 Notas <span class="cnt">post-it</span></div>
+      <div class="miniadd"><input id="wsNoteIn" placeholder="Escribe una nota…"><button onclick="wsAddNote()" style="background:var(--wc,var(--accent))">＋</button></div>
+      <div class="postgrid" id="wsNotes"></div>
+
+      <div class="sect">🔮 Temas a futuro</div>
+      <div class="miniadd"><input id="wsTemaIn" placeholder="Tema o idea para ver después…"><button onclick="wsAddTema()" style="background:var(--wc,var(--accent))">＋</button></div>
+      <div id="wsTemas"></div>
+
+      <div class="sect">💡 Ideas por convertir</div>
+      <div id="wsIdeas"></div>
+
+      <div class="sect">📋 To-Do de la empresa</div>
+      <div id="wsTodos"></div>
+
+      <div class="sect">🤖 Claude — tu copiloto</div>
+      <div class="card" style="padding:13px">
+        <div class="chat" id="wsChat"><div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso.</div></div>
+        <div class="chatin"><input id="wsChatIn" placeholder="Cuéntale un tema…"><button onclick="wsSend()">➤</button></div>
+      </div>
+    </div>
+
+    <!-- ================= SEMANA / INBOX ================= -->
+    <div class="screen" id="s-semana">
+      <div class="top"><div><div class="hi-date">Captura sin fricción + tu mapa semanal</div><div class="hi-name">🗓️ Inbox & Semana</div></div></div>
+      <div class="capture"><input id="capIn" placeholder="Suelta cualquier idea o fuga…"><button onclick="addInbox()">Capturar</button></div>
+      <div class="sect">🗂️ Por procesar <span class="cnt" id="inbox-cnt"></span></div>
+      <div id="inboxList"></div>
+
+      <div class="sect">🗓️ Mapa visual de la semana</div>
+      <div class="weekmap" id="weekmap"></div>
+
+      <div class="sect">🔑 Las 3 reglas de oro</div>
+      <div class="gold"><div class="num">1</div><div class="tx"><b>El Bloque Sagrado tiene un solo dueño por día.</b> Lun Vía Sana · Mar Ventas · Mié Cultura · Jue Digital · Vie CEO.</div></div>
+      <div class="gold"><div class="num">2</div><div class="tx"><b>La libreta de fugas.</b> Si algo urgente aparece → al Inbox → se atiende a las 12 PM. No rompe tu enfoque.</div></div>
+      <div class="gold"><div class="num">3</div><div class="tx"><b>El Lanzamiento avanza diario</b> (9–10:30 AM). Tu capitalización más rápida.</div></div>
+    </div>
+
+    <!-- ================= KPIs ================= -->
+    <div class="screen" id="s-kpis">
+      <div class="top"><div><div class="hi-date">Cómo distribuyes tu energía</div><div class="hi-name">📈 KPIs</div></div></div>
+      <div class="seg" id="periodKpi"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
+
+      <div class="sect">🏢 Por empresa</div>
+      <div id="kpiEmp"></div>
+
+      <div class="sect">⚖️ Arquitecto vs Mecánico</div>
+      <div class="kpi" style="--kc:var(--accent)">
+        <div class="kt"><div class="name">🏛️ Arquitecto</div><div class="pct">44%</div></div>
+        <div class="stats"><div><div class="v">3.3 h</div><div class="l">de visión</div></div><div><div class="v">4</div><div class="l">tareas ✓</div></div></div>
+        <div class="bar"><i style="width:44%;background:var(--accent)"></i></div><div class="goal">Meta semana: 16 h · 21% logrado</div>
+      </div>
+      <div class="kpi" style="--kc:#9a8278">
+        <div class="kt"><div class="name">🔧 Mecánico</div><div class="pct">56%</div></div>
+        <div class="stats"><div><div class="v">4.1 h</div><div class="l">de operación</div></div><div><div class="v">10</div><div class="l">tareas ✓</div></div></div>
+        <div class="bar"><i style="width:56%;background:#9a8278"></i></div><div class="goal">Meta semana: 5 h · 82% logrado</div>
+      </div>
+
+      <div class="sect">📊 Historial — últimas 5 semanas</div>
+      <div class="card" style="padding:14px">
+        <div class="hrow now"><div class="hl">15–21 jun<small>actual</small></div><div class="htrack"><i style="width:48%;background:var(--accent)"></i><i style="width:28%;background:#9a8278"></i></div><div class="hval">3.8h <small>·4✓</small></div></div>
+        <div class="hrow"><div class="hl">8–14 jun<small>semana</small></div><div class="htrack"><i style="width:62%;background:var(--accent)"></i><i style="width:10%;background:#9a8278"></i></div><div class="hval">2.0h <small>·1✓</small></div></div>
+        <div class="hrow"><div class="hl">1–7 jun<small>semana</small></div><div class="htrack"><i style="width:30%;background:var(--accent)"></i><i style="width:40%;background:#9a8278"></i></div><div class="hval">4.5h <small>·6✓</small></div></div>
+        <div class="hrow"><div class="hl">25–31 may<small>semana</small></div><div class="htrack"><i style="width:20%;background:var(--accent)"></i><i style="width:22%;background:#9a8278"></i></div><div class="hval">2.7h <small>·3✓</small></div></div>
+        <div class="hrow"><div class="hl">18–24 may<small>semana</small></div><div class="htrack"><i style="width:35%;background:var(--accent)"></i><i style="width:30%;background:#9a8278"></i></div><div class="hval">4.2h <small>·5✓</small></div></div>
+        <div style="display:flex;gap:14px;font-size:11px;color:var(--text3);margin-top:10px"><span>🟧 Arquitecto</span><span>⬜ Mecánico</span></div>
+      </div>
+    </div>
+
+    <!-- ================= AJUSTES ================= -->
+    <div class="screen" id="s-config">
+      <div class="top"><div><div class="hi-date">Cómo quieres ejecutar tu agenda</div><div class="hi-name">🧭 Configurador</div></div>
+        <div class="top-actions"><button class="iconbtn" id="themeBtn2" onclick="toggleTheme()">🌙</button></div></div>
+      <div class="seg" id="periodCfg"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
+
+      <div class="sect">⏱️ Metas de horas (día · semana · mes)</div>
+      <div class="card">
+        <div class="goalrow"><div class="lab">🏛️ Arquitecto (visión)</div>
+          <div class="periods"><div class="per"><label>Día</label><input value="3"></div><div class="per sel"><label>Sem</label><input value="16"></div><div class="per"><label>Mes</label><input value="64"></div></div>
+          <div class="bar"><i style="width:21%;background:var(--accent)"></i></div><div class="goal">3.3 h esta semana · 21% de la meta (16 h)</div></div>
+        <div class="goalrow" style="margin-bottom:0"><div class="lab">🔧 Mecánico (operación)</div>
+          <div class="periods"><div class="per"><label>Día</label><input value="1"></div><div class="per sel"><label>Sem</label><input value="5"></div><div class="per"><label>Mes</label><input value="20"></div></div>
+          <div class="bar"><i style="width:82%;background:#9a8278"></i></div><div class="goal">4.1 h esta semana · 82% de la meta (5 h)</div></div>
+      </div>
+
+      <div class="sect">📐 Principios que activan reglas</div>
+      <div class="rule"><div class="b"><div class="rt">🔴 Máximo de fuegos al día</div><div class="rd">Si superas este número, el To-Do te avisa en rojo.</div></div><input value="3" style="width:42px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);text-align:center;font-weight:800;padding:6px;font-family:inherit"></div>
+      <div class="rule"><div class="b"><div class="rt">🔒 Proteger el Bloque Sagrado</div><div class="rd">Recordatorio de apagar notificaciones.</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="rule"><div class="b"><div class="rt">🚀 Lanzamiento diario obligatorio</div><div class="rd">Si no avanzaste hoy, lo ves como alerta.</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+
+      <div class="sect">🌿 Diario de Vida</div>
+      <div class="miniadd"><input id="diaryIn" placeholder="Algo que disfrutaste hoy…"><button onclick="addDiary()" style="background:var(--green)">＋</button></div>
+      <div id="diaryList"><div class="dia"><span>🌿 Jugué fútbol con los niños</span><span class="w">hoy</span></div></div>
+
+      <div class="sect">🗑️ Papelera <span class="cnt" id="trash-cnt"></span></div>
+      <div class="hi-date" style="margin:-4px 2px 10px">Las tareas que eliminas caen aquí. Puedes restaurarlas.</div>
+      <div id="trashList"></div>
+    </div>
+
+  </div>
+
+  <!-- nav -->
+  <div class="nav" id="nav">
+    <button class="on" data-s="hoy"><span class="ic">🏠</span>Hoy</button>
+    <button data-s="proyectos"><span class="ic">📋</span>Proyectos</button>
+    <button data-s="semana"><span class="ic">🗓️</span>Semana</button>
+    <button data-s="kpis"><span class="ic">📈</span>KPIs</button>
+    <button data-s="config"><span class="ic">🧭</span>Ajustes</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <canvas id="confetti"></canvas>
+
+  <!-- overlay + sheets -->
+  <div class="ovl" id="ovl" onclick="closeSheets()"></div>
+
+  <div class="sheet" id="notesSheet">
+    <div class="sh-head"><h3>📝 Notas rápidas</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
+    <div class="sh-body">
+      <div class="noteadd"><textarea id="noteIn" placeholder="Anota una idea o pendiente…"></textarea><button onclick="addNote()">➕ Agregar nota</button></div>
+      <div class="postgrid" id="notesList"></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="blockSheet">
+    <div class="sh-head"><h3>📌 Asignar a un bloque</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
+    <div class="sh-body"><div class="blockpick" id="blockPick"></div></div>
+  </div>
+
+  <div class="sheet" id="taskSheet">
+    <div class="sh-head"><h3 id="taskMenuTitle">Tarea</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
+    <div class="sh-body"><div class="menu-actions" id="taskActions"></div></div>
+  </div>
+
+  <!-- focus timer -->
+  <div class="focus-overlay" id="focusOverlay">
+    <button class="fo-x" onclick="stopFocus()">✕</button>
+    <div class="lbl">🔒 Bloque en foco</div><h2 id="foName">Lanzamiento</h2>
+    <div class="timer" id="foTimer">25:00</div>
+    <div class="hint">Notificaciones apagadas. Respira. Solo esta cosa importa ahora.</div>
+    <button class="fo-btn" onclick="stopFocus(true)">Terminar bloque ✓</button>
+  </div>
+</div>
+
+<script>
+/* ===== Prototipo v2: datos de ejemplo + interacciones ===== */
+const COMPANIES={
+  viasana:{name:'Vía Sana',emoji:'🥬',color:'var(--green)',h:'2.8 h',done:7},
+  chilaquiles:{name:'Chilaquiles',emoji:'🌶️',color:'var(--red)',h:'1.3 h',done:2},
+  marca:{name:'Marca Personal',emoji:'📚',color:'var(--purple)',h:'0.8 h',done:2},
+  algorithmics:{name:'Algorithmics',emoji:'🧮',color:'var(--blue)',h:'0.5 h',done:1}
+};
+const BLOCKS=[
+  {id:'arranque',time:'7:30–9:00',label:'🌅 Arranque Espiritual',c:'var(--amber)'},
+  {id:'lanzamiento',time:'9:30–11:00',label:'🚀 Lanzamiento',c:'var(--accent)'},
+  {id:'sagrado',time:'11:00–12:30',label:'🧠 Bloque Sagrado 🔒',c:'var(--purple)',active:true},
+  {id:'operacion',time:'12:30–3:00',label:'🛠️ Operación y Fuego',c:'var(--red)'},
+  {id:'sistemas',time:'4:30–9:30',label:'⚙️ Sistemas y Delegación',c:'var(--blue)'},
+  {id:'consolidado',time:'11:00–1:00',label:'📊 Consolidado',c:'#3FB8B0'}
+];
+let TASKS=[
+  {id:1,t:'Revisar precios + promociones Chilaquiles',e:'chilaquiles',ty:'🏛️ Arq',d:'60m',f:3,block:'lanzamiento',done:false},
+  {id:2,t:'Estructura maestra de SKU (compras→GPT)',e:'sistema',ty:'🏛️ Arq',d:'120m',f:3,block:'sagrado',done:false},
+  {id:3,t:'Prender campaña de WhatsApp de Vía Sana',e:'viasana',ty:'🔧 Mec',d:'30m',f:3,block:'operacion',done:false},
+  {id:4,t:'Dashboard de gasto Chilaquiles → Vía Sana',e:'sistema',ty:'🏛️ Arq',d:'120m',f:3,block:null,done:false},
+  {id:5,t:'Dejar al 100 la administración de mayo (Manus)',e:'viasana',ty:'🔧 Mec',d:'90m',f:3,block:null,done:false},
+  {id:6,t:'Revisar ADS de San Jerónimo (enfoque IA)',e:'marca',ty:'🏛️ Arq',d:'45m',f:2,block:null,done:false}
+];
+const TC={1:'var(--red)',2:'var(--red)',3:'var(--red)'};
+function ecolor(k){return (COMPANIES[k]&&COMPANIES[k].color)||'#9a8278'}
+function etag(k){const c=COMPANIES[k];return c?c.emoji+' '+c.name:'⚙️ Sistema'}
+function fire(n){return '🔥'.repeat(n)}
+
+/* ---- navegación ---- */
+const nav=document.getElementById('nav');
+nav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.s)));
+function go(s){
+  nav.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.s===s||(s==='workspace'&&x.dataset.s==='proyectos')));
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
+  document.getElementById('s-'+s).classList.add('on');
+  document.getElementById('scroll').scrollTo&&document.getElementById('scroll').scrollTo(0,0);
+}
+
+/* ---- tema ---- */
+function toggleTheme(){
+  const sh=document.getElementById('shell'), light=sh.classList.toggle('light');
+  document.querySelectorAll('#themeBtn,#themeBtn2').forEach(b=>b.textContent=light?'☀️':'🌙');
+  toast(light?'☀️ Modo claro':'🌙 Modo oscuro');
+}
+
+/* ---- HOY: tareas sueltas + bloques ---- */
+function render(){
+  const loose=TASKS.filter(t=>!t.block&&!t.done);
+  document.getElementById('loose-cnt').textContent=loose.length+' sin bloque';
+  document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
+    <div class="task" style="--tc:${TC[t.id]||'var(--accent)'}">
+      <div class="tt"><div class="chk" onclick="toggleDone(${t.id})"></div><span>${t.t}</span></div>
+      <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>
+        <button class="assign" onclick="pickBlock(${t.id})">📌 Asignar</button>
+        <button class="assign" style="background:var(--tile);color:var(--text2)" onclick="openTaskMenu(${t.id})">⋯</button></div>
+    </div>`).join(''):'<div class="art-note">🎉 Todo acomodado en tu día.</div>';
+
+  document.getElementById('blocksList').innerHTML=BLOCKS.map(b=>{
+    const ts=TASKS.filter(t=>t.block===b.id);
+    return `<div class="block ${b.active?'active':''}" style="--bc:${b.c}">
+      <div class="bh"><span class="btime">${b.time}</span>${b.active?'<span class="nowtag">ahora</span>':''}</div>
+      <div class="bt">${b.label}</div>
+      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}" style="--bc:${b.c}"><div class="chk" onclick="toggleDone(${t.id})">${t.done?'✓':''}</div><span style="flex:1">${t.t}</span><button class="btask-menu" onclick="openTaskMenu(${t.id})">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asigna una desde arriba ↑</div>'}
+    </div>`;
+  }).join('');
+
+  document.getElementById('hoyMinis').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
+    return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${c.h}</div><div class="sub">${c.done} hechas hoy</div></div>`;}).join('');
+}
+function toggleDone(id){const t=TASKS.find(x=>x.id===id);t.done=!t.done;render();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
+
+/* ---- confetti de celebración ---- */
+const CFCOL=['#FF7E4D','#43B584','#9B6BD6','#E0A53C','#E87EA1','#4A90D9'];
+function confetti(){
+  const c=document.getElementById('confetti');if(!c)return;const shell=document.getElementById('shell');
+  c.width=shell.clientWidth;c.height=shell.clientHeight;c.classList.add('on');
+  const ctx=c.getContext('2d');const parts=[];
+  for(let i=0;i<90;i++)parts.push({x:c.width/2,y:c.height*0.36,vx:(Math.random()-.5)*9,vy:Math.random()*-9-3,
+    s:4+Math.random()*5,col:CFCOL[i%CFCOL.length],rot:Math.random()*6,vr:(Math.random()-.5)*.4,life:0});
+  let t0=performance.now();
+  (function frame(now){const dt=Math.min(32,now-t0);t0=now;ctx.clearRect(0,0,c.width,c.height);let alive=false;
+    parts.forEach(p=>{p.vy+=.28*dt/16;p.x+=p.vx*dt/16;p.y+=p.vy*dt/16;p.rot+=p.vr;p.life+=dt;
+      if(p.y<c.height+20){alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+        ctx.globalAlpha=Math.max(0,1-p.life/1600);ctx.fillStyle=p.col;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);ctx.restore();}});
+    if(alive)requestAnimationFrame(frame);else c.classList.remove('on');})(t0);
+}
+/* ---- ring que cuenta hacia arriba al cargar ---- */
+function animateRing(){const arc=document.getElementById('ringArc'),num=document.getElementById('ringNum');if(!arc)return;
+  const target=parseInt(num.textContent)||0;let v=0;arc.setAttribute('stroke-dasharray','0 195');
+  (function step(){v+=Math.max(1,Math.round(target/26));if(v>=target)v=target;num.textContent=v;
+    arc.setAttribute('stroke-dasharray',(195*v/100).toFixed(1)+' 195');if(v<target)requestAnimationFrame(step);})();}
+
+/* ---- asignar bloque (linkea To-Do ↔ calendario) ---- */
+let pickId=null;
+function pickBlock(id){pickId=id;
+  document.getElementById('blockPick').innerHTML=BLOCKS.map(b=>`<button style="--bc:${b.c}" onclick="assign('${b.id}')"><span>${b.label}</span><small>${b.time}</small></button>`).join('');
+  openSheet('blockSheet');
+}
+function assign(bid){const t=TASKS.find(x=>x.id===pickId);t.block=bid;closeSheets();render();
+  const b=BLOCKS.find(x=>x.id===bid);toast('📌 Acomodada en '+b.label.replace(/^[^ ]+ /,''));}
+
+/* ---- PROYECTOS ---- */
+document.getElementById('projGrid').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
+  const act=TASKS.filter(t=>t.e===k&&!t.done).length;
+  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${c.done} ✓ · toca para editar</div></div>`;}).join('');
+
+/* ---- WORKSPACE empresa ---- */
+const WS={ viasana:{notas:['Pancho: dar estructura al mercado','Calidad con Beto y Tyler'],temas:['Escalar admin a lo contable'],ideas:['Reventa de frutería']},
+  chilaquiles:{notas:['Flyer de WiFi para sucursal'],temas:['Wansoft + Didi'],ideas:['Platillos nuevos en Didi']},
+  marca:{notas:['Brief de colores para diseñador'],temas:['Serie de reels con Pancho'],ideas:['Flyer envío gratis']},
+  algorithmics:{notas:['Plan de clases demo'],temas:['Alianza con escuela'],ideas:['Campaña de inscripciones']} };
+let wsKey=null;
+function openWS(k){wsKey=k;const c=COMPANIES[k];
+  document.getElementById('s-workspace').style.setProperty('--wc',c.color);
+  document.getElementById('wsTitle').textContent=c.emoji+' '+c.name;
+  const w=WS[k];
+  document.getElementById('wsNotes').innerHTML=w.notas.map(n=>`<div class="postit">${n}</div>`).join('')||'<div class="art-note">Sin notas aún.</div>';
+  document.getElementById('wsTemas').innerHTML=w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${t}</span></div>`).join('');
+  document.getElementById('wsIdeas').innerHTML=w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${i}</span><button class="conv" onclick="toast('Convertida en tarea ⚙️')">Convertir</button></div>`).join('');
+  const todos=TASKS.filter(t=>t.e===k);
+  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${t.t}</span><span class="tag">${t.d}</span></div>`).join(''):'<div class="art-note">Sin tareas de esta empresa.</div>';
+  document.getElementById('wsChat').innerHTML='<div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso para '+c.name+'.</div>';
+  go('workspace');
+}
+function wsAddNote(){const i=document.getElementById('wsNoteIn'),v=i.value.trim();if(!v||!wsKey)return;WS[wsKey].notas.unshift(v);i.value='';openWS(wsKey);}
+function wsAddTema(){const i=document.getElementById('wsTemaIn'),v=i.value.trim();if(!v||!wsKey)return;WS[wsKey].temas.unshift(v);i.value='';openWS(wsKey);}
+function wsSend(){const i=document.getElementById('wsChatIn'),v=i.value.trim();if(!v)return;const ch=document.getElementById('wsChat');
+  ch.insertAdjacentHTML('beforeend',`<div class="bub u">${v}</div>`);i.value='';
+  setTimeout(()=>{ch.insertAdjacentHTML('beforeend','<div class="bub a">👌 Lo separo en 2 frentes: un sistema que te libere (Arquitecto) y la operación de hoy (Mecánico). Siguiente paso concreto: define quién es el dueño y la fecha.</div>');ch.scrollTop=ch.scrollHeight;},500);
+  ch.scrollTop=ch.scrollHeight;
+}
+
+/* ---- SEMANA / INBOX ---- */
+let INBOX=['Idea: combo familiar Chilaquiles','Llamar a proveedor de aguacate','Revisar tarea de Manus'];
+function renderInbox(){document.getElementById('inbox-cnt').textContent=INBOX.length;
+  document.getElementById('inboxList').innerHTML=INBOX.length?INBOX.map((x,i)=>`<div class="inbox"><span>${x}</span><button class="convert" onclick="convert(${i})">⚙️ Convertir</button></div>`).join(''):'<div class="art-note">🎉 Inbox a cero. Mente despejada.</div>';}
+function addInbox(){const i=document.getElementById('capIn'),v=i.value.trim();if(!v)return;INBOX.unshift(v);i.value='';renderInbox();toast('Capturado ⚡');}
+function convert(i){INBOX.splice(i,1);renderInbox();toast('Convertida en tarea ⚙️');}
+const WEEK=[['LUN','Vía Sana'],['MAR','Ventas'],['MIÉ','Cultura'],['JUE','Digital'],['VIE','CEO']];
+document.getElementById('weekmap').innerHTML=WEEK.map(d=>`<div class="daycol"><h4>${d[0]}</h4><div class="blk"><b>🚀 Lanzamiento</b>Webinar $47</div><div class="blk"><b>🧠 Sagrado</b>${d[1]}</div><div class="blk"><b>🛠️ Operación</b>WP urgentes</div></div>`).join('');
+
+/* ---- KPI por empresa ---- */
+document.getElementById('kpiEmp').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];const w=parseFloat(c.h);const pct=Math.round(w/2.8*100);
+  return `<div class="kpi" style="--kc:${c.color}"><div class="kt"><div class="name">${c.emoji} ${c.name}</div><div class="pct">${c.h}</div></div><div class="bar"><i style="width:${pct}%;background:${c.color}"></i></div><div class="goal">${c.done} tareas ✓ esta semana</div></div>`;}).join('');
+
+/* ---- diario ---- */
+function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();if(!v)return;
+  document.getElementById('diaryList').insertAdjacentHTML('afterbegin',`<div class="dia"><span>🌿 ${v}</span><span class="w">hoy</span></div>`);i.value='';toast('Anotado 🌿 la vida también cuenta');}
+
+/* ---- notas flotantes ---- */
+let NOTES=['Pagar INDET el viernes','Idea: bundle envío gratis WhatsApp'];
+function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.length;
+  document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
+  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div>${n}</div><button class="note-conv" onclick="convertNote(${i})">⚙️ Convertir en tarea</button></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
+function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
+function convertNote(i){const v=NOTES[i];NOTES.splice(i,1);
+  TASKS.push({id:Date.now(),t:v,e:'sistema',ty:'🔧 Mec',d:'30m',f:2,block:null,done:false});
+  renderNotes();render();toast('📋 Nota convertida en tarea · está en "Por acomodar"');}
+function openNotes(){renderNotes();openSheet('notesSheet');}
+
+/* ---- foco del día: eliminar (reaparece al recargar) ---- */
+function deleteFocus(){document.getElementById('focusWrap').style.display='none';toast('🗑️ Foco ocultado — reaparece al recargar');}
+
+/* ---- sheets / overlay ---- */
+function openSheet(id){document.querySelectorAll('.sheet').forEach(s=>{if(s.id!==id)s.classList.remove('on');});document.getElementById('ovl').classList.add('on');document.getElementById(id).classList.add('on');}
+function closeSheets(){document.getElementById('ovl').classList.remove('on');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'));}
+
+/* ---- menú de acciones de una tarea (mover / sacar / realizar / eliminar) ---- */
+function blockName(id){const b=BLOCKS.find(x=>x.id===id);return b?b.label.replace(/^\S+\s/,''):'';}
+function startFocusTask(id){const t=TASKS.find(x=>x.id===id);if(t)startFocus(t.t);}
+function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
+  document.getElementById('taskMenuTitle').textContent=t.t.length>32?t.t.slice(0,32)+'…':t.t;
+  let h=`<div class="mt">${t.block?'📌 En bloque: '+blockName(t.block):'📥 Sin bloque · Por acomodar'} · ${t.done?'✅ realizada':'⏳ pendiente'}</div>`;
+  if(!t.done){
+    h+=`<button onclick="startFocusTask(${id});closeSheets()">▶ Empezar en foco</button>`;
+    h+=`<button onclick="toggleDone(${id});closeSheets()">✅ Marcar realizada</button>`;
+  } else h+=`<button onclick="toggleDone(${id});closeSheets()">↩️ Reabrir tarea</button>`;
+  h+=`<button onclick="pickBlock(${id})">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
+  if(t.block)h+=`<button onclick="unassign(${id})">⬆️ Quitar del bloque (Por acomodar)</button>`;
+  h+=`<button class="danger" onclick="sendToTrash(${id})">🗑️ Enviar a papelera</button>`;
+  document.getElementById('taskActions').innerHTML=h;
+  openSheet('taskSheet');
+}
+function unassign(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.block=null;closeSheets();render();toast('⬆️ De vuelta a "Por acomodar"');}
+
+/* ---- papelera ---- */
+let TRASH=[];
+function sendToTrash(id){const i=TASKS.findIndex(x=>x.id===id);if(i<0)return;TRASH.unshift(TASKS.splice(i,1)[0]);closeSheets();render();renderTrash();toast('🗑️ Enviada a papelera · restáurala en Ajustes');}
+function renderTrash(){const el=document.getElementById('trashList');if(!el)return;
+  document.getElementById('trash-cnt').textContent=TRASH.length+(TRASH.length===1?' tarea':' tareas');
+  el.innerHTML=TRASH.length?TRASH.map((t,i)=>`<div class="inbox" style="border-left-color:var(--text3)"><span>🗑️ ${t.t}</span><span style="display:flex;gap:6px;flex-shrink:0"><button class="convert" onclick="restoreTask(${i})">♻️ Restaurar</button><button class="convert" style="border-color:var(--red);color:var(--red)" onclick="purgeTask(${i})">Borrar</button></span></div>`).join(''):'<div class="art-note">Papelera vacía 🧹</div>';}
+function restoreTask(i){const t=TRASH.splice(i,1)[0];t.done=false;TASKS.push(t);renderTrash();render();toast('♻️ Restaurada · está en "Por acomodar"');}
+function purgeTask(i){TRASH.splice(i,1);renderTrash();toast('❌ Eliminada definitivamente');}
+
+/* ---- toast ---- */
+let toT;function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toT);toT=setTimeout(()=>el.classList.remove('show'),2200);}
+
+/* ---- periodo (Hoy recalcula ejemplo) ---- */
+const PER={dia:{label:'hoy',num:60,arc:'117 195',sub:'3 de 5 fuegos apagados · 3.3 h de Arquitecto.'},
+  sem:{label:'esta semana',num:67,arc:'131 195',sub:'14 tareas hechas · 7.3 h registradas · buen ritmo.'},
+  mes:{label:'este mes',num:54,arc:'105 195',sub:'38 tareas hechas · 27 h registradas este mes.'}};
+function wireP(id,apply){const box=document.getElementById(id);if(!box)return;
+  box.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{box.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(apply)apply(b.dataset.p);}));}
+wireP('periodHoy',p=>{const d=PER[p];document.getElementById('ringNum').textContent=d.num;
+  const a=document.getElementById('ringArc');a.setAttribute('stroke-dasharray',d.arc);a.setAttribute('stroke',d.num>=66?'var(--green)':d.num>=33?'var(--accent)':'var(--red)');
+  document.getElementById('balLabel').textContent=d.label;document.getElementById('balSub').textContent=d.sub;});
+wireP('periodKpi');wireP('periodCfg');
+
+/* ---- focus timer ---- */
+let foInt,foSec=1500;
+function startFocus(name){document.getElementById('foName').textContent=name;foSec=1500;
+  document.getElementById('focusOverlay').classList.add('on');document.getElementById('foTimer').textContent='25:00';clearInterval(foInt);
+  foInt=setInterval(()=>{foSec--;document.getElementById('foTimer').textContent=String(Math.floor(foSec/60)).padStart(2,'0')+':'+String(foSec%60).padStart(2,'0');if(foSec<=0){clearInterval(foInt);stopFocus(true);}},1000);}
+function stopFocus(done){clearInterval(foInt);document.getElementById('focusOverlay').classList.remove('on');if(done)toast('💪 Bloque cerrado. Avanzaste el Lanzamiento.');}
+
+/* init */
+render();renderInbox();renderNotes();renderTrash();animateRing();
+</script>
+</body>
+</html>
