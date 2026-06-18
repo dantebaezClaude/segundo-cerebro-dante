@@ -525,14 +525,18 @@ const BLOCKS=[
   {id:'sistemas',time:'4:30–9:30',label:'⚙️ Sistemas y Delegación',c:'var(--blue)'},
   {id:'consolidado',time:'11:00–1:00',label:'📊 Consolidado',c:'#3FB8B0'}
 ];
-let TASKS=[
-  {id:1,t:'Revisar precios + promociones Chilaquiles',e:'chilaquiles',ty:'🏛️ Arq',d:'60m',f:3,block:'lanzamiento',done:false},
-  {id:2,t:'Estructura maestra de SKU (compras→GPT)',e:'sistema',ty:'🏛️ Arq',d:'120m',f:3,block:'sagrado',done:false},
-  {id:3,t:'Prender campaña de WhatsApp de Vía Sana',e:'viasana',ty:'🔧 Mec',d:'30m',f:3,block:'operacion',done:false},
-  {id:4,t:'Dashboard de gasto Chilaquiles → Vía Sana',e:'sistema',ty:'🏛️ Arq',d:'120m',f:3,block:null,done:false},
-  {id:5,t:'Dejar al 100 la administración de mayo (Manus)',e:'viasana',ty:'🔧 Mec',d:'90m',f:3,block:null,done:false},
-  {id:6,t:'Revisar ADS de San Jerónimo (enfoque IA)',e:'marca',ty:'🏛️ Arq',d:'45m',f:2,block:null,done:false}
-];
+let TASKS=[];
+/* ===== NUBE: tareas en Supabase (sincroniza en cualquier dispositivo) ===== */
+const SB_URL='https://qetocoxizvumespgocij.supabase.co';
+const SB_KEY='sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
+const SBH={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+const PRIO2F={fuego:3,importante:2,sistema:1,idea:1};
+function rowToTask(r){return {id:r.id,t:r.title,e:r.project,ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id};}
+function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,actualizado_en:new Date().toISOString()};}
+async function cloudLoad(){const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return (await r.json()).map(rowToTask);}
+async function cloudPatch(t){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+t.id,{method:'PATCH',headers:SBH,body:JSON.stringify(taskToRow(t))});}catch(e){console.warn('cloud patch',e);}}
+async function cloudInsert(t){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify(taskToRow(t))});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('cloud insert',e);return null;}}
+async function cloudDelete(id){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+id,{method:'DELETE',headers:SBH});}catch(e){console.warn('cloud del',e);}}
 const TC={1:'var(--red)',2:'var(--red)',3:'var(--red)'};
 function ecolor(k){return (COMPANIES[k]&&COMPANIES[k].color)||'#9a8278'}
 function etag(k){const c=COMPANIES[k];return c?c.emoji+' '+c.name:'⚙️ Sistema'}
@@ -557,36 +561,36 @@ function toggleTheme(){
 
 /* ---- HOY: tareas sueltas + bloques ---- */
 function render(){
-  const loose=TASKS.filter(t=>!t.block&&!t.done);
+  const loose=TASKS.filter(t=>t.stage==='todo'&&!t.block);
   document.getElementById('loose-cnt').textContent=loose.length+' sin bloque';
   document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
     <div class="task" style="--tc:${TC[t.id]||'var(--accent)'}">
-      <div class="tt"><div class="chk" onclick="toggleDone(${t.id})"></div><span>${t.t}</span></div>
+      <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span></div>
       <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>
-        <button class="assign" onclick="pickBlock(${t.id})">📌 Asignar</button>
-        <button class="assign" style="background:var(--tile);color:var(--text2)" onclick="openTaskMenu(${t.id})">⋯</button></div>
+        <button class="assign" onclick="pickBlock('${t.id}')">📌 Asignar</button>
+        <button class="assign" style="background:var(--tile);color:var(--text2)" onclick="openTaskMenu('${t.id}')">⋯</button></div>
     </div>`).join(''):'<div class="art-note">🎉 Todo acomodado en tu día.</div>';
 
   document.getElementById('blocksList').innerHTML=BLOCKS.map(b=>{
-    const ts=TASKS.filter(t=>t.block===b.id);
+    const ts=TASKS.filter(t=>t.block===b.id&&t.stage!=='trash');
     return `<div class="block ${b.active?'active':''}" style="--bc:${b.c}">
       <div class="bh"><span class="btime">${b.time}</span>${b.active?'<span class="nowtag">ahora</span>':''}</div>
       <div class="bt">${b.label}</div>
-      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}" style="--bc:${b.c}"><div class="chk" onclick="toggleDone(${t.id})">${t.done?'✓':''}</div><span style="flex:1">${t.t}</span><button class="btask-menu" onclick="openTaskMenu(${t.id})">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asigna una desde arriba ↑</div>'}
+      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}" style="--bc:${b.c}"><div class="chk" onclick="toggleDone('${t.id}')">${t.done?'✓':''}</div><span style="flex:1">${t.t}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asigna una desde arriba ↑</div>'}
     </div>`;
   }).join('');
 
   document.getElementById('hoyMinis').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
     return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${c.h}</div><div class="sub">${c.done} hechas hoy</div></div>`;}).join('');
 }
-function toggleDone(id){const t=TASKS.find(x=>x.id===id);t.done=!t.done;render();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
+function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
 
 /* ---- confetti de celebración ---- */
 const CFCOL=['#FF7E4D','#43B584','#9B6BD6','#E0A53C','#E87EA1','#4A90D9'];
 function confetti(){
   const c=document.getElementById('confetti');if(!c)return;const shell=document.getElementById('shell');
   c.width=shell.clientWidth;c.height=shell.clientHeight;c.classList.add('on');
-  const ctx=c.getContext('2d');const parts=[];
+  const ctx=c.getContext&&c.getContext('2d');if(!ctx)return;const parts=[];
   for(let i=0;i<90;i++)parts.push({x:c.width/2,y:c.height*0.36,vx:(Math.random()-.5)*9,vy:Math.random()*-9-3,
     s:4+Math.random()*5,col:CFCOL[i%CFCOL.length],rot:Math.random()*6,vr:(Math.random()-.5)*.4,life:0});
   let t0=performance.now();
@@ -608,13 +612,14 @@ function pickBlock(id){pickId=id;
   document.getElementById('blockPick').innerHTML=BLOCKS.map(b=>`<button style="--bc:${b.c}" onclick="assign('${b.id}')"><span>${b.label}</span><small>${b.time}</small></button>`).join('');
   openSheet('blockSheet');
 }
-function assign(bid){const t=TASKS.find(x=>x.id===pickId);t.block=bid;closeSheets();render();
+function assign(bid){const t=TASKS.find(x=>x.id===pickId);if(!t)return;t.block=bid;if(t.stage==='trash')t.stage='todo';cloudPatch(t);closeSheets();render();
   const b=BLOCKS.find(x=>x.id===bid);toast('📌 Acomodada en '+b.label.replace(/^[^ ]+ /,''));}
 
 /* ---- PROYECTOS ---- */
-document.getElementById('projGrid').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
-  const act=TASKS.filter(t=>t.e===k&&!t.done).length;
-  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${c.done} ✓ · toca para editar</div></div>`;}).join('');
+function renderProj(){document.getElementById('projGrid').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
+  const act=TASKS.filter(t=>t.e===k&&t.stage==='todo').length;
+  const done=TASKS.filter(t=>t.e===k&&t.stage==='done').length;
+  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${done} ✓ · toca para editar</div></div>`;}).join('');}
 
 /* ---- WORKSPACE empresa ---- */
 const WS={ viasana:{notas:['Pancho: dar estructura al mercado','Calidad con Beto y Tyler'],temas:['Escalar admin a lo contable'],ideas:['Reventa de frutería']},
@@ -665,9 +670,10 @@ function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.le
   document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
   document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div>${n}</div><button class="note-conv" onclick="convertNote(${i})">⚙️ Convertir en tarea</button></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
 function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
-function convertNote(i){const v=NOTES[i];NOTES.splice(i,1);
-  TASKS.push({id:Date.now(),t:v,e:'sistema',ty:'🔧 Mec',d:'30m',f:2,block:null,done:false});
-  renderNotes();render();toast('📋 Nota convertida en tarea · está en "Por acomodar"');}
+async function convertNote(i){const v=NOTES[i];NOTES.splice(i,1);renderNotes();
+  const t={id:'tmp'+Date.now(),t:v,e:'sistema',ty:'🔧 Mec',d:'30m',f:2,block:null,done:false,stage:'todo'};
+  TASKS.push(t);render();toast('📋 Nota convertida en tarea · está en "Por acomodar"');
+  const realId=await cloudInsert(t);if(realId){t.id=realId;render();}}
 function openNotes(){renderNotes();openSheet('notesSheet');}
 
 /* ---- foco del día: eliminar (reaparece al recargar) ---- */
@@ -684,25 +690,24 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   document.getElementById('taskMenuTitle').textContent=t.t.length>32?t.t.slice(0,32)+'…':t.t;
   let h=`<div class="mt">${t.block?'📌 En bloque: '+blockName(t.block):'📥 Sin bloque · Por acomodar'} · ${t.done?'✅ realizada':'⏳ pendiente'}</div>`;
   if(!t.done){
-    h+=`<button onclick="startFocusTask(${id});closeSheets()">▶ Empezar en foco</button>`;
-    h+=`<button onclick="toggleDone(${id});closeSheets()">✅ Marcar realizada</button>`;
-  } else h+=`<button onclick="toggleDone(${id});closeSheets()">↩️ Reabrir tarea</button>`;
-  h+=`<button onclick="pickBlock(${id})">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
-  if(t.block)h+=`<button onclick="unassign(${id})">⬆️ Quitar del bloque (Por acomodar)</button>`;
-  h+=`<button class="danger" onclick="sendToTrash(${id})">🗑️ Enviar a papelera</button>`;
+    h+=`<button onclick="startFocusTask('${id}');closeSheets()">▶ Empezar en foco</button>`;
+    h+=`<button onclick="toggleDone('${id}');closeSheets()">✅ Marcar realizada</button>`;
+  } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
+  h+=`<button onclick="pickBlock('${id}')">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
+  if(t.block)h+=`<button onclick="unassign('${id}')">⬆️ Quitar del bloque (Por acomodar)</button>`;
+  h+=`<button class="danger" onclick="sendToTrash('${id}')">🗑️ Enviar a papelera</button>`;
   document.getElementById('taskActions').innerHTML=h;
   openSheet('taskSheet');
 }
-function unassign(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.block=null;closeSheets();render();toast('⬆️ De vuelta a "Por acomodar"');}
+function unassign(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.block=null;cloudPatch(t);closeSheets();render();toast('⬆️ De vuelta a "Por acomodar"');}
 
-/* ---- papelera ---- */
-let TRASH=[];
-function sendToTrash(id){const i=TASKS.findIndex(x=>x.id===id);if(i<0)return;TRASH.unshift(TASKS.splice(i,1)[0]);closeSheets();render();renderTrash();toast('🗑️ Enviada a papelera · restáurala en Ajustes');}
-function renderTrash(){const el=document.getElementById('trashList');if(!el)return;
-  document.getElementById('trash-cnt').textContent=TRASH.length+(TRASH.length===1?' tarea':' tareas');
-  el.innerHTML=TRASH.length?TRASH.map((t,i)=>`<div class="inbox" style="border-left-color:var(--text3)"><span>🗑️ ${t.t}</span><span style="display:flex;gap:6px;flex-shrink:0"><button class="convert" onclick="restoreTask(${i})">♻️ Restaurar</button><button class="convert" style="border-color:var(--red);color:var(--red)" onclick="purgeTask(${i})">Borrar</button></span></div>`).join(''):'<div class="art-note">Papelera vacía 🧹</div>';}
-function restoreTask(i){const t=TRASH.splice(i,1)[0];t.done=false;TASKS.push(t);renderTrash();render();toast('♻️ Restaurada · está en "Por acomodar"');}
-function purgeTask(i){TRASH.splice(i,1);renderTrash();toast('❌ Eliminada definitivamente');}
+/* ---- papelera (persistida en la nube como stage='trash') ---- */
+function sendToTrash(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.stage='trash';t.block=null;t.done=false;cloudPatch(t);closeSheets();render();renderTrash();toast('🗑️ Enviada a papelera · restáurala en Ajustes');}
+function renderTrash(){const el=document.getElementById('trashList');if(!el)return;const TR=TASKS.filter(t=>t.stage==='trash');
+  document.getElementById('trash-cnt').textContent=TR.length+(TR.length===1?' tarea':' tareas');
+  el.innerHTML=TR.length?TR.map(t=>`<div class="inbox" style="border-left-color:var(--text3)"><span>🗑️ ${t.t}</span><span style="display:flex;gap:6px;flex-shrink:0"><button class="convert" onclick="restoreTask('${t.id}')">♻️ Restaurar</button><button class="convert" style="border-color:var(--red);color:var(--red)" onclick="purgeTask('${t.id}')">Borrar</button></span></div>`).join(''):'<div class="art-note">Papelera vacía 🧹</div>';}
+function restoreTask(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.stage='todo';t.done=false;cloudPatch(t);renderTrash();render();toast('♻️ Restaurada · está en "Por acomodar"');}
+function purgeTask(id){const i=TASKS.findIndex(x=>x.id===id);if(i<0)return;cloudDelete(id);TASKS.splice(i,1);renderTrash();toast('❌ Eliminada definitivamente');}
 
 /* ---- toast ---- */
 let toT;function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toT);toT=setTimeout(()=>el.classList.remove('show'),2200);}
@@ -725,8 +730,12 @@ function startFocus(name){document.getElementById('foName').textContent=name;foS
   foInt=setInterval(()=>{foSec--;document.getElementById('foTimer').textContent=String(Math.floor(foSec/60)).padStart(2,'0')+':'+String(foSec%60).padStart(2,'0');if(foSec<=0){clearInterval(foInt);stopFocus(true);}},1000);}
 function stopFocus(done){clearInterval(foInt);document.getElementById('focusOverlay').classList.remove('on');if(done)toast('💪 Bloque cerrado. Avanzaste el Lanzamiento.');}
 
-/* init */
-render();renderInbox();renderNotes();renderTrash();animateRing();
+/* init: carga las tareas desde la nube y luego pinta */
+renderInbox();renderNotes();renderProj();
+(async function init(){
+  try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
+  render();renderProj();renderTrash();animateRing();
+})();
 </script>
 </body>
 </html>
