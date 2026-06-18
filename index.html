@@ -217,6 +217,26 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .goal-period label{ font-size:9px; text-transform:uppercase; letter-spacing:.4px; color:var(--text-tertiary); font-weight:800; }
 .goal-period input{ width:52px; padding:4px 6px; border:1px solid var(--chip-border); border-radius:7px; background:var(--bg-surface); color:var(--text-primary); font-family:inherit; font-weight:800; text-align:center; font-size:13px; }
 .goal-period input:focus{ outline:none; border-color:var(--accent); }
+/* HISTORIAL comparativo */
+.hist-box{ background:var(--bg-surface); border:1px solid var(--chip-border); border-radius:14px; padding:18px; box-shadow:var(--shadow-md); }
+.hist-row{ display:grid; grid-template-columns:96px 1fr auto; gap:12px; align-items:center; padding:7px 0; }
+.hist-row + .hist-row{ border-top:1px solid var(--chip-border); }
+.hist-row.now .hist-label{ color:var(--accent); }
+.hist-label{ font-size:12px; font-weight:800; color:var(--text-secondary); }
+.hist-label small{ display:block; font-size:10px; font-weight:600; color:var(--text-tertiary); }
+.hist-track{ height:14px; background:var(--bg-tile); border-radius:7px; overflow:hidden; display:flex; }
+.hist-fill-arq{ height:100%; background:var(--accent); }
+.hist-fill-mec{ height:100%; background:#9a8278; }
+.hist-val{ font-size:12px; font-weight:800; min-width:96px; text-align:right; color:var(--text-primary); }
+.hist-val small{ color:var(--text-tertiary); font-weight:600; }
+.hist-legend{ display:flex; gap:14px; font-size:11px; color:var(--text-tertiary); margin-top:10px; }
+.hist-legend span{ display:inline-flex; align-items:center; gap:5px; }
+.hist-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+/* MAPA SEMANA: día de hoy resaltado en modo Día */
+.week-head.today{ outline:2px solid var(--accent); outline-offset:-2px; }
+.week-cell.today{ box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--accent) 60%, transparent); }
+.today-badge{ display:inline-block; margin-left:5px; padding:1px 6px; background:var(--accent); color:var(--on-accent); border-radius:5px; font-size:9px; font-weight:800; vertical-align:middle; }
+.week-dim{ opacity:.5; }
 
 /* CONFIG */
 .config-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
@@ -558,6 +578,9 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     <div class="kpi-grid" id="kpiEmpresa"></div>
     <div class="panel-title" style="margin:8px 0 12px">⚖️ Por Tipo de Tarea</div>
     <div class="type-split" id="kpiTipo"></div>
+    <div class="panel-title" id="histTitle" style="margin:18px 0 4px">📊 Historial</div>
+    <div class="section-sub" id="histSub">Compara tus últimos periodos para ver si vas mejorando.</div>
+    <div class="hist-box" id="kpiHistorial"></div>
   </div>
 
   <!-- ===== CONFIGURADOR ===== -->
@@ -770,7 +793,7 @@ function projTag(p){ const P=PROJECTS[p]; return `${P.emoji} ${P.name}`; }
 /* ===== RENDER MAESTRO ===== */
 function renderAll(){
   renderNotifs(); renderBalance(); renderTodoActive(); renderTimeline();
-  renderProjects(); renderInbox(); renderPeriodBars(); renderKpis(); renderConfig(); renderDiary();
+  renderProjects(); renderInbox(); renderPeriodBars(); renderKpis(); renderConfig(); renderDiary(); renderWeek();
 }
 
 /* ----- NOTIFS ----- */
@@ -961,6 +984,48 @@ function renderKpis(){
       <div class="bar"><span style="width:${Math.round(mecMin/tot*100)}%"></span></div>
       <div class="goal-prog">Meta ${perLabel}: ${gMec}h · ${Math.round(mecMin/60/gMec*100)}% logrado</div>
     </div>`;
+  renderHistorial();
+}
+
+/* ----- HISTORIAL COMPARATIVO ----- */
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DIASEM=['dom','lun','mar','mié','jue','vie','sáb'];
+// Devuelve el [inicio,fin) del bucket "i" hacia atrás (0 = periodo actual) según el periodo activo.
+function bucketRange(period,i){
+  const now=new Date();
+  if(period==='dia'){ const s=new Date(now); s.setHours(0,0,0,0); s.setDate(s.getDate()-i); const e=new Date(s); e.setDate(e.getDate()+1);
+    return {s:s.getTime(),e:e.getTime(),label:DIASEM[s.getDay()],sub:s.getDate()+' '+MESES[s.getMonth()]}; }
+  if(period==='mes'){ const s=new Date(now.getFullYear(),now.getMonth()-i,1); const e=new Date(now.getFullYear(),now.getMonth()-i+1,1);
+    return {s:s.getTime(),e:e.getTime(),label:MESES[s.getMonth()],sub:String(s.getFullYear())}; }
+  const base=startOfWeek(now); const s=new Date(base); s.setDate(s.getDate()-i*7); const e=new Date(s); e.setDate(e.getDate()+7);
+  const fin=new Date(e); fin.setDate(fin.getDate()-1);
+  return {s:s.getTime(),e:e.getTime(),label:s.getDate()+'–'+fin.getDate()+' '+MESES[fin.getMonth()],sub:'semana'};
+}
+function renderHistorial(){
+  const per=S.config.period, n=per==='dia'?7:per==='mes'?6:5; // 7 días / 5 semanas / 6 meses
+  const buckets=[];
+  for(let i=0;i<n;i++){
+    const r=bucketRange(per,i);
+    const done=S.tasks.filter(t=>t.stage==='done'&&t.doneAt>=r.s&&t.doneAt<r.e);
+    const arq=done.filter(t=>t.type==='arquitecto').reduce((a,t)=>a+t.dur,0);
+    const mec=done.filter(t=>t.type==='mecanico').reduce((a,t)=>a+t.dur,0);
+    buckets.push({...r,arq,mec,total:arq+mec,count:done.length,now:i===0});
+  }
+  const maxMin=Math.max(60,...buckets.map(b=>b.total));
+  document.getElementById('histSub').textContent=
+    per==='dia'?'Tus últimos 7 días: horas realizadas (Arquitecto vs Mecánico).'
+    :per==='mes'?'Tus últimos 6 meses: horas realizadas (Arquitecto vs Mecánico).'
+    :'Tus últimas 5 semanas: horas realizadas (Arquitecto vs Mecánico).';
+  const rows=buckets.map(b=>{
+    const aw=Math.round(b.arq/maxMin*100), mw=Math.round(b.mec/maxMin*100);
+    return `<div class="hist-row ${b.now?'now':''}">
+      <div class="hist-label">${b.label}${b.now?' •':''}<small>${b.now?'actual':b.sub}</small></div>
+      <div class="hist-track"><div class="hist-fill-arq" style="width:${aw}%"></div><div class="hist-fill-mec" style="width:${mw}%"></div></div>
+      <div class="hist-val">${fmtH(b.total)} <small>· ${b.count}✓</small></div>
+    </div>`;
+  }).join('');
+  document.getElementById('kpiHistorial').innerHTML=rows+
+    `<div class="hist-legend"><span><i style="background:var(--accent)"></i>🏛️ Arquitecto</span><span><i style="background:#9a8278"></i>🔧 Mecánico</span></div>`;
 }
 
 /* ----- CONFIG ----- */
@@ -1022,7 +1087,10 @@ function setRule(k,v){ S.config.rules[k]=v; save(); renderAll(); }
 /* ----- DIARIO ----- */
 function renderDiary(){
   const el=document.getElementById('diaryList');
-  el.innerHTML=S.diary.length?S.diary.map(d=>`<div class="diary-item"><span>🌿 ${d.text}</span><span style="display:flex;gap:10px;align-items:center"><span class="when">${new Date(d.t).toLocaleDateString('es-MX',{day:'numeric',month:'short'})}</span><button class="icon-btn" onclick="delDiary(${d.id})">🗑️</button></span></div>`).join(''):'<div class="empty-state" style="padding:18px;font-size:13px">Aún nada. Anota algo que disfrutaste hoy 🙂</div>';
+  const per=S.config.period;
+  const list=S.diary.filter(d=>inPeriod(d.t,per));   // solo lo del periodo activo
+  el.innerHTML=list.length?list.map(d=>`<div class="diary-item"><span>🌿 ${d.text}</span><span style="display:flex;gap:10px;align-items:center"><span class="when">${new Date(d.t).toLocaleDateString('es-MX',{day:'numeric',month:'short'})}</span><button class="icon-btn" onclick="delDiary(${d.id})">🗑️</button></span></div>`).join('')
+    :`<div class="empty-state" style="padding:18px;font-size:13px">Nada anotado ${PERIOD_LABEL[per]}. Anota algo que disfrutaste 🙂</div>`;
 }
 function addDiary(){ const inp=document.getElementById('diaryInput'); const v=inp.value.trim(); if(!v)return;
   S.diary.unshift({id:Date.now(),text:v,t:Date.now()}); inp.value=''; save(); renderDiary(); }
@@ -1076,13 +1144,17 @@ const WEEKROWS=[
   {label:'📊 Consolidado',sub:'11:00-1:00',color:'#3FB8B0',cells:DIAS.map(()=>['Pedidos','OC','Flujo'])}
 ];
 function renderWeek(){
+  // En modo Día resaltamos la columna de hoy (lun-vie); fin de semana o en sem/mes no se resalta.
+  const dow=new Date().getDay();
+  const todayIdx=(S.config.period==='dia'&&dow>=1&&dow<=5)?dow-1:-1;
+  const dim=i=>todayIdx>=0&&i!==todayIdx?' week-dim':'';
   let html='<div class="week-cell week-head"></div>';
-  DIAS.forEach(d=>html+=`<div class="week-cell week-head"><span class="dot" style="background:${d[1]}"></span>${d[0]}</div>`);
+  DIAS.forEach((d,i)=>html+=`<div class="week-cell week-head${i===todayIdx?' today':''}${dim(i)}"><span class="dot" style="background:${d[1]}"></span>${d[0]}${i===todayIdx?'<span class="today-badge">HOY</span>':''}</div>`);
   WEEKROWS.forEach(r=>{
     html+=`<div class="week-cell week-rowlabel" style="--bc:${r.color};border-left:5px solid ${r.color};color:${r.color}">${r.label}<small>${r.sub}</small></div>`;
     r.cells.forEach((c,i)=>{
       const biz=r.sagrado?`<div class="biz" style="color:${DIAS[i][1]}">${SAGRADO_BIZ[i]}</div>`:'';
-      html+=`<div class="week-cell" style="--bc:${r.color};background:color-mix(in srgb, ${r.color} 7%, var(--bg-surface));border-left:3px solid color-mix(in srgb, ${r.color} 55%, var(--chip-border))">${biz}<ul>${c.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+      html+=`<div class="week-cell${i===todayIdx?' today':''}${dim(i)}" style="--bc:${r.color};background:color-mix(in srgb, ${r.color} 7%, var(--bg-surface));border-left:3px solid color-mix(in srgb, ${r.color} 55%, var(--chip-border))">${biz}<ul>${c.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
     });
   });
   document.getElementById('weekGrid').innerHTML=html;
