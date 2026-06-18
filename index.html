@@ -85,7 +85,7 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .gauge-legend{ display:flex; gap:14px; font-size:11px; color:var(--text-secondary); margin-top:8px; }
 .legend-item{ display:flex; align-items:center; gap:5px; }
 .legend-dot{ width:8px; height:8px; border-radius:50%; }
-.balance-cards{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; flex:1; min-width:280px; }
+.balance-cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:14px; flex:1; min-width:280px; }
 .balance-card{ background:var(--bg-tile); border:1px solid var(--chip-border); border-top:3px solid var(--accent);
   border-radius:14px; padding:16px; transition:var(--transition); }
 .balance-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-md); }
@@ -121,6 +121,11 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .task-meta{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .task-badge{ background:var(--tag-bg); padding:3px 9px; border-radius:6px; color:var(--tag-text); font-weight:700; font-size:10px; }
 .task-badge.dur{ background:transparent; border:1px solid var(--chip-border); color:var(--text-tertiary); }
+.task-prio{ display:inline-flex; align-items:center; gap:5px; margin-left:auto; background:var(--bg-app); border:1px solid var(--chip-border); border-radius:8px; padding:2px 4px; }
+.prio-btn{ width:21px; height:21px; border:none; background:var(--chip-bg); color:var(--text-primary); border-radius:6px; cursor:pointer; font-weight:800; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; transition:var(--transition); }
+.prio-btn:hover{ background:var(--accent); color:var(--on-accent); }
+.prio-flames{ font-size:12px; min-width:18px; text-align:center; letter-spacing:-2px; }
+.prio-flames.dim{ opacity:.28; filter:grayscale(1); }
 
 /* TIMELINE */
 .timeline-container{ display:flex; flex-direction:column; gap:11px; max-height:680px; overflow-y:auto; padding-right:4px; }
@@ -681,16 +686,28 @@ function renderBalance(){
   g.setAttribute('stroke', score>=66?'var(--success)':score>=33?'var(--accent)':'var(--danger)');
   document.getElementById('balBadge').textContent= score>=66?'En equilibrio':score>=33?'Atención':'Riesgo';
   const arqMin=done.filter(t=>t.type==='arquitecto').reduce((a,t)=>a+t.dur,0);
+  const apagados=S.tasks.filter(t=>t.stage==='done'&&t.prio==='fuego').length;
   document.getElementById('balCards').innerHTML=`
     <div class="balance-card"><div class="balance-card-label">✅ Completadas</div><div class="balance-card-number">${done.length}</div><div class="balance-card-detail">de ${todo.length} activas</div></div>
     <div class="balance-card"><div class="balance-card-label">⏱️ Tiempo hecho</div><div class="balance-card-number">${fmtH(minDone)}</div><div class="balance-card-detail">registrado</div></div>
     <div class="balance-card"><div class="balance-card-label">🏛️ Arquitecto</div><div class="balance-card-number">${fmtH(arqMin)}</div><div class="balance-card-detail">de visión</div></div>
-    <div class="balance-card"><div class="balance-card-label">🔥 Fuegos</div><div class="balance-card-number">${S.tasks.filter(t=>t.stage==='todo'&&t.prio==='fuego').length}</div><div class="balance-card-detail">activos</div></div>`;
+    <div class="balance-card"><div class="balance-card-label">🔥 Fuegos</div><div class="balance-card-number">${S.tasks.filter(t=>t.stage==='todo'&&t.prio==='fuego').length}</div><div class="balance-card-detail">activos</div></div>
+    <div class="balance-card"><div class="balance-card-label">🧯 Apagados</div><div class="balance-card-number">${apagados}</div><div class="balance-card-detail">fuegos resueltos</div></div>`;
 }
 
 /* ----- TODO ACTIVO (HOY) ----- */
+const FIRE_LEVEL={idea:0,sistema:1,importante:2,fuego:3};
+const PRIO_ORDER=['idea','sistema','importante','fuego'];
+function bumpPrio(id,delta){
+  const t=S.tasks.find(x=>x.id===id); if(!t)return;
+  let i=PRIO_ORDER.indexOf(t.prio); if(i<0)i=0;
+  i=Math.max(0,Math.min(PRIO_ORDER.length-1,i+delta));
+  t.prio=PRIO_ORDER[i]; save(); renderAll();
+}
 function taskCardHTML(t){
   const blk=t.block?blockById(t.block):null;
+  const lvl=FIRE_LEVEL[t.prio]??0;
+  const flames=lvl?'🔥'.repeat(lvl):'🔥';
   return `<div class="task-card ${t.prio} ${t.stage==='done'?'done':''}" draggable="true" data-id="${t.id}" onclick="openTask(${t.id})">
     <div class="task-title">${t.title}</div>
     <div class="task-meta">
@@ -698,6 +715,11 @@ function taskCardHTML(t){
       <span class="task-badge">${TYPE[t.type]}</span>
       <span class="task-badge dur">⏱️ ${t.dur}m</span>
       ${blk?`<span class="task-badge" style="background:color-mix(in srgb,${blk.color} 22%,transparent);color:${blk.color}">${blk.label.split(' ')[0]} ${blk.label.split(' ').slice(1).join(' ')}</span>`:''}
+      <span class="task-prio" title="Subir / bajar el fuego de esta tarea">
+        <button class="prio-btn" onclick="event.stopPropagation();bumpPrio(${t.id},-1)" title="Bajar fuego">−</button>
+        <span class="prio-flames ${lvl?'':'dim'}">${flames}</span>
+        <button class="prio-btn" onclick="event.stopPropagation();bumpPrio(${t.id},1)" title="Subir fuego">+</button>
+      </span>
     </div></div>`;
 }
 function renderTodoActive(){
