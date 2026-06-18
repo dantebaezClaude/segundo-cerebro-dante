@@ -202,6 +202,22 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .bar > span{ display:block; height:100%; border-radius:6px; background:var(--kc,var(--accent)); }
 .type-split{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
+/* SELECTOR DE PERIODO (Día / Semana / Mes) */
+.period-bar{ display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+.period-seg{ display:inline-flex; gap:4px; background:var(--bg-tile); border:1px solid var(--chip-border); border-radius:12px; padding:4px; }
+.period-seg button{ padding:8px 18px; border:none; background:transparent; color:var(--text-secondary); border-radius:9px; font-weight:800; font-size:13px; cursor:pointer; transition:var(--transition); }
+.period-seg button:hover{ color:var(--text-primary); }
+.period-seg button.active{ background:var(--accent); color:var(--on-accent); box-shadow:0 3px 10px rgba(255,126,77,.28); }
+.period-hint{ font-size:12px; color:var(--text-tertiary); font-weight:700; }
+.period-hint b{ color:var(--accent); }
+/* metas: mini-inputs por periodo */
+.goal-periods{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.goal-period{ display:flex; flex-direction:column; align-items:center; gap:3px; background:var(--bg-tile); border:1px solid var(--chip-border); border-radius:9px; padding:6px 8px; }
+.goal-period.sel{ border-color:var(--accent); box-shadow:0 0 0 2px rgba(255,126,77,.18); }
+.goal-period label{ font-size:9px; text-transform:uppercase; letter-spacing:.4px; color:var(--text-tertiary); font-weight:800; }
+.goal-period input{ width:52px; padding:4px 6px; border:1px solid var(--chip-border); border-radius:7px; background:var(--bg-surface); color:var(--text-primary); font-family:inherit; font-weight:800; text-align:center; font-size:13px; }
+.goal-period input:focus{ outline:none; border-color:var(--accent); }
+
 /* CONFIG */
 .config-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 @media(max-width:900px){ .config-grid{ grid-template-columns:1fr; } }
@@ -222,6 +238,19 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .switch.on{ background:var(--success); }
 .switch::after{ content:''; position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; top:3px; left:3px; transition:var(--transition); }
 .switch.on::after{ left:23px; }
+/* ----- EDITOR DE BLOQUES ----- */
+.blk-row{ display:flex; gap:10px; align-items:center; padding:10px; background:var(--bg-tile); border-radius:11px; margin-bottom:10px; border-left:4px solid var(--accent); flex-wrap:wrap; }
+.blk-row input[type=color]{ width:34px; height:34px; border:none; background:none; padding:0; cursor:pointer; flex-shrink:0; }
+.blk-row .blk-label{ flex:2; min-width:130px; }
+.blk-row .blk-time{ flex:1; min-width:95px; }
+.blk-row input[type=text]{ padding:7px 9px; border:1px solid var(--chip-border); border-radius:8px; background:var(--bg-surface); color:var(--text-primary); font-family:inherit; font-size:13px; font-weight:600; width:100%; }
+.blk-row input[type=text]:focus{ outline:none; border-color:var(--accent); }
+.blk-ctl{ display:flex; gap:4px; flex-shrink:0; }
+.blk-ctl button{ width:28px; height:28px; border:1px solid var(--chip-border); background:var(--bg-surface); color:var(--text-secondary); border-radius:7px; cursor:pointer; font-size:13px; line-height:1; transition:var(--transition); }
+.blk-ctl button:hover{ border-color:var(--accent); color:var(--text-primary); }
+.blk-ctl button.del:hover{ background:var(--danger); color:#fff; border-color:var(--danger); }
+.blk-add{ margin-top:6px; padding:10px 14px; border:1px dashed var(--accent); background:transparent; color:var(--accent); border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; width:100%; }
+.blk-add:hover{ background:rgba(255,126,77,.1); }
 .diary-input{ display:flex; gap:8px; margin-bottom:12px; }
 .diary-input input{ flex:1; padding:11px 13px; border:1px solid var(--chip-border); border-radius:10px; background:var(--bg-tile); color:var(--text-primary); font-family:inherit; font-size:13px; }
 .diary-input input:focus{ outline:none; border-color:var(--success); }
@@ -523,6 +552,7 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   <div class="page" id="page-kpis">
     <div class="section-title">📈 KPIs</div>
     <div class="section-sub">Cuánto tiempo y cuántas tareas le has dedicado a cada empresa, y el balance Arquitecto vs Mecánico. Se calcula de las tareas que marcas como realizadas.</div>
+    <div class="period-bar" id="kpiPeriod"></div>
     <div class="panel-title" style="margin-bottom:12px">🏢 Por Empresa</div>
     <div class="kpi-grid" id="kpiEmpresa"></div>
     <div class="panel-title" style="margin:8px 0 12px">⚖️ Por Tipo de Tarea</div>
@@ -533,15 +563,22 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   <div class="page" id="page-config">
     <div class="section-title">🧭 Configurador</div>
     <div class="section-sub">Define cómo quieres ejecutar tu agenda. Estos ajustes configuran el resto de la página.</div>
+    <div class="period-bar" id="cfgPeriod"></div>
     <div class="config-grid">
       <div class="cfg-card">
-        <h3>⏱️ Metas de horas / semana</h3>
+        <h3>⏱️ Metas de horas <small style="font-weight:600;color:var(--text-tertiary);font-size:12px">(día · semana · mes)</small></h3>
         <div id="goalsBox"></div>
       </div>
       <div class="cfg-card">
         <h3>📐 Principios que activan reglas</h3>
         <div id="rulesBox"></div>
       </div>
+    </div>
+    <div class="cfg-card" style="margin-top:18px">
+      <h3>🗓️ Bloques del día <small style="font-weight:600;color:var(--text-tertiary);font-size:12px">(tu estructura para operar)</small></h3>
+      <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:14px">Define los bloques horarios con los que organizas tu día. Cambia nombre, horario y color; reordénalos con ↑↓, agrega o elimina. Esto alimenta "Tu día — Bloques horarios".</p>
+      <div id="blocksBox"></div>
+      <button class="blk-add" onclick="addBlock()">＋ Agregar bloque</button>
     </div>
     <div class="cfg-card" style="margin-top:18px">
       <h3>🌿 Diario de Vida — no solo robot productivo</h3>
@@ -584,7 +621,7 @@ const PROJECTS={
   personal:{name:'Personal',emoji:'👨‍👩‍👧',color:'#E87EA1'}
 };
 const MAIN_PROJECTS=['viasana','chilaquiles','marca','algorithmics'];
-const BLOCKS=[
+const DEFAULT_BLOCKS=[
   {id:'arranque',time:'7:30 - 9:00 AM',label:'🌅 Arranque Espiritual',color:'#E0A53C'},
   {id:'lanzamiento',time:'9:30 - 11:00 AM',label:'🚀 Lanzamiento',color:'#FF7E4D'},
   {id:'sagrado',time:'11:00 - 12:30 PM',label:'🧠 Bloque Sagrado',color:'#9B6BD6'},
@@ -596,7 +633,7 @@ const BLOCKS=[
 ];
 const PRIO={fuego:{l:'🔴 Fuego'},importante:{l:'🟠 Importante'},sistema:{l:'🟡 Sistema'},idea:{l:'⚪ Idea'}};
 const TYPE={arquitecto:'🏛️ Arquitecto',mecanico:'🔧 Mecánico'};
-const blockById=id=>BLOCKS.find(b=>b.id===id);
+const blockById=id=>S.blocks.find(b=>b.id===id);
 
 /* ===== ESTADO (fuente única) ===== */
 const STORE='dante_cerebro_v3';
@@ -647,7 +684,49 @@ let S=JSON.parse(localStorage.getItem(STORE)||'null')||{
 let seq=Math.max(0,...S.tasks.map(t=>t.id))+1;
 S.notes=S.notes||{}; S.temas=S.temas||{}; S.chats=S.chats||{};  // espacios por empresa
 S.postits=S.postits||[];  // notas rápidas tipo post-it
+S.blocks=(S.blocks&&S.blocks.length)?S.blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS));  // bloques editables del día
+
+/* ===== MIGRACIÓN: metas por periodo + fecha en tareas hechas ===== */
+// Antes solo había meta semanal (goalArq/goalMec). Ahora hay meta diaria, semanal y mensual.
+if(!S.config.goals){
+  const arqW=S.config.goalArq||15, mecW=S.config.goalMec||10;
+  S.config.goals={
+    arq:{ dia:Math.max(1,Math.round(arqW/5)), sem:arqW, mes:arqW*4 },
+    mec:{ dia:Math.max(1,Math.round(mecW/5)), sem:mecW, mes:mecW*4 }
+  };
+}
+// Periodo activo del visor (día/semana/mes). Por defecto: semana.
+S.config.period=S.config.period||'sem';
+// Sellar fecha de realización en tareas ya hechas que aún no la tengan (para poder filtrar por periodo).
+S.tasks.forEach(t=>{ if(t.stage==='done' && !t.doneAt) t.doneAt=Date.now(); });
+
 function save(){ localStorage.setItem(STORE,JSON.stringify(S)); }
+
+/* ===== PERIODO (día / semana / mes) ===== */
+const PERIOD_NAME={dia:'Día',sem:'Semana',mes:'Mes'};
+const PERIOD_LABEL={dia:'hoy',sem:'esta semana',mes:'este mes'};
+function startOfWeek(d){ const x=new Date(d); const off=(x.getDay()+6)%7; x.setHours(0,0,0,0); x.setDate(x.getDate()-off); return x; } // semana lunes→domingo
+function inPeriod(ts,p){
+  if(!ts) return false;
+  const d=new Date(ts), now=new Date();
+  if(p==='dia') return d.toDateString()===now.toDateString();
+  if(p==='mes') return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+  const s=startOfWeek(now).getTime(), e=s+7*864e5; // semana
+  return ts>=s && ts<e;
+}
+// Tareas hechas dentro del periodo activo (las viejas sin fecha quedan selladas en la migración).
+function doneInPeriod(filterFn){
+  const p=S.config.period;
+  return S.tasks.filter(t=>t.stage==='done' && inPeriod(t.doneAt,p) && (filterFn?filterFn(t):true));
+}
+function periodSegHTML(){
+  return ['dia','sem','mes'].map(p=>`<button class="${S.config.period===p?'active':''}" onclick="setPeriod('${p}')">${PERIOD_NAME[p]}</button>`).join('');
+}
+function renderPeriodBars(){
+  const html=`<div class="period-seg">${periodSegHTML()}</div><span class="period-hint">Viendo resultados de <b>${PERIOD_LABEL[S.config.period]}</b></span>`;
+  ['kpiPeriod','cfgPeriod'].forEach(id=>{ const el=document.getElementById(id); if(el)el.innerHTML=html; });
+}
+function setPeriod(p){ S.config.period=p; save(); renderAll(); }
 
 /* ===== HELPERS ===== */
 const fmtH=m=>{ const h=m/60; return (Math.round(h*10)/10)+'h'; };
@@ -656,7 +735,7 @@ function projTag(p){ const P=PROJECTS[p]; return `${P.emoji} ${P.name}`; }
 /* ===== RENDER MAESTRO ===== */
 function renderAll(){
   renderNotifs(); renderBalance(); renderTodoActive(); renderTimeline();
-  renderProjects(); renderInbox(); renderKpis(); renderConfig(); renderDiary();
+  renderProjects(); renderInbox(); renderPeriodBars(); renderKpis(); renderConfig(); renderDiary();
 }
 
 /* ----- NOTIFS ----- */
@@ -734,7 +813,7 @@ function renderTodoActive(){
 
 /* ----- TIMELINE ----- */
 function renderTimeline(){
-  document.getElementById('timeline').innerHTML=BLOCKS.map(b=>{
+  document.getElementById('timeline').innerHTML=S.blocks.map(b=>{
     const tasks=S.tasks.filter(t=>t.block===b.id&&t.stage!=='inbox');
     const min=tasks.reduce((a,t)=>a+t.dur,0);
     const locked=b.id==='sagrado'&&S.config.rules.protegeSagrado;
@@ -805,50 +884,55 @@ function delById(id){ S.tasks=S.tasks.filter(t=>t.id!==id); save(); renderAll();
 
 /* ----- KPIs ----- */
 function renderKpis(){
-  document.getElementById('kpiEmpresa').innerHTML=Object.keys(PROJECTS).map(pk=>{
+  const per=S.config.period, perLabel=PERIOD_LABEL[per];
+  // máximo de minutos del periodo entre empresas (para escalar las barras)
+  const maxMin=Math.max(60,...Object.keys(PROJECTS).map(k=>doneInPeriod(t=>t.project===k).reduce((a,t)=>a+t.dur,0)));
+  const cards=Object.keys(PROJECTS).map(pk=>{
     const P=PROJECTS[pk];
-    const done=S.tasks.filter(t=>t.project===pk&&t.stage==='done');
+    const done=doneInPeriod(t=>t.project===pk);
     const min=done.reduce((a,t)=>a+t.dur,0);
     const active=S.tasks.filter(t=>t.project===pk&&t.stage==='todo').length;
     if(!done.length&&!active) return '';
-    const maxMin=Math.max(60,...Object.keys(PROJECTS).map(k=>S.tasks.filter(t=>t.project===k&&t.stage==='done').reduce((a,t)=>a+t.dur,0)));
     return `<div class="kpi-card" style="--kc:${P.color}">
       <div class="kpi-name">${P.emoji} ${P.name}</div>
       <div class="kpi-stats">
-        <div class="kpi-stat"><div class="n">${fmtH(min)}</div><div class="l">dedicadas</div></div>
+        <div class="kpi-stat"><div class="n">${fmtH(min)}</div><div class="l">${perLabel}</div></div>
         <div class="kpi-stat"><div class="n">${done.length}</div><div class="l">tareas ✓</div></div>
         <div class="kpi-stat"><div class="n">${active}</div><div class="l">activas</div></div>
       </div>
       <div class="bar"><span style="width:${Math.round(min/maxMin*100)}%"></span></div>
     </div>`;
   }).join('');
-  const arq=S.tasks.filter(t=>t.type==='arquitecto'&&t.stage==='done');
-  const mec=S.tasks.filter(t=>t.type==='mecanico'&&t.stage==='done');
+  document.getElementById('kpiEmpresa').innerHTML=cards||`<div class="empty-state" style="grid-column:1/-1">Sin tareas realizadas ${perLabel}. Marca tareas como ✅ Realizada para ver tus resultados.</div>`;
+  const arq=doneInPeriod(t=>t.type==='arquitecto');
+  const mec=doneInPeriod(t=>t.type==='mecanico');
   const arqMin=arq.reduce((a,t)=>a+t.dur,0), mecMin=mec.reduce((a,t)=>a+t.dur,0);
   const tot=arqMin+mecMin||1;
+  const gArq=S.config.goals.arq[per], gMec=S.config.goals.mec[per];
   document.getElementById('kpiTipo').innerHTML=`
     <div class="kpi-card" style="--kc:var(--accent)">
       <div class="kpi-name">🏛️ Arquitecto <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">${Math.round(arqMin/tot*100)}%</span></div>
       <div class="kpi-stats"><div class="kpi-stat"><div class="n">${fmtH(arqMin)}</div><div class="l">de visión</div></div><div class="kpi-stat"><div class="n">${arq.length}</div><div class="l">tareas ✓</div></div></div>
       <div class="bar"><span style="width:${Math.round(arqMin/tot*100)}%"></span></div>
-      <div class="goal-prog">Meta: ${S.config.goalArq}h/sem · ${Math.round(arqMin/60/S.config.goalArq*100)}% logrado</div>
+      <div class="goal-prog">Meta ${perLabel}: ${gArq}h · ${Math.round(arqMin/60/gArq*100)}% logrado</div>
     </div>
     <div class="kpi-card" style="--kc:#9a8278">
       <div class="kpi-name">🔧 Mecánico <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">${Math.round(mecMin/tot*100)}%</span></div>
       <div class="kpi-stats"><div class="kpi-stat"><div class="n">${fmtH(mecMin)}</div><div class="l">de operación</div></div><div class="kpi-stat"><div class="n">${mec.length}</div><div class="l">tareas ✓</div></div></div>
       <div class="bar"><span style="width:${Math.round(mecMin/tot*100)}%"></span></div>
-      <div class="goal-prog">Meta: ${S.config.goalMec}h/sem · ${Math.round(mecMin/60/S.config.goalMec*100)}% logrado</div>
+      <div class="goal-prog">Meta ${perLabel}: ${gMec}h · ${Math.round(mecMin/60/gMec*100)}% logrado</div>
     </div>`;
 }
 
 /* ----- CONFIG ----- */
 function renderConfig(){
-  const arqMin=S.tasks.filter(t=>t.type==='arquitecto'&&t.stage==='done').reduce((a,t)=>a+t.dur,0);
-  const mecMin=S.tasks.filter(t=>t.type==='mecanico'&&t.stage==='done').reduce((a,t)=>a+t.dur,0);
+  const per=S.config.period;
+  const arqMin=doneInPeriod(t=>t.type==='arquitecto').reduce((a,t)=>a+t.dur,0);
+  const mecMin=doneInPeriod(t=>t.type==='mecanico').reduce((a,t)=>a+t.dur,0);
   document.getElementById('goalsBox').innerHTML=`
-    ${goalRow('🏛️ Arquitecto (visión)','goalArq',S.config.goalArq,arqMin,'var(--accent)')}
-    ${goalRow('🔧 Mecánico (operación)','goalMec',S.config.goalMec,mecMin,'#9a8278')}
-    <p style="font-size:12px;color:var(--text-tertiary);margin-top:6px">Las horas ejecutadas se suman solas cuando marcas una tarea como <b>Realizada</b> (usa su duración estimada).</p>`;
+    ${goalRow('🏛️ Arquitecto (visión)','arq',arqMin,'var(--accent)')}
+    ${goalRow('🔧 Mecánico (operación)','mec',mecMin,'#9a8278')}
+    <p style="font-size:12px;color:var(--text-tertiary);margin-top:6px">Edita la meta de <b>día</b>, <b>semana</b> y <b>mes</b>. La barra muestra tu avance en <b>${PERIOD_LABEL[per]}</b> (cambia el periodo arriba ⬆️). Las horas ejecutadas se suman solas cuando marcas una tarea como <b>Realizada</b>.</p>`;
   const r=S.config.rules;
   document.getElementById('rulesBox').innerHTML=`
     <div class="rule"><div class="rule-body"><div class="rule-title">🔴 Máximo de fuegos al día</div><div class="rule-desc">Si superas este número, el To-Do te avisa en rojo. Protege tu enfoque.</div></div>
@@ -857,14 +941,43 @@ function renderConfig(){
       <div class="rule-ctl"><div class="switch ${r.protegeSagrado?'on':''}" onclick="setRule('protegeSagrado',${!r.protegeSagrado})"></div></div></div>
     <div class="rule"><div class="rule-body"><div class="rule-title">🚀 Lanzamiento diario obligatorio</div><div class="rule-desc">Si no avanzaste el Lanzamiento hoy, lo verás como alerta arriba.</div></div>
       <div class="rule-ctl"><div class="switch ${r.lanzamientoDiario?'on':''}" onclick="setRule('lanzamientoDiario',${!r.lanzamientoDiario})"></div></div></div>`;
+  renderBlocks();
 }
-function goalRow(label,key,goal,doneMin,color){
+function renderBlocks(){
+  const box=document.getElementById('blocksBox'); if(!box)return;
+  box.innerHTML=S.blocks.map((b,i)=>`
+    <div class="blk-row" style="border-left-color:${b.color}">
+      <input type="color" value="${b.color}" onchange="setBlockField('${b.id}','color',this.value)" title="Color">
+      <input type="text" class="blk-label" value="${b.label.replace(/"/g,'&quot;')}" onchange="setBlockField('${b.id}','label',this.value)" placeholder="Nombre del bloque">
+      <input type="text" class="blk-time" value="${b.time.replace(/"/g,'&quot;')}" onchange="setBlockField('${b.id}','time',this.value)" placeholder="Ej: 9:00 - 11:00 AM">
+      <span class="blk-ctl">
+        <button onclick="moveBlock('${b.id}',-1)" title="Subir" ${i===0?'disabled style=opacity:.3':''}>↑</button>
+        <button onclick="moveBlock('${b.id}',1)" title="Bajar" ${i===S.blocks.length-1?'disabled style=opacity:.3':''}>↓</button>
+        <button class="del" onclick="removeBlock('${b.id}')" title="Eliminar">🗑️</button>
+      </span>
+    </div>`).join('');
+}
+function setBlockField(id,field,value){ const b=S.blocks.find(x=>x.id===id); if(!b)return; b[field]=value; save(); renderAll(); }
+function addBlock(){ S.blocks.push({id:'blk'+Date.now(),time:'',label:'🆕 Nuevo bloque',color:'#FF7E4D'}); save(); renderAll(); }
+function moveBlock(id,delta){ const i=S.blocks.findIndex(x=>x.id===id); if(i<0)return;
+  const j=i+delta; if(j<0||j>=S.blocks.length)return;
+  [S.blocks[i],S.blocks[j]]=[S.blocks[j],S.blocks[i]]; save(); renderAll(); }
+function removeBlock(id){
+  const b=S.blocks.find(x=>x.id===id); if(!b)return;
+  if(!confirm('¿Eliminar el bloque "'+b.label+'"? Las tareas asignadas a él quedarán sin bloque.'))return;
+  S.tasks.forEach(t=>{ if(t.block===id)t.block=null; });
+  S.blocks=S.blocks.filter(x=>x.id!==id); save(); renderAll();
+}
+function goalRow(label,type,doneMin,color){
+  const per=S.config.period, g=S.config.goals[type], goal=g[per]||1;
   const pct=Math.min(100,Math.round(doneMin/60/goal*100));
-  return `<div class="goal-row"><div class="goal-top"><span>${label}</span><span><input type="number" min="1" value="${goal}" onchange="setGoal('${key}',+this.value)"> h/sem</span></div>
+  const inputs=['dia','sem','mes'].map(p=>`<div class="goal-period ${p===per?'sel':''}"><label>${PERIOD_NAME[p]}</label><input type="number" min="1" value="${g[p]}" onchange="setGoal('${type}','${p}',+this.value)"></div>`).join('');
+  return `<div class="goal-row"><div class="goal-top" style="margin-bottom:9px"><span>${label}</span></div>
+    <div class="goal-periods">${inputs}</div>
     <div class="bar"><span style="width:${pct}%;background:${color}"></span></div>
-    <div class="goal-prog">${fmtH(doneMin)} ejecutadas · ${pct}% de la meta</div></div>`;
+    <div class="goal-prog">${fmtH(doneMin)} ejecutadas ${PERIOD_LABEL[per]} · ${pct}% de la meta (${goal}h)</div></div>`;
 }
-function setGoal(k,v){ S.config[k]=v||1; save(); renderAll(); }
+function setGoal(type,period,v){ S.config.goals[type][period]=v||1; save(); renderAll(); }
 function setRule(k,v){ S.config.rules[k]=v; save(); renderAll(); }
 
 /* ----- DIARIO ----- */
@@ -881,7 +994,7 @@ let editId=null;
 function fillSelect(el,opts){ el.innerHTML=opts.map(o=>`<option value="${o.v}">${o.l}</option>`).join(''); }
 function openTask(id){ const t=S.tasks.find(x=>x.id===id); if(!t)return; editId=id;
   fillSelect(document.getElementById('mBiz'),Object.keys(PROJECTS).map(k=>({v:k,l:projTag(k)})));
-  fillSelect(document.getElementById('mBlock'),[{v:'',l:'— Sin asignar —'},...BLOCKS.map(b=>({v:b.id,l:b.label}))]);
+  fillSelect(document.getElementById('mBlock'),[{v:'',l:'— Sin asignar —'},...S.blocks.map(b=>({v:b.id,l:b.label}))]);
   document.getElementById('mTask').value=t.title;
   document.getElementById('mBiz').value=t.project;
   document.getElementById('mType').value=t.type;
@@ -903,7 +1016,9 @@ function saveTask(){ const t=S.tasks.find(x=>x.id===editId); if(!t)return;
   if(t.stage==='inbox')t.stage='todo';
   save(); closeModal(); renderAll(); }
 function toggleDone(){ const t=S.tasks.find(x=>x.id===editId); if(!t)return;
-  t.stage=t.stage==='done'?'todo':'done'; save(); closeModal(); renderAll(); }
+  if(t.stage==='done'){ t.stage='todo'; t.doneAt=null; }        // reabrir: quita la fecha
+  else { t.stage='done'; t.doneAt=Date.now(); }                 // realizar: sella la fecha del periodo
+  save(); closeModal(); renderAll(); }
 function deleteTask(){ if(editId)delById(editId); closeModal(); }
 
 /* ----- SEMANA (mapa) ----- */
