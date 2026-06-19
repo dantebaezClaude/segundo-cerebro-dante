@@ -249,6 +249,12 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);border-radius:20px 20px 0 0;
   z-index:50;transform:translateY(100%);transition:.28s cubic-bezier(.4,0,.2,1);max-height:80%;display:flex;flex-direction:column}
 .sheet.on{transform:translateY(0)}
+/* menú de tarea = modal centrado para editar rápido (las otras hojas siguen subiendo) */
+#taskSheet{top:50%;left:50%;right:auto;bottom:auto;width:calc(100% - 40px);max-width:382px;max-height:76%;
+  border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);pointer-events:none;
+  transform:translate(-50%,-50%) scale(.9);opacity:0;
+  transition:transform .26s cubic-bezier(.34,1.5,.5,1),opacity .18s ease !important}
+#taskSheet.on{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
 .sheet .sh-head{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line)}
 .sheet .sh-head h3{font-size:15px;font-weight:800}
 .sheet .sh-x{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer}
