@@ -202,6 +202,20 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .per label{font-size:9px;text-transform:uppercase;color:var(--text3);font-weight:800;display:block}
 .per input{width:100%;border:none;background:transparent;color:var(--text);text-align:center;font-weight:800;font-size:15px;font-family:inherit}
 .per input:focus{outline:none}
+/* ---- editor de bloques del día ---- */
+.bedit{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--bc,var(--accent));border-radius:5px 14px 14px 5px;padding:11px 12px;margin-bottom:10px}
+.bedit-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.bedit input{background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);font-family:inherit;font-size:13px;font-weight:700;width:100%}
+.bedit input:focus{outline:none;border-color:var(--accent)}
+.bedit-name{flex:1}
+.bedit-time{font-weight:600 !important;margin-bottom:9px}
+.bedit-ord{display:flex;gap:4px;flex-shrink:0}
+.bedit-ord button{width:31px;height:31px;border:1px solid var(--line);background:var(--tile);color:var(--text2);border-radius:8px;font-size:14px;font-weight:800;cursor:pointer}
+.bedit-ord button:disabled{opacity:.32;cursor:default}
+.bedit-colors{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bdot{width:23px;height:23px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:transform .12s}
+.bdot.on{border-color:var(--text);transform:scale(1.16)}
+.bedit-del{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--red);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;font-family:inherit}
 .rule{display:flex;gap:11px;align-items:flex-start;background:var(--tile);border-left:4px solid var(--accent);border-radius:5px 11px 11px 5px;padding:12px;margin-bottom:9px}
 .rule .b{flex:1}.rule .rt{font-size:13px;font-weight:800}.rule .rd{font-size:11px;color:var(--text3);margin-top:2px}
 .sw{width:44px;height:25px;border-radius:14px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:.2s}
@@ -283,6 +297,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .fo-btn{background:var(--accent);color:var(--on-accent);border:none;border-radius:14px;padding:14px 34px;font-weight:800;font-size:15px;cursor:pointer}
 .fo-x{position:absolute;top:18px;right:20px;background:var(--tile);border:none;color:var(--text2);width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer}
 .art-note{font-size:10px;color:var(--text3);opacity:.7;text-align:center;border:1px dashed var(--line);border-radius:10px;padding:8px;margin-top:8px}
+.verse{text-align:center;font-size:13.5px;font-style:italic;line-height:1.6;color:var(--text2);margin:16px 10px 6px;padding-top:15px;border-top:1px solid var(--line)}
 /* ---- botón y estado de pánico (ultra importante) ---- */
 .panic-btn{background:var(--tile);border:none;color:var(--text2);border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
 .panic-btn.on{background:var(--red);color:#fff}
@@ -330,7 +345,6 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div class="hero">
         <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="El Arquitecto">
         <div class="veil"></div>
-        <div class="hero-emoji">🎨 arte por Higgsfield</div>
         <div class="hero-txt"><div class="hero-k">Modo Arquitecto</div><div class="hero-h">Construye sistemas, no apagues fuegos.</div></div>
       </div>
 
@@ -378,7 +392,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div class="minis" id="hoyMinis"></div>
 
       <div class="mantra">"Eres el <b>Arquitecto</b>, no el albañil. El miedo es gasolina, la fe el volante."</div>
-      <div class="art-note">🎨 Aquí pueden ir ilustraciones custom de Higgsfield (avatar Arquitecto · ícono por empresa).</div>
+      <div class="verse">“Si puedes creer, al que cree todo le es posible.”</div>
     </div>
 
     <!-- ================= PROYECTOS ================= -->
@@ -478,6 +492,11 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
           <div class="bar"><i style="width:82%;background:#9a8278"></i></div><div class="goal">4.1 h esta semana · 82% de la meta (5 h)</div></div>
       </div>
 
+      <div class="sect">⏰ Tus bloques del día <span class="cnt">edítalos</span></div>
+      <div class="hi-date" style="margin:-4px 2px 10px">Cambia nombre, horario y color. Reordénalos o agrega los tuyos — se sincroniza en tus dispositivos.</div>
+      <div id="blocksEditor"></div>
+      <button class="btn btn-pri" style="margin:2px 0 6px" onclick="addBlock()">➕ Agregar bloque</button>
+
       <div class="sect">📐 Principios que activan reglas</div>
       <div class="rule"><div class="b"><div class="rt">🔴 Máximo de fuegos al día</div><div class="rd">Si superas este número, el To-Do te avisa en rojo.</div></div><input value="3" style="width:42px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);text-align:center;font-weight:800;padding:6px;font-family:inherit"></div>
       <div class="rule"><div class="b"><div class="rt">🔒 Proteger el Bloque Sagrado</div><div class="rd">Recordatorio de apagar notificaciones.</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
@@ -557,7 +576,7 @@ const COMPANIES={
   marca:{name:'Marca Personal',emoji:'📚',color:'var(--purple)',h:'0.8 h',done:2},
   algorithmics:{name:'Algorithmics',emoji:'🧮',color:'var(--blue)',h:'0.5 h',done:1}
 };
-const BLOCKS=[
+let BLOCKS=[
   {id:'arranque',time:'7:30–9:00',label:'🌅 Arranque Espiritual',c:'var(--amber)'},
   {id:'lanzamiento',time:'9:30–11:00',label:'🚀 Lanzamiento',c:'var(--accent)'},
   {id:'sagrado',time:'11:00–12:30',label:'🧠 Bloque Sagrado 🔒',c:'var(--purple)',active:true},
@@ -577,6 +596,12 @@ async function cloudLoad(){const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas?s
 async function cloudPatch(t){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+t.id,{method:'PATCH',headers:SBH,body:JSON.stringify(taskToRow(t))});}catch(e){console.warn('cloud patch',e);}}
 async function cloudInsert(t){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify(taskToRow(t))});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('cloud insert',e);return null;}}
 async function cloudDelete(id){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+id,{method:'DELETE',headers:SBH});}catch(e){console.warn('cloud del',e);}}
+/* ===== NUBE: bloques del día (editables y sincronizados) ===== */
+async function cloudLoadBlocks(){const r=await fetch(SB_URL+'/rest/v1/cerebro_bloques?select=*&order=pos.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return (await r.json()).map(x=>({id:x.id,time:x.horario,label:x.label,c:x.color,active:!!x.active}));}
+async function cloudPatchBlock(b){try{const pos=BLOCKS.indexOf(b);await fetch(SB_URL+'/rest/v1/cerebro_bloques?id=eq.'+encodeURIComponent(b.id),{method:'PATCH',headers:SBH,body:JSON.stringify({label:b.label,horario:b.time,color:b.c,active:!!b.active,pos:pos})});}catch(e){console.warn('block patch',e);}}
+async function cloudInsertBlock(b){try{const pos=BLOCKS.indexOf(b);await fetch(SB_URL+'/rest/v1/cerebro_bloques',{method:'POST',headers:SBH,body:JSON.stringify({id:b.id,label:b.label,horario:b.time,color:b.c,active:!!b.active,pos:pos})});}catch(e){console.warn('block insert',e);}}
+async function cloudDeleteBlock(id){try{await fetch(SB_URL+'/rest/v1/cerebro_bloques?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('block del',e);}}
+async function saveBlockOrder(){try{await Promise.all(BLOCKS.map((b,i)=>fetch(SB_URL+'/rest/v1/cerebro_bloques?id=eq.'+encodeURIComponent(b.id),{method:'PATCH',headers:SBH,body:JSON.stringify({pos:i})})));}catch(e){console.warn('block order',e);}}
 const TC={1:'var(--red)',2:'var(--red)',3:'var(--red)'};
 function ecolor(k){return (COMPANIES[k]&&COMPANIES[k].color)||'#9a8278'}
 function etag(k){const c=COMPANIES[k];return c?c.emoji+' '+c.name:'⚙️ Sistema'}
@@ -655,6 +680,31 @@ function pickBlock(id){pickId=id;
 }
 function assign(bid){const t=TASKS.find(x=>x.id===pickId);if(!t)return;t.block=bid;if(t.stage==='trash')t.stage='todo';cloudPatch(t);closeSheets();render();
   const b=BLOCKS.find(x=>x.id===bid);toast('📌 Acomodada en '+b.label.replace(/^[^ ]+ /,''));}
+
+/* ---- EDITOR de bloques del día (Configurador) ---- */
+const BCOLORS=[['Acento','var(--accent)'],['Ámbar','var(--amber)'],['Morado','var(--purple)'],['Rojo','var(--red)'],['Azul','var(--blue)'],['Verde','var(--green)'],['Teal','#3FB8B0'],['Rosa','var(--pink)']];
+function escAttr(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function renderBlocksEditor(){const el=document.getElementById('blocksEditor');if(!el)return;
+  el.innerHTML=BLOCKS.map((b,i)=>`<div class="bedit" style="--bc:${b.c}">
+      <div class="bedit-row">
+        <input class="bedit-name" value="${escAttr(b.label)}" onchange="setBlock('${b.id}','label',this.value)" placeholder="Nombre del bloque">
+        <div class="bedit-ord">
+          <button onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Subir">↑</button>
+          <button onclick="moveBlock(${i},1)" ${i===BLOCKS.length-1?'disabled':''} title="Bajar">↓</button>
+        </div>
+      </div>
+      <input class="bedit-time" value="${escAttr(b.time)}" onchange="setBlock('${b.id}','time',this.value)" placeholder="Horario (ej. 9:30–11:00)">
+      <div class="bedit-colors">
+        ${BCOLORS.map(c=>`<button class="bdot${b.c===c[1]?' on':''}" style="background:${c[1]}" title="${c[0]}" onclick="setBlock('${b.id}','c','${c[1]}')"></button>`).join('')}
+        <button class="bedit-del" onclick="removeBlock('${b.id}')" title="Eliminar bloque">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+function setBlock(id,field,val){const b=BLOCKS.find(x=>x.id===id);if(!b)return;b[field]=val;cloudPatchBlock(b);render();renderBlocksEditor();}
+function moveBlock(i,dir){const j=i+dir;if(j<0||j>=BLOCKS.length)return;const t=BLOCKS[i];BLOCKS[i]=BLOCKS[j];BLOCKS[j]=t;saveBlockOrder();render();renderBlocksEditor();}
+function addBlock(){const b={id:'b'+Date.now(),time:'12:00–1:00',label:'🆕 Nuevo bloque',c:'var(--accent)',active:false};BLOCKS.push(b);cloudInsertBlock(b);render();renderBlocksEditor();toast('➕ Bloque agregado');
+  document.getElementById('scroll').scrollTo&&setTimeout(()=>{const e=document.getElementById('blocksEditor');if(e)e.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});},60);}
+function removeBlock(id){if(BLOCKS.length<=1){toast('Deja al menos un bloque');return;}const i=BLOCKS.findIndex(x=>x.id===id);if(i<0)return;BLOCKS.splice(i,1);cloudDeleteBlock(id);saveBlockOrder();render();renderBlocksEditor();toast('🗑️ Bloque eliminado');}
 
 /* ---- PROYECTOS ---- */
 function renderProj(){document.getElementById('projGrid').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
@@ -792,8 +842,9 @@ function stopFocus(done){clearInterval(foInt);document.getElementById('focusOver
 /* init: carga las tareas desde la nube y luego pinta */
 renderInbox();renderNotes();renderProj();
 (async function init(){
+  try{ const b=await cloudLoadBlocks(); if(b&&b.length)BLOCKS=b; }catch(e){ console.warn('Nube de bloques offline; uso los de ejemplo',e); }
   try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
-  render();renderProj();renderTrash();animateRing();
+  render();renderProj();renderTrash();renderBlocksEditor();animateRing();
   setTimeout(maybeShowPanic,600);
 })();
 </script>
