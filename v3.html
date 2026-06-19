@@ -298,6 +298,13 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .fo-x{position:absolute;top:18px;right:20px;background:var(--tile);border:none;color:var(--text2);width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer}
 .art-note{font-size:10px;color:var(--text3);opacity:.7;text-align:center;border:1px dashed var(--line);border-radius:10px;padding:8px;margin-top:8px}
 .verse{text-align:center;font-size:13.5px;font-style:italic;line-height:1.6;color:var(--text2);margin:16px 10px 6px;padding-top:15px;border-top:1px solid var(--line)}
+/* ---- foco: stat + registro de sesiones + estrella activa ---- */
+.foco-stat{font-size:12px;font-weight:700;color:var(--text2);background:var(--tile);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-bottom:12px}
+.foco-stat b{color:var(--accent)}
+.foco-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:5px 11px 11px 5px;padding:10px 12px;margin-bottom:7px;font-size:13px}
+.foco-row .ft{font-weight:600}
+.foco-row .fm{font-size:11px;font-weight:800;color:var(--accent);flex-shrink:0}
+.panic-btn.focon{background:var(--accent);color:var(--on-accent)}
 /* ---- botón y estado de pánico (ultra importante) ---- */
 .panic-btn{background:var(--tile);border:none;color:var(--text2);border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
 .panic-btn.on{background:var(--red);color:#fff}
@@ -353,6 +360,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       </div>
 
       <div id="focusWrap"></div>
+      <div id="focoSesiones"></div>
 
       <div class="card">
         <div class="bal">
@@ -451,6 +459,9 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         <div class="stats"><div><div class="v">4.1 h</div><div class="l">de operación</div></div><div><div class="v">10</div><div class="l">tareas ✓</div></div></div>
         <div class="bar"><i style="width:56%;background:#9a8278"></i></div><div class="goal">Meta semana: 5 h · 82% logrado</div>
       </div>
+
+      <div class="sect">🎯 Foco — últimos 7 días</div>
+      <div class="card" style="padding:14px"><div id="focoHistorial"></div></div>
 
       <div class="sect">📊 Historial — últimas 5 semanas</div>
       <div class="card" style="padding:14px">
@@ -594,6 +605,13 @@ async function cloudPatchBlock(b){try{const pos=BLOCKS.indexOf(b);await fetch(SB
 async function cloudInsertBlock(b){try{const pos=BLOCKS.indexOf(b);await fetch(SB_URL+'/rest/v1/cerebro_bloques',{method:'POST',headers:SBH,body:JSON.stringify({id:b.id,label:b.label,horario:b.time,color:b.c,active:!!b.active,pos:pos})});}catch(e){console.warn('block insert',e);}}
 async function cloudDeleteBlock(id){try{await fetch(SB_URL+'/rest/v1/cerebro_bloques?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('block del',e);}}
 async function saveBlockOrder(){try{await Promise.all(BLOCKS.map((b,i)=>fetch(SB_URL+'/rest/v1/cerebro_bloques?id=eq.'+encodeURIComponent(b.id),{method:'PATCH',headers:SBH,body:JSON.stringify({pos:i})})));}catch(e){console.warn('block order',e);}}
+/* ===== NUBE: sesiones de foco (Pomodoro 25 min, con hecho/pendiente) ===== */
+let FOCO=[];
+async function cloudLoadFoco(){const r=await fetch(SB_URL+'/rest/v1/cerebro_foco_sesiones?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertFoco(s){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_foco_sesiones',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({task_id:s.task_id,task_title:s.task_title,minutos:s.minutos,completada:s.completada})});const row=(await r.json())[0];if(row&&row.id)s.id=row.id;}catch(e){console.warn('foco insert',e);}}
+function isToday(iso){if(!iso)return false;const d=new Date(iso),n=new Date();return d.toDateString()===n.toDateString();}
+function focoMinHoy(){return FOCO.filter(s=>isToday(s.creado_en)).reduce((a,s)=>a+(s.minutos||0),0);}
+function focoSesHoy(){return FOCO.filter(s=>isToday(s.creado_en));}
 const TC={1:'var(--red)',2:'var(--red)',3:'var(--red)'};
 function ecolor(k){return (COMPANIES[k]&&COMPANIES[k].color)||'#9a8278'}
 function etag(k){const c=COMPANIES[k];return c?c.emoji+' '+c.name:'⚙️ Sistema'}
@@ -624,6 +642,7 @@ function render(){
     <div class="task${t.panic?' ultra':''}" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
       <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span></div>
       <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>
+        <button class="panic-btn${t.foco?' focon':''}" onclick="setFocus('${t.id}')" title="Hacer foco de hoy">⭐</button>
         <button class="panic-btn${t.panic?' on':''}" onclick="togglePanic('${t.id}')" title="Botón de pánico: ultra importante">🚨</button>
         <button class="assign" onclick="pickBlock('${t.id}')">📌 Asignar</button>
         <button class="assign" style="background:var(--tile);color:var(--text2)" onclick="openTaskMenu('${t.id}')">⋯</button></div>
@@ -640,7 +659,7 @@ function render(){
 
   document.getElementById('hoyMinis').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
     return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${c.h}</div><div class="sub">${c.done} hechas hoy</div></div>`;}).join('');
-  renderFocus();
+  renderFocus();renderFocoSesiones();
 }
 function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(document.getElementById('panicOvl').classList.contains('on'))renderPanic();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
 
@@ -780,12 +799,15 @@ function maybeShowPanic(){ if(panicPending().length){ openPanic(); } }
 /* ---- FOCO DEL DÍA: tarjeta dinámica + elegir/cambiar/quitar ---- */
 function renderFocus(){
   const el=document.getElementById('focusWrap');if(!el)return;
+  const min=focoMinHoy(),ses=focoSesHoy().length;
+  const stat=`<div class="foco-stat">🎯 <b>${min} min</b> de foco hoy${ses?` · ${ses} ${ses===1?'bloque':'bloques'}`:''}</div>`;
   const f=TASKS.find(t=>t.foco&&t.stage!=='trash');
   if(!f){
     el.innerHTML=`<div class="card focus">
       <div class="kicker">⚡ Tu foco de hoy</div>
       <h2 style="margin-bottom:6px">Aún no eliges tu foco</h2>
       <p>Escoge la tarea más importante del día para arrancar sin distracciones.</p>
+      ${stat}
       <div class="row"><button class="btn btn-pri" onclick="openFocusPick()">⭐ Elegir foco</button></div>
     </div>`;return;
   }
@@ -797,11 +819,32 @@ function renderFocus(){
     </div>
     <h2>${f.t}</h2>
     <p>${etag(f.e)} · ${f.ty} · ⏱️ ${f.d}${blk?' · '+blk.time:''}${f.done?' · ✅ hecha':''}</p>
+    ${stat}
     <div class="row">
       <button class="btn btn-pri" onclick="startFocusTask('${f.id}')">▶ Empezar bloque</button>
       <button class="btn btn-ghost" onclick="openFocusPick()" title="Cambiar foco">🔄</button>
     </div>
   </div>`;
+}
+/* registro de sesiones de foco de hoy (qué se hizo / quedó pendiente) */
+function renderFocoSesiones(){
+  const el=document.getElementById('focoSesiones');if(!el)return;
+  const hoy=focoSesHoy();
+  if(!hoy.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="sect">🎯 Sesiones de foco de hoy <span class="cnt">${hoy.length} · ${focoMinHoy()} min</span></div>`+
+    hoy.map(s=>`<div class="foco-row"><span class="ft">${s.completada?'✅':'⏳'} ${s.task_title}</span><span class="fm">${s.minutos} min</span></div>`).join('');
+}
+/* historial de foco por día (KPIs) */
+function renderFocoHistorial(){
+  const el=document.getElementById('focoHistorial');if(!el)return;
+  if(!FOCO.length){el.innerHTML='<div class="art-note">Aún no registras sesiones de foco. Empieza un bloque desde tu foco de hoy.</div>';return;}
+  const by={};FOCO.forEach(s=>{const k=new Date(s.creado_en).toDateString();by[k]=(by[k]||0)+(s.minutos||0);});
+  const days=[];for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  const max=Math.max(60,...Object.values(by));
+  const dd=['dom','lun','mar','mié','jue','vie','sáb'];
+  el.innerHTML=days.map(d=>{const m=by[d.toDateString()]||0;const pct=Math.round(m/max*100);const today=d.toDateString()===new Date().toDateString();
+    return `<div class="hrow${today?' now':''}"><div class="hl">${dd[d.getDay()]} ${d.getDate()}${today?'<small>hoy</small>':''}</div><div class="htrack"><i style="width:${pct}%;background:var(--accent)"></i></div><div class="hval">${m}m <small>·${Math.round(m/25)}🎯</small></div></div>`;
+  }).join('');
 }
 function openFocusPick(){
   const list=TASKS.filter(t=>t.stage==='todo'&&!t.done);
@@ -822,7 +865,7 @@ function closeSheets(){document.getElementById('ovl').classList.remove('on');doc
 
 /* ---- menú de acciones de una tarea (mover / sacar / realizar / eliminar) ---- */
 function blockName(id){const b=BLOCKS.find(x=>x.id===id);return b?b.label.replace(/^\S+\s/,''):'';}
-function startFocusTask(id){const t=TASKS.find(x=>x.id===id);if(t)startFocus(t.t);}
+function startFocusTask(id){const t=TASKS.find(x=>x.id===id);if(t)startFocus(t.t,id);}
 function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   document.getElementById('taskMenuTitle').textContent=t.t.length>32?t.t.slice(0,32)+'…':t.t;
   let h=`<div class="mt">${t.block?'📌 En bloque: '+blockName(t.block):'📥 Sin bloque · Por acomodar'} · ${t.done?'✅ realizada':'⏳ pendiente'}</div>`;
@@ -863,18 +906,25 @@ wireP('periodHoy',p=>{const d=PER[p];document.getElementById('ringNum').textCont
 wireP('periodKpi');wireP('periodCfg');
 
 /* ---- focus timer ---- */
-let foInt,foSec=1500;
-function startFocus(name){document.getElementById('foName').textContent=name;foSec=1500;
+let foInt,foSec=1500,foTaskId=null,foName='';
+function startFocus(name,taskId){foName=name;foTaskId=taskId||null;document.getElementById('foName').textContent=name;foSec=1500;
   document.getElementById('focusOverlay').classList.add('on');document.getElementById('foTimer').textContent='25:00';clearInterval(foInt);
   foInt=setInterval(()=>{foSec--;document.getElementById('foTimer').textContent=String(Math.floor(foSec/60)).padStart(2,'0')+':'+String(foSec%60).padStart(2,'0');if(foSec<=0){clearInterval(foInt);stopFocus(true);}},1000);}
-function stopFocus(done){clearInterval(foInt);document.getElementById('focusOverlay').classList.remove('on');if(done)toast('💪 Bloque cerrado. Avanzaste el Lanzamiento.');}
+function stopFocus(done){clearInterval(foInt);document.getElementById('focusOverlay').classList.remove('on');
+  if(done){logFocoSesion();toast('💪 Bloque de 25 min registrado. ¡Avanzaste!');}
+  foTaskId=null;}
+function logFocoSesion(){
+  const t=foTaskId?TASKS.find(x=>x.id===foTaskId):null;
+  const s={id:'tmp'+Date.now(),task_id:foTaskId,task_title:t?t.t:(foName||'Foco'),minutos:25,completada:t?!!t.done:false,creado_en:new Date().toISOString()};
+  FOCO.unshift(s);cloudInsertFoco(s);renderFocus();renderFocoSesiones();renderFocoHistorial();}
 
 /* init: carga las tareas desde la nube y luego pinta */
 renderInbox();renderNotes();renderProj();
 (async function init(){
   try{ const b=await cloudLoadBlocks(); if(b&&b.length)BLOCKS=b; }catch(e){ console.warn('Nube de bloques offline; uso los de ejemplo',e); }
   try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
-  render();renderProj();renderTrash();renderBlocksEditor();animateRing();
+  try{ FOCO=await cloudLoadFoco(); }catch(e){ console.warn('Nube de foco offline',e); }
+  render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();animateRing();
   setTimeout(maybeShowPanic,600);
 })();
 </script>
