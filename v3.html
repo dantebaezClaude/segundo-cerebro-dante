@@ -352,20 +352,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         <button class="on" data-p="dia">Día</button><button data-p="sem">Semana</button><button data-p="mes">Mes</button>
       </div>
 
-      <div id="focusWrap">
-        <div class="card focus">
-          <div class="kicker" style="display:flex;justify-content:space-between;align-items:center">
-            <span>⚡ Tu foco de hoy · Día Digital</span>
-            <button onclick="deleteFocus()" title="Eliminar foco" style="background:transparent;border:none;color:var(--text3);font-size:15px;cursor:pointer;line-height:1;padding:0">🗑️</button>
-          </div>
-          <h2>Avanzar el Lanzamiento</h2>
-          <p>Tu capitalización más rápida. Un bloque, sin distracciones. 9:30–11:00 AM.</p>
-          <div class="row">
-            <button class="btn btn-pri" onclick="startFocus('Lanzamiento')">▶ Empezar bloque</button>
-            <button class="btn btn-ghost" onclick="toast('Lo dejamos para después 👍')">⋯</button>
-          </div>
-        </div>
-      </div>
+      <div id="focusWrap"></div>
 
       <div class="card">
         <div class="bal">
@@ -546,6 +533,11 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
     <div class="sh-body"><div class="menu-actions" id="taskActions"></div></div>
   </div>
 
+  <div class="sheet" id="focusSheet">
+    <div class="sh-head"><h3>⭐ Elige tu foco de hoy</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
+    <div class="sh-body"><div class="blockpick" id="focusPick"></div></div>
+  </div>
+
   <!-- pop-up de pánico (ultra importantes) -->
   <div class="panic-ovl" id="panicOvl">
     <div class="panic-box">
@@ -590,8 +582,8 @@ const SB_URL='https://qetocoxizvumespgocij.supabase.co';
 const SB_KEY='sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
 const SBH={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
 const PRIO2F={fuego:3,importante:2,sistema:1,idea:1};
-function rowToTask(r){return {id:r.id,t:r.title,e:r.project,ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id,panic:!!r.panic};}
-function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,panic:!!t.panic,actualizado_en:new Date().toISOString()};}
+function rowToTask(r){return {id:r.id,t:r.title,e:r.project,ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id,panic:!!r.panic,foco:!!r.foco};}
+function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,panic:!!t.panic,foco:!!t.foco,actualizado_en:new Date().toISOString()};}
 async function cloudLoad(){const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return (await r.json()).map(rowToTask);}
 async function cloudPatch(t){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+t.id,{method:'PATCH',headers:SBH,body:JSON.stringify(taskToRow(t))});}catch(e){console.warn('cloud patch',e);}}
 async function cloudInsert(t){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify(taskToRow(t))});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('cloud insert',e);return null;}}
@@ -648,6 +640,7 @@ function render(){
 
   document.getElementById('hoyMinis').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
     return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${c.h}</div><div class="sub">${c.done} hechas hoy</div></div>`;}).join('');
+  renderFocus();
 }
 function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(document.getElementById('panicOvl').classList.contains('on'))renderPanic();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
 
@@ -784,8 +777,44 @@ function openPanic(){renderPanic();document.getElementById('panicOvl').classList
 function closePanic(){document.getElementById('panicOvl').classList.remove('on');}
 function maybeShowPanic(){ if(panicPending().length){ openPanic(); } }
 
-/* ---- foco del día: eliminar (reaparece al recargar) ---- */
-function deleteFocus(){document.getElementById('focusWrap').style.display='none';toast('🗑️ Foco ocultado — reaparece al recargar');}
+/* ---- FOCO DEL DÍA: tarjeta dinámica + elegir/cambiar/quitar ---- */
+function renderFocus(){
+  const el=document.getElementById('focusWrap');if(!el)return;
+  const f=TASKS.find(t=>t.foco&&t.stage!=='trash');
+  if(!f){
+    el.innerHTML=`<div class="card focus">
+      <div class="kicker">⚡ Tu foco de hoy</div>
+      <h2 style="margin-bottom:6px">Aún no eliges tu foco</h2>
+      <p>Escoge la tarea más importante del día para arrancar sin distracciones.</p>
+      <div class="row"><button class="btn btn-pri" onclick="openFocusPick()">⭐ Elegir foco</button></div>
+    </div>`;return;
+  }
+  const blk=f.block?BLOCKS.find(b=>b.id===f.block):null;
+  el.innerHTML=`<div class="card focus">
+    <div class="kicker" style="display:flex;justify-content:space-between;align-items:center">
+      <span>⚡ Tu foco de hoy${blk?' · '+blk.label.replace(/^\\S+\\s/,''):''}</span>
+      <button onclick="clearFocus()" title="Quitar foco" style="background:transparent;border:none;color:var(--text3);font-size:15px;cursor:pointer;line-height:1;padding:0">🗑️</button>
+    </div>
+    <h2>${f.t}</h2>
+    <p>${etag(f.e)} · ${f.ty} · ⏱️ ${f.d}${blk?' · '+blk.time:''}${f.done?' · ✅ hecha':''}</p>
+    <div class="row">
+      <button class="btn btn-pri" onclick="startFocusTask('${f.id}')">▶ Empezar bloque</button>
+      <button class="btn btn-ghost" onclick="openFocusPick()" title="Cambiar foco">🔄</button>
+    </div>
+  </div>`;
+}
+function openFocusPick(){
+  const list=TASKS.filter(t=>t.stage==='todo'&&!t.done);
+  document.getElementById('focusPick').innerHTML=list.length?list.map(t=>{const blk=t.block?BLOCKS.find(b=>b.id===t.block):null;
+    return `<button style="--bc:${blk?blk.c:'var(--accent)'}" onclick="setFocus('${t.id}')"><span>${t.foco?'⭐ ':''}${t.t}</span><small>${etag(t.e)}${blk?' · '+blk.time:''}</small></button>`;}).join(''):'<div class="art-note">No tienes tareas activas para enfocar. Acomoda una en tu día primero.</div>';
+  openSheet('focusSheet');
+}
+function setFocus(id){
+  TASKS.forEach(t=>{if(t.foco&&t.id!==id){t.foco=false;cloudPatch(t);}});
+  const t=TASKS.find(x=>x.id===id);if(!t)return;t.foco=true;cloudPatch(t);
+  closeSheets();renderFocus();toast('⭐ Foco de hoy actualizado');
+}
+function clearFocus(){const f=TASKS.find(t=>t.foco);if(f){f.foco=false;cloudPatch(f);}renderFocus();toast('Foco quitado · elige otro cuando quieras');}
 
 /* ---- sheets / overlay ---- */
 function openSheet(id){document.querySelectorAll('.sheet').forEach(s=>{if(s.id!==id)s.classList.remove('on');});document.getElementById('ovl').classList.add('on');document.getElementById(id).classList.add('on');}
@@ -800,6 +829,7 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   if(!t.done){
     h+=`<button onclick="startFocusTask('${id}');closeSheets()">▶ Empezar en foco</button>`;
     h+=`<button onclick="toggleDone('${id}');closeSheets()">✅ Marcar realizada</button>`;
+    h+=`<button onclick="setFocus('${id}');closeSheets()">${t.foco?'⭐ Es tu foco de hoy':'⭐ Hacer foco de hoy'}</button>`;
   } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
   h+=`<button onclick="togglePanic('${id}');closeSheets()">${t.panic?'✅ Quitar de ultra importante':'🚨 Botón de pánico (ultra importante)'}</button>`;
   h+=`<button onclick="pickBlock('${id}')">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
