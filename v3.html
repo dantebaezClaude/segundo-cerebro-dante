@@ -345,7 +345,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         <div style="display:flex;gap:11px;align-items:center">
           <img class="avatar-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="Arquitecto">
           <div>
-            <div class="hi-date">Jueves 18 de junio · buenos días</div>
+            <div class="hi-date" id="hi-date-main">Cargando…</div>
             <div class="hi-name">Hola, Dante 👋 <span class="streak">🔥 4 días</span></div>
           </div>
         </div>
@@ -971,12 +971,51 @@ function logFocoSesion(){
   const s={id:'tmp'+Date.now(),task_id:foTaskId,task_title:t?t.t:(foName||'Foco'),minutos:25,completada:t?!!t.done:false,creado_en:new Date().toISOString()};
   FOCO.unshift(s);cloudInsertFoco(s);renderFocus();renderFocoSesiones();renderFocoHistorial();}
 
+/* ---- RELOJ EN TIEMPO REAL + BLOQUE ACTIVO ---- */
+const DIAS_ES=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES_ES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function parseBlockRange(tstr){
+  if(!tstr)return null;
+  const parts=tstr.split(/[–\-]/);if(parts.length<2)return null;
+  function h24(s){const p=(s.trim()+':0').split(':');const h=parseInt(p[0]),m=parseInt(p[1])||0;
+    if(h===12)return 720+m;          // 12:xx → noon
+    if(h>=1&&h<=5)return(h+12)*60+m; // 1–5 → PM
+    return h*60+m;}                   // 6–11 → AM
+  const s=h24(parts[0]),e=h24(parts[1]);
+  return{start:s,end:e<=s?e+720:e};} // si fin ≤ inicio, cruza mediodía/medianoche
+
+function currentActiveBlock(){
+  const n=new Date(),mins=n.getHours()*60+n.getMinutes();
+  return BLOCKS.find(b=>{const r=parseBlockRange(b.time);return r&&mins>=r.start&&mins<r.end;})||null;}
+
+function saludo(h){return h<12?'buenos días ☀️':h<19?'buenas tardes 🌤️':'buenas noches 🌙';}
+
+function updateClock(){
+  const n=new Date(),h=n.getHours(),m=n.getMinutes();
+  const el=document.getElementById('hi-date-main');
+  if(el){
+    const dia=DIAS_ES[n.getDay()],mes=MESES_ES[n.getMonth()];
+    const hh=h%12||12,mm=String(m).padStart(2,'0'),ap=h>=12?'pm':'am';
+    el.textContent=`${dia} ${n.getDate()} de ${mes} · ${hh}:${mm}${ap} · ${saludo(h)}`;
+  }
+  // recalcular qué bloque es "ahora"
+  const ab=currentActiveBlock();
+  let changed=false;
+  BLOCKS.forEach(b=>{const was=b.active;b.active=!!(ab&&b.id===ab.id);if(b.active!==was)changed=true;});
+  if(changed)render();
+}
+
+updateClock();
+setInterval(updateClock,60000); // actualiza cada minuto
+
 /* init: carga las tareas desde la nube y luego pinta */
 renderInbox();renderNotes();renderProj();
 (async function init(){
   try{ const b=await cloudLoadBlocks(); if(b&&b.length)BLOCKS=b; }catch(e){ console.warn('Nube de bloques offline; uso los de ejemplo',e); }
   try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
   try{ FOCO=await cloudLoadFoco(); }catch(e){ console.warn('Nube de foco offline',e); }
+  updateClock(); // re-detectar bloque activo con bloques reales de Supabase
   render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();animateRing();
   setTimeout(maybeShowPanic,600);
 })();
