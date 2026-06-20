@@ -233,10 +233,13 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .postgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .postit{border-radius:4px 4px 11px 4px;padding:11px;font-size:12px;font-weight:600;min-height:70px;color:#4a3700;line-height:1.4;box-shadow:0 3px 8px rgba(0,0,0,.2)}
 .postit:nth-child(3n){background:#BDE8B0}.postit:nth-child(3n+1){background:#FFC9D4}.postit:nth-child(3n+2){background:#FFE08A}
-.note-conv{margin-top:9px;width:100%;background:rgba(0,0,0,.16);border:none;color:#3a2a10;border-radius:7px;padding:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
-.note-conv:active{transform:scale(.97)}
-.note-del{margin-top:5px;width:100%;background:rgba(180,0,0,.18);border:none;color:#7a1a1a;border-radius:7px;padding:5px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
-.note-del:active{transform:scale(.97)}
+.postit{position:relative}
+.note-btns{position:absolute;bottom:8px;right:8px;display:flex;gap:5px}
+.note-dot{width:18px;height:18px;border-radius:50%;border:none;cursor:pointer;font-size:0;flex-shrink:0;opacity:.75;transition:opacity .15s,transform .12s}
+.note-dot:active{transform:scale(.88)}
+.note-dot:hover{opacity:1}
+.note-dot.green{background:#43B584}
+.note-dot.red{background:#E05252}
 .li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--tile);border-left:4px solid var(--wc,var(--accent));border-radius:5px 10px 10px 5px;padding:10px;margin-bottom:7px;font-size:13px}
 .li .conv{background:transparent;border:1px solid var(--wc);color:var(--wc);border-radius:8px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
 .chat{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;margin-bottom:10px}
@@ -809,7 +812,7 @@ function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();
 let NOTES=['Pagar INDET el viernes','Idea: bundle envío gratis WhatsApp'];
 function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.length;
   document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
-  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div>${n}</div><button class="note-conv" onclick="convertNote(${i})">⚙️ Convertir en tarea</button><button class="note-del" onclick="deleteNote(${i})">🗑️ Borrar nota</button></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
+  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit" style="padding-bottom:30px">${n}<div class="note-btns"><button class="note-dot green" onclick="convertNote(${i})" title="Convertir en tarea"></button><button class="note-dot red" onclick="deleteNote(${i})" title="Borrar nota"></button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
 function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
 function deleteNote(i){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){{NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}}
 function convertNote(i){
