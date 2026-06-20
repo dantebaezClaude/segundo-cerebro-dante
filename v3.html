@@ -616,6 +616,7 @@ const TC={1:'var(--red)',2:'var(--red)',3:'var(--red)'};
 function ecolor(k){return (COMPANIES[k]&&COMPANIES[k].color)||'#9a8278'}
 function etag(k){const c=COMPANIES[k];return c?c.emoji+' '+c.name:'⚙️ Sistema'}
 function fire(n){return '🔥'.repeat(n)}
+function bumpPrio(id,d){const t=TASKS.find(x=>x.id===id);if(!t)return;t.f=Math.min(3,Math.max(1,t.f+d));cloudPatch(t);render();}
 
 /* ---- navegación ---- */
 const nav=document.getElementById('nav');
@@ -642,6 +643,7 @@ function render(){
     <div class="task${t.panic?' ultra':''}" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
       <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span></div>
       <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>
+        <div class="fire"><button onclick="bumpPrio('${t.id}',-1)">−</button><div class="fl">${fire(t.f)}</div><button onclick="bumpPrio('${t.id}',1)">+</button></div>
         <button class="panic-btn${t.foco?' focon':''}" onclick="setFocus('${t.id}')" title="Hacer foco de hoy">⭐</button>
         <button class="panic-btn${t.panic?' on':''}" onclick="togglePanic('${t.id}')" title="Botón de pánico: ultra importante">🚨</button>
         <button class="assign" onclick="pickBlock('${t.id}')">📌 Asignar</button>
@@ -875,6 +877,8 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
     h+=`<button onclick="setFocus('${id}');closeSheets()">${t.foco?'⭐ Es tu foco de hoy':'⭐ Hacer foco de hoy'}</button>`;
   } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
   h+=`<button onclick="togglePanic('${id}');closeSheets()">${t.panic?'✅ Quitar de ultra importante':'🚨 Botón de pánico (ultra importante)'}</button>`;
+  h+=`<button onclick="pickEmpresa('${id}')">🏢 Cambiar empresa (ahora: ${etag(t.e)})</button>`;
+  h+=`<button onclick="flipTipo('${id}')">⚙️ Cambiar tipo (ahora: ${t.ty})</button>`;
   h+=`<button onclick="pickBlock('${id}')">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
   if(t.block)h+=`<button onclick="unassign('${id}')">⬆️ Quitar del bloque (Por acomodar)</button>`;
   h+=`<button class="danger" onclick="sendToTrash('${id}')">🗑️ Enviar a papelera</button>`;
@@ -882,6 +886,13 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   openSheet('taskSheet');
 }
 function unassign(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.block=null;cloudPatch(t);closeSheets();render();toast('⬆️ De vuelta a "Por acomodar"');}
+function flipTipo(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.ty=t.ty.includes('Mec')?'🏛️ Arq':'🔧 Mec';cloudPatch(t);closeSheets();render();toast('⚙️ Tipo → '+t.ty);}
+function pickEmpresa(id){
+  let h=`<div class="mt">Elige la empresa</div>`;
+  h+=Object.keys(COMPANIES).map(k=>`<button onclick="setEmpresa('${id}','${k}')">${COMPANIES[k].emoji} ${COMPANIES[k].name}</button>`).join('');
+  document.getElementById('taskActions').innerHTML=h;
+}
+function setEmpresa(id,ek){const t=TASKS.find(x=>x.id===id);if(!t)return;t.e=ek;cloudPatch(t);closeSheets();render();toast('🏢 Empresa → '+etag(ek));}
 
 /* ---- papelera (persistida en la nube como stage='trash') ---- */
 function sendToTrash(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.stage='trash';t.block=null;t.done=false;cloudPatch(t);closeSheets();render();renderTrash();toast('🗑️ Enviada a papelera · restáurala en Ajustes');}
