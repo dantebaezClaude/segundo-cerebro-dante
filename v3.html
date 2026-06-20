@@ -7,6 +7,7 @@
 <style>
 /* ===== Prototipo de rediseño v2 · mobile-first · para VoBo de Dante ===== */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
 body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 /* ---- TEMA (variables viven en .shell para poder cambiar a claro) ---- */
@@ -231,12 +232,14 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .ws-back{background:var(--tile);border:1px solid var(--line);color:var(--text2);border-radius:11px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px}
 .ws-title{font-size:22px;font-weight:800;color:var(--wc,var(--accent));margin-bottom:3px}
 .postgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.postit{border-radius:4px 4px 11px 4px;padding:11px;font-size:12px;font-weight:600;min-height:70px;color:#4a3700;line-height:1.4;box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.postgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+/* postit: flex column para evitar position:absolute (iOS Safari bug con overflow+absolute) */
+.postit{border-radius:4px 4px 11px 4px;padding:11px;font-size:12px;font-weight:600;min-height:70px;color:#4a3700;line-height:1.4;box-shadow:0 3px 8px rgba(0,0,0,.2);display:flex;flex-direction:column;justify-content:space-between}
 .postit:nth-child(3n){background:#BDE8B0}.postit:nth-child(3n+1){background:#FFC9D4}.postit:nth-child(3n+2){background:#FFE08A}
-.postit{position:relative}
-.note-btns{position:absolute;bottom:8px;right:8px;display:flex;gap:5px}
-.note-dot{width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;font-size:13px;flex-shrink:0;opacity:.8;transition:opacity .15s,transform .12s;display:flex;align-items:center;justify-content:center;line-height:1}
-.note-dot:active{transform:scale(.88)}
+.note-text{flex:1;margin-bottom:8px}
+.note-btns{display:flex;gap:5px;justify-content:flex-end;flex-shrink:0}
+.note-dot{width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;font-size:13px;flex-shrink:0;opacity:.85;transition:opacity .15s,transform .12s;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.note-dot:active{transform:scale(.88);opacity:1}
 .note-dot:hover{opacity:1}
 .note-dot.green{background:#43B584}
 .note-dot.red{background:#E05252}
@@ -280,11 +283,11 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .sheet .sh-head{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line)}
 .sheet .sh-head h3{font-size:15px;font-weight:800}
 .sheet .sh-x{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer}
-.sheet .sh-body{padding:14px 16px;overflow-y:auto}
+.sheet .sh-body{padding:14px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .noteadd{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .noteadd textarea{background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:11px;color:var(--text);font-family:inherit;font-size:14px;resize:vertical;min-height:54px}
 .noteadd textarea:focus{outline:none;border-color:var(--accent)}
-.noteadd button{background:var(--accent);color:var(--on-accent);border:none;border-radius:11px;padding:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.noteadd button{background:var(--accent);color:var(--on-accent);border:none;border-radius:11px;padding:10px;font-weight:800;cursor:pointer;font-family:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .blockpick{display:flex;flex-direction:column;gap:8px}
 .blockpick button{display:flex;justify-content:space-between;align-items:center;background:var(--tile);border:1px solid var(--line);border-left:4px solid var(--bc);border-radius:5px 11px 11px 5px;padding:12px;color:var(--text);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
 .blockpick button small{color:var(--text3);font-weight:600}
@@ -815,7 +818,7 @@ function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();
 let NOTES=['Pagar INDET el viernes','Idea: bundle envío gratis WhatsApp'];
 function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.length;
   document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
-  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit" style="padding-bottom:30px">${n}<div class="note-btns"><button class="note-dot green" onclick="convertNote(${i})" title="Convertir en tarea">⚙️</button><button class="note-dot red" onclick="deleteNote(${i})" title="Borrar nota">🗑️</button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
+  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div class="note-text">${n}</div><div class="note-btns"><button class="note-dot green" onclick="convertNote(${i})" title="Convertir en tarea">⚙️</button><button class="note-dot red" onclick="deleteNote(${i})" title="Borrar nota">🗑️</button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
 function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
 function deleteNote(i){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){{NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}}
 function convertNote(i){
