@@ -235,7 +235,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .postit:nth-child(3n){background:#BDE8B0}.postit:nth-child(3n+1){background:#FFC9D4}.postit:nth-child(3n+2){background:#FFE08A}
 .postit{position:relative}
 .note-btns{position:absolute;bottom:8px;right:8px;display:flex;gap:5px}
-.note-dot{width:18px;height:18px;border-radius:50%;border:none;cursor:pointer;font-size:0;flex-shrink:0;opacity:.75;transition:opacity .15s,transform .12s}
+.note-dot{width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;font-size:13px;flex-shrink:0;opacity:.8;transition:opacity .15s,transform .12s;display:flex;align-items:center;justify-content:center;line-height:1}
 .note-dot:active{transform:scale(.88)}
 .note-dot:hover{opacity:1}
 .note-dot.green{background:#43B584}
@@ -812,7 +812,7 @@ function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();
 let NOTES=['Pagar INDET el viernes','Idea: bundle envío gratis WhatsApp'];
 function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.length;
   document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
-  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit" style="padding-bottom:30px">${n}<div class="note-btns"><button class="note-dot green" onclick="convertNote(${i})" title="Convertir en tarea"></button><button class="note-dot red" onclick="deleteNote(${i})" title="Borrar nota"></button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
+  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit" style="padding-bottom:30px">${n}<div class="note-btns"><button class="note-dot green" onclick="convertNote(${i})" title="Convertir en tarea">⚙️</button><button class="note-dot red" onclick="deleteNote(${i})" title="Borrar nota">🗑️</button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
 function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
 function deleteNote(i){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){{NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}}
 function convertNote(i){
