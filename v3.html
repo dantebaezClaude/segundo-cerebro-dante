@@ -775,7 +775,7 @@ function renderInbox(){document.getElementById('inbox-cnt').textContent=INBOX.le
 function addInbox(){const i=document.getElementById('capIn'),v=i.value.trim();if(!v)return;INBOX.unshift(v);i.value='';renderInbox();toast('Capturado ⚡');}
 let convertIdx=null,convertData={},convertSource='inbox';
 function convert(i){
-  convertIdx=i;convertSource='inbox';convertData={e:'sistema',ty:'🔧 Mec',block:null};
+  convertIdx=i;convertSource='inbox';convertData={e:'sistema',ty:'🔧 Mec',block:null,panic:false};
   const title=INBOX[i];
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
@@ -787,8 +787,10 @@ function renderConvertForm(){
   h+='<div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:7px">⚙️ TIPO</div>';
   h+=`<div style="display:flex;gap:8px;margin-bottom:16px">${btn('🏛️ Arquitecto',convertData.ty.includes('Arq'),"convertData.ty='🏛️ Arq';renderConvertForm()")}${btn('🔧 Mecánico',convertData.ty.includes('Mec'),"convertData.ty='🔧 Mec';renderConvertForm()")}</div>`;
   h+='<div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:7px">📌 BLOQUE (opcional)</div>';
-  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${btn('📥 Sin bloque',!convertData.block,"convertData.block=null;renderConvertForm()")}${BLOCKS.map(b=>btn(b.label,convertData.block===b.id,`convertData.block='${b.id}';renderConvertForm()`,b.c)).join('')}</div>`;
-  h+=`<button onclick="confirmConvert()" style="width:100%;padding:13px;border-radius:10px;background:var(--accent);color:var(--on-accent);border:none;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit">✅ Crear tarea</button>`;
+  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${btn('📥 Sin bloque',!convertData.block,"convertData.block=null;renderConvertForm()")}${BLOCKS.map(b=>btn(b.label,convertData.block===b.id,`convertData.block='${b.id}';renderConvertForm()`,b.c)).join('')}</div>`;
+  h+='<div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:7px">🚨 URGENCIA</div>';
+  h+=`<div style="margin-bottom:20px">${btn('🚨 Ultra importante (pánico)',convertData.panic,"convertData.panic=!convertData.panic;renderConvertForm()",'var(--red)')}</div>`;
+  h+=`<button onclick="confirmConvert()" style="width:100%;padding:13px;border-radius:10px;background:var(--accent);color:var(--on-accent);border:none;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;touch-action:manipulation">✅ Crear tarea</button>`;
   document.getElementById('convertForm').innerHTML=h;
 }
 async function confirmConvert(){
@@ -797,7 +799,7 @@ async function confirmConvert(){
   if(convertSource==='note'){title=NOTES[convertIdx];NOTES.splice(convertIdx,1);renderNotes();}
   else{title=INBOX[convertIdx];INBOX.splice(convertIdx,1);renderInbox();}
   convertIdx=null;
-  const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:2,block:convertData.block||null,done:false,stage:'todo'};
+  const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:convertData.panic?3:2,block:convertData.block||null,done:false,stage:'todo',panic:convertData.panic||false};
   TASKS.push(t);closeSheets();render();
   const empTag=etag(convertData.e);
   toast('✅ Tarea creada · '+empTag, ()=>openTaskMenu(t.id));
@@ -822,7 +824,7 @@ function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.le
 function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
 function deleteNote(i){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){{NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}}
 function convertNote(i){
-  convertIdx=i;convertSource='note';convertData={e:'sistema',ty:'🔧 Mec',block:null};
+  convertIdx=i;convertSource='note';convertData={e:'sistema',ty:'🔧 Mec',block:null,panic:false};
   const title=NOTES[i];
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
