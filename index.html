@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🧠 Segundo Cerebro — Dante CEO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{ margin:0; padding:0; box-sizing:border-box; }
 :root{
@@ -416,6 +417,154 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 .postit-note:hover .pn-del{ opacity:1; }
 .postit-note .pn-del:hover{ background:rgba(0,0,0,.3); color:#fff; }
 @media(max-width:520px){ .postit-panel{ right:8px; left:8px; width:auto; } }
+
+/* ===== 🧠 CEREBRO ===== */
+.cerebro-tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.cerebro-tab{ flex:1; min-width:130px; padding:13px 16px; border:2px solid var(--chip-border);
+  background:var(--bg-surface); color:var(--text-secondary); border-radius:13px; cursor:pointer;
+  font-weight:800; font-size:14px; transition:var(--transition); text-align:center; }
+.cerebro-tab:hover{ border-color:var(--mc,var(--accent)); color:var(--text-primary); background:rgba(255,255,255,.04); }
+.cerebro-tab.active{ background:var(--mc,var(--accent)); color:#fff; border-color:var(--mc,var(--accent));
+  box-shadow:0 4px 18px color-mix(in srgb, var(--mc,var(--accent)) 38%, transparent); }
+.cerebro-panel{ display:none; animation:fadeIn .3s ease; }
+.cerebro-panel.active{ display:flex; flex-direction:column; gap:16px; }
+.cerebro-mod-card{ background:var(--bg-surface); border:1px solid var(--chip-border);
+  border-left:5px solid var(--mc,var(--accent)); border-radius:14px; padding:16px 22px; box-shadow:var(--shadow-md); }
+.cerebro-mod-title{ font-size:19px; font-weight:800; color:var(--mc,var(--accent)); margin-bottom:4px; }
+.cerebro-mod-desc{ font-size:13px; color:var(--text-tertiary); }
+.cerebro-chat-wrap{ background:var(--bg-surface); border:1px solid var(--chip-border);
+  border-radius:14px; display:flex; flex-direction:column; height:600px; overflow:hidden; box-shadow:var(--shadow-md); }
+.cerebro-log{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:20px; }
+.cerebro-bubble{ max-width:85%; padding:12px 15px; border-radius:13px; font-size:14px; line-height:1.55; white-space:pre-wrap; }
+.cerebro-bubble.user{ align-self:flex-end; background:var(--mc,var(--accent)); color:#fff; border-bottom-right-radius:4px; }
+.cerebro-bubble.ai{ align-self:flex-start; background:var(--bg-tile); border:1px solid var(--chip-border); border-bottom-left-radius:4px; }
+.cerebro-bubble.sys{ align-self:center; font-size:12px; color:var(--text-tertiary); font-style:italic; background:none; max-width:100%; text-align:center; padding:8px 0; }
+.cerebro-input-bar{ display:flex; gap:8px; padding:14px 16px; border-top:1px solid var(--chip-border); background:var(--bg-tile); }
+.cerebro-input-bar textarea{ flex:1; padding:11px 14px; border:1.5px solid var(--chip-border);
+  border-radius:11px; background:var(--bg-surface); color:var(--text-primary); font-family:inherit;
+  font-size:14px; resize:none; height:50px; transition:var(--transition); }
+.cerebro-input-bar textarea:focus{ outline:none; border-color:var(--mc,var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb,var(--mc,var(--accent)) 15%,transparent); }
+.cerebro-send{ padding:0 22px; background:var(--mc,var(--accent)); color:#fff; border:none;
+  border-radius:11px; font-weight:800; font-size:17px; cursor:pointer; transition:var(--transition); flex-shrink:0; }
+.cerebro-send:hover{ filter:brightness(1.12); transform:translateY(-1px); }
+.cerebro-send:disabled{ opacity:.45; cursor:default; transform:none; }
+.cerebro-clear{ padding:0 13px; border:1px solid var(--chip-border); background:transparent;
+  color:var(--text-tertiary); border-radius:11px; cursor:pointer; font-size:13px; font-weight:700;
+  transition:var(--transition); flex-shrink:0; }
+.cerebro-clear:hover{ border-color:var(--danger); color:var(--danger); background:rgba(210,69,44,.06); }
+
+/* ===== CONOCIMIENTO — UPLOAD ===== */
+.ck-mode-tabs{ display:flex; gap:6px; margin-bottom:12px; }
+.ck-mode-btn{ padding:7px 14px; border:1.5px solid var(--chip-border); background:transparent;
+  color:var(--text-tertiary); border-radius:9px; cursor:pointer; font-weight:700; font-size:12px; transition:var(--transition); }
+.ck-mode-btn:hover{ border-color:var(--mc,var(--accent)); color:var(--text-primary); }
+.ck-mode-btn.active{ background:var(--mc,var(--accent)); color:#fff; border-color:var(--mc,var(--accent)); }
+.ck-upload-zone{ border:2px dashed var(--dropzone-border); background:var(--dropzone-bg);
+  border-radius:12px; padding:28px 20px; text-align:center; cursor:pointer; transition:var(--transition);
+  margin-bottom:10px; position:relative; }
+.ck-upload-zone:hover, .ck-upload-zone.drag{ border-color:var(--mc,var(--accent)); background:color-mix(in srgb, var(--mc,var(--accent)) 6%, var(--dropzone-bg)); }
+.ck-upload-zone input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.ck-upload-icon{ font-size:32px; display:block; margin-bottom:8px; }
+.ck-upload-hint{ font-size:13px; color:var(--text-tertiary); }
+.ck-upload-hint b{ color:var(--mc,var(--accent)); }
+.ck-preview{ display:flex; gap:12px; align-items:flex-start; padding:12px; background:var(--bg-tile);
+  border:1px solid var(--chip-border); border-radius:10px; margin-bottom:10px; }
+.ck-preview-thumb{ width:70px; height:70px; object-fit:cover; border-radius:8px; flex-shrink:0; border:1px solid var(--chip-border); }
+.ck-preview-pdf{ width:70px; height:70px; background:var(--bg-surface); border-radius:8px; display:flex;
+  flex-direction:column; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
+  border:1px solid var(--chip-border); gap:3px; }
+.ck-preview-pdf small{ font-size:9px; font-weight:800; color:var(--text-tertiary); }
+.ck-preview-info{ flex:1; }
+.ck-preview-name{ font-size:13px; font-weight:700; margin-bottom:4px; word-break:break-all; }
+.ck-preview-size{ font-size:11px; color:var(--text-tertiary); margin-bottom:8px; }
+.ck-preview-nota{ width:100%; padding:7px 10px; border:1px solid var(--chip-border); border-radius:8px;
+  background:var(--bg-surface); color:var(--text-primary); font-family:inherit; font-size:12px; }
+.ck-preview-nota:focus{ outline:none; border-color:var(--mc,var(--accent)); }
+.ck-preview-clear{ font-size:11px; color:var(--danger); cursor:pointer; background:none; border:none; font-weight:700; margin-top:4px; display:block; }
+.ck-pdf-extracted{ background:var(--bg-tile); border:1px solid var(--chip-border); border-radius:10px;
+  padding:12px; font-size:12px; color:var(--text-secondary); max-height:120px; overflow-y:auto;
+  margin-bottom:10px; white-space:pre-wrap; line-height:1.5; }
+.ck-pdf-label{ font-size:11px; font-weight:800; color:var(--text-tertiary); text-transform:uppercase;
+  letter-spacing:.4px; margin-bottom:6px; }
+.ck-processing{ display:flex; align-items:center; gap:10px; padding:14px; background:var(--bg-tile);
+  border-radius:10px; font-size:13px; color:var(--text-secondary); }
+.ck-spinner{ width:18px; height:18px; border:2px solid var(--chip-border);
+  border-top-color:var(--mc,var(--accent)); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ===== CONOCIMIENTO ===== */
+.ck-wrap{ background:var(--bg-surface); border:1px solid var(--chip-border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow-md); }
+.ck-header{ display:flex; align-items:center; justify-content:space-between; padding:13px 18px;
+  cursor:pointer; background:var(--bg-tile); user-select:none; transition:var(--transition); gap:10px; }
+.ck-header:hover{ background:color-mix(in srgb, var(--mc,var(--accent)) 7%, var(--bg-tile)); }
+.ck-header-left{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:14px; }
+.ck-count{ font-size:11px; font-weight:700; color:var(--text-tertiary); background:var(--bg-surface);
+  border:1px solid var(--chip-border); border-radius:20px; padding:2px 10px; }
+.ck-arrow{ font-size:13px; color:var(--text-tertiary); transition:transform .25s ease; }
+.ck-open .ck-arrow{ transform:rotate(180deg); }
+.ck-body{ display:none; padding:16px 18px; border-top:1px solid var(--chip-border); }
+.ck-open .ck-body{ display:block; }
+.ck-input-row{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.ck-tipo{ padding:9px 12px; border:1.5px solid var(--chip-border); border-radius:10px;
+  background:var(--bg-tile); color:var(--text-primary); font-family:inherit; font-weight:700; font-size:13px;
+  flex-shrink:0; cursor:pointer; transition:var(--transition); }
+.ck-tipo:focus{ outline:none; border-color:var(--mc,var(--accent)); }
+.ck-text{ flex:1; min-width:200px; padding:10px 13px; border:1.5px solid var(--chip-border); border-radius:10px;
+  background:var(--bg-tile); color:var(--text-primary); font-family:inherit; font-size:13px;
+  resize:none; height:46px; transition:var(--transition); }
+.ck-text:focus{ outline:none; border-color:var(--mc,var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb,var(--mc,var(--accent)) 12%,transparent); }
+.ck-add{ padding:0 20px; background:var(--mc,var(--accent)); color:#fff; border:none;
+  border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; transition:var(--transition); white-space:nowrap; flex-shrink:0; }
+.ck-add:hover{ filter:brightness(1.1); transform:translateY(-1px); }
+.ck-list{ display:flex; flex-direction:column; gap:7px; max-height:260px; overflow-y:auto; padding-right:2px; }
+.ck-item{ display:flex; gap:10px; align-items:flex-start; padding:10px 13px;
+  background:var(--bg-tile); border-radius:10px; border-left:3px solid var(--mc,var(--accent));
+  font-size:13px; animation:fadeIn .2s ease; }
+.ck-item-body{ flex:1; }
+.ck-item-tipo{ font-size:10px; font-weight:800; color:var(--mc,var(--accent)); text-transform:uppercase;
+  letter-spacing:.4px; margin-bottom:3px; }
+.ck-item-texto{ color:var(--text-primary); line-height:1.45; }
+.ck-item-fecha{ font-size:10px; color:var(--text-tertiary); margin-top:4px; }
+.ck-del{ border:none; background:transparent; color:var(--text-tertiary); cursor:pointer;
+  font-size:16px; line-height:1; flex-shrink:0; opacity:.5; transition:var(--transition); padding:2px 4px; }
+.ck-del:hover{ opacity:1; color:var(--danger); }
+.ck-empty{ text-align:center; color:var(--text-tertiary); font-size:13px; padding:18px 8px; font-style:italic; }
+
+/* ===== FRASES ===== */
+.frases-wrap{ background:var(--bg-surface); border:1px solid var(--chip-border); border-radius:14px;
+  overflow:hidden; box-shadow:var(--shadow-md); }
+.frases-header{ display:flex; align-items:center; justify-content:space-between; padding:13px 18px;
+  background:var(--bg-tile); gap:10px; }
+.frases-title{ font-weight:800; font-size:14px; display:flex; align-items:center; gap:8px; }
+.frases-actions{ display:flex; gap:7px; }
+.frase-gen-btn{ padding:8px 14px; background:var(--mc,var(--accent)); color:#fff; border:none;
+  border-radius:9px; font-weight:800; font-size:12px; cursor:pointer; transition:var(--transition); }
+.frase-gen-btn:hover{ filter:brightness(1.1); }
+.frase-gen-btn:disabled{ opacity:.5; cursor:default; }
+.frase-add-btn{ padding:8px 14px; border:1px solid var(--mc,var(--accent)); background:transparent;
+  color:var(--mc,var(--accent)); border-radius:9px; font-weight:800; font-size:12px; cursor:pointer; transition:var(--transition); }
+.frase-add-btn:hover{ background:var(--mc,var(--accent)); color:#fff; }
+.frases-body{ padding:16px 18px; border-top:1px solid var(--chip-border); }
+.frase-input-row{ display:flex; gap:8px; margin-bottom:14px; }
+.frase-input-row input{ flex:1; padding:10px 13px; border:1.5px solid var(--chip-border);
+  border-radius:10px; background:var(--bg-tile); color:var(--text-primary); font-family:inherit; font-size:13px; }
+.frase-input-row input:focus{ outline:none; border-color:var(--mc,var(--accent)); }
+.frase-input-row button{ padding:0 16px; background:var(--mc,var(--accent)); color:#fff;
+  border:none; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; white-space:nowrap; }
+.frases-list{ display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; }
+.frase-item{ position:relative; padding:13px 36px 13px 16px;
+  background:color-mix(in srgb, var(--mc,var(--accent)) 8%, var(--bg-tile));
+  border:1px solid color-mix(in srgb, var(--mc,var(--accent)) 20%, var(--chip-border));
+  border-left:4px solid var(--mc,var(--accent));
+  border-radius:11px; font-size:14px; font-style:italic; line-height:1.5;
+  color:var(--text-primary); animation:fadeIn .25s ease; }
+.frase-item .fi-fuente{ display:block; font-size:10px; font-weight:800; color:var(--mc,var(--accent));
+  font-style:normal; margin-top:6px; opacity:.8; }
+.frase-item .fi-del{ position:absolute; top:8px; right:10px; border:none; background:transparent;
+  color:var(--text-tertiary); cursor:pointer; font-size:16px; opacity:0; transition:var(--transition); }
+.frase-item:hover .fi-del{ opacity:.6; }
+.frase-item .fi-del:hover{ opacity:1; color:var(--danger); }
+.frases-empty{ text-align:center; color:var(--text-tertiary); font-size:13px; padding:18px; font-style:italic; }
 </style>
 </head>
 <body>
@@ -431,6 +580,7 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
       <button class="nav-btn" data-page="semana">🗓️ Inbox & Semana</button>
       <button class="nav-btn" data-page="kpis">📈 KPIs</button>
       <button class="nav-btn" data-page="config">🧭 Configurador</button>
+      <button class="nav-btn" data-page="cerebro">🧠 Cerebro</button>
     </div>
     <div class="navbar-right">
       <button class="postit-btn" id="postitBtn">📝 Notas<span class="postit-count" id="postitCount">0</span></button>
@@ -614,6 +764,248 @@ body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
       <div class="diary-list" id="diaryList"></div>
     </div>
   </div>
+
+  <!-- ===== 🧠 CEREBRO ===== -->
+  <div class="page" id="page-cerebro">
+    <div class="section-title">🧠 Segundo Cerebro</div>
+    <div class="section-sub">Tu consejo privado. Sin datos genéricos — responde solo desde tu conocimiento, tus mentores y tus principios.</div>
+
+    <div class="cerebro-tabs" id="cerebroTabs">
+      <button class="cerebro-tab active" data-mod="sinergia" style="--mc:#4A90D9">🤝 Sinergia</button>
+      <button class="cerebro-tab" data-mod="conexion" style="--mc:#E87EA1">❤️ Conexión</button>
+      <button class="cerebro-tab" data-mod="servir" style="--mc:#E0A53C">✝️ Servir</button>
+      <button class="cerebro-tab" data-mod="mindset" style="--mc:#9B6BD6">🧠 Mindset</button>
+    </div>
+
+    <!-- SINERGIA -->
+    <div class="cerebro-panel active" id="mod-sinergia" style="--mc:#4A90D9">
+      <div class="cerebro-mod-card">
+        <div class="cerebro-mod-title">🤝 Sinergia y Networking de Alto Nivel</div>
+        <div class="cerebro-mod-desc">Preparación de reuniones estratégicas · Preguntas de impacto · Atenciones corporativas · Alianzas de largo plazo</div>
+      </div>
+      <div class="ck-wrap" id="ck-sinergia">
+        <div class="ck-header" onclick="toggleCK('sinergia')">
+          <div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-sinergia">0 entradas</span></div>
+          <span class="ck-arrow">▾</span>
+        </div>
+        <div class="ck-body">
+          <div class="ck-mode-tabs">
+            <button class="ck-mode-btn active" onclick="setCKMode('sinergia','texto',this)">✏️ Texto</button>
+            <button class="ck-mode-btn" onclick="setCKMode('sinergia','imagen',this)">📸 Imagen / SS</button>
+            <button class="ck-mode-btn" onclick="setCKMode('sinergia','pdf',this)">📄 PDF</button>
+          </div>
+          <div id="ckm-sinergia">
+            <div id="ckm-texto-sinergia">
+              <div class="ck-input-row">
+                <select class="ck-tipo" id="ck-tipo-sinergia"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select>
+                <textarea class="ck-text" id="ck-text-sinergia" placeholder="Escribe una idea, conclusión, frase de un libro o aprendizaje de un mentor…"></textarea>
+                <button class="ck-add" onclick="addKnowledge('sinergia')">＋ Insertar</button>
+              </div>
+            </div>
+            <div id="ckm-imagen-sinergia" style="display:none"><div id="ck-img-ui-sinergia"></div></div>
+            <div id="ckm-pdf-sinergia" style="display:none"><div id="ck-pdf-ui-sinergia"></div></div>
+          </div>
+          <div class="ck-list" id="ck-list-sinergia"></div>
+        </div>
+      </div>
+      <div class="frases-wrap" id="frases-sinergia">
+        <div class="frases-header">
+          <div class="frases-title">✨ Frases de tu cerebro</div>
+          <div class="frases-actions">
+            <button class="frase-add-btn" onclick="showFraseInput('sinergia')">✏️ Escribir frase</button>
+            <button class="frase-gen-btn" id="fgen-sinergia" onclick="generarFrase('sinergia')">⚡ Generar con IA</button>
+          </div>
+        </div>
+        <div class="frases-body">
+          <div class="frase-input-row" id="fi-row-sinergia" style="display:none">
+            <input id="fi-inp-sinergia" placeholder="Escribe tu propia frase o conclusión…">
+            <button onclick="saveFrase('sinergia','dante')">Guardar</button>
+          </div>
+          <div class="frases-list" id="frases-list-sinergia"></div>
+        </div>
+      </div>
+      <div class="cerebro-chat-wrap">
+        <div class="cerebro-log" id="log-sinergia"><div class="cerebro-bubble sys">Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.</div></div>
+        <div class="cerebro-input-bar">
+          <textarea id="inp-sinergia" placeholder="Ej: Voy con el CEO de Cemex, dame 3 preguntas que lo hagan pensar…"></textarea>
+          <button class="cerebro-clear" onclick="clearCerebro('sinergia')" title="Limpiar conversación">🗑️</button>
+          <button class="cerebro-send" id="send-sinergia" onclick="sendCerebro('sinergia')">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONEXIÓN -->
+    <div class="cerebro-panel" id="mod-conexion" style="--mc:#E87EA1">
+      <div class="cerebro-mod-card">
+        <div class="cerebro-mod-title">❤️ Conexión y Legado Personal</div>
+        <div class="cerebro-mod-desc">Inteligencia emocional · Dinámicas de pareja · Pilares de crianza · Comunicación asertiva</div>
+      </div>
+      <div class="ck-wrap" id="ck-conexion">
+        <div class="ck-header" onclick="toggleCK('conexion')">
+          <div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-conexion">0 entradas</span></div>
+          <span class="ck-arrow">▾</span>
+        </div>
+        <div class="ck-body">
+          <div class="ck-mode-tabs">
+            <button class="ck-mode-btn active" onclick="setCKMode('conexion','texto',this)">✏️ Texto</button>
+            <button class="ck-mode-btn" onclick="setCKMode('conexion','imagen',this)">📸 Imagen / SS</button>
+            <button class="ck-mode-btn" onclick="setCKMode('conexion','pdf',this)">📄 PDF</button>
+          </div>
+          <div id="ckm-conexion">
+            <div id="ckm-texto-conexion">
+              <div class="ck-input-row">
+                <select class="ck-tipo" id="ck-tipo-conexion"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select>
+                <textarea class="ck-text" id="ck-text-conexion" placeholder="Escribe una idea, conclusión, frase de un libro o aprendizaje…"></textarea>
+                <button class="ck-add" onclick="addKnowledge('conexion')">＋ Insertar</button>
+              </div>
+            </div>
+            <div id="ckm-imagen-conexion" style="display:none"><div id="ck-img-ui-conexion"></div></div>
+            <div id="ckm-pdf-conexion" style="display:none"><div id="ck-pdf-ui-conexion"></div></div>
+          </div>
+          <div class="ck-list" id="ck-list-conexion"></div>
+        </div>
+      </div>
+      <div class="frases-wrap" id="frases-conexion">
+        <div class="frases-header">
+          <div class="frases-title">✨ Frases de tu cerebro</div>
+          <div class="frases-actions">
+            <button class="frase-add-btn" onclick="showFraseInput('conexion')">✏️ Escribir frase</button>
+            <button class="frase-gen-btn" id="fgen-conexion" onclick="generarFrase('conexion')">⚡ Generar con IA</button>
+          </div>
+        </div>
+        <div class="frases-body">
+          <div class="frase-input-row" id="fi-row-conexion" style="display:none">
+            <input id="fi-inp-conexion" placeholder="Escribe tu propia frase o conclusión…">
+            <button onclick="saveFrase('conexion','dante')">Guardar</button>
+          </div>
+          <div class="frases-list" id="frases-list-conexion"></div>
+        </div>
+      </div>
+      <div class="cerebro-chat-wrap">
+        <div class="cerebro-log" id="log-conexion"><div class="cerebro-bubble sys">¿Qué situación relacional quieres trabajar hoy? Pareja, familia, amigos. Aquí no hay prisa — hay profundidad.</div></div>
+        <div class="cerebro-input-bar">
+          <textarea id="inp-conexion" placeholder="Ej: Quiero mejorar cómo comunico mis emociones en pareja…"></textarea>
+          <button class="cerebro-clear" onclick="clearCerebro('conexion')" title="Limpiar conversación">🗑️</button>
+          <button class="cerebro-send" id="send-conexion" onclick="sendCerebro('conexion')">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVIR -->
+    <div class="cerebro-panel" id="mod-servir" style="--mc:#E0A53C">
+      <div class="cerebro-mod-card">
+        <div class="cerebro-mod-title">✝️ Servir · Liderazgo Pastoral</div>
+        <div class="cerebro-mod-desc">Decisiones con enfoque bíblico · Fe aplicada al negocio · Liderazgo ético · Servicio a la comunidad</div>
+      </div>
+      <div class="ck-wrap" id="ck-servir">
+        <div class="ck-header" onclick="toggleCK('servir')">
+          <div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-servir">0 entradas</span></div>
+          <span class="ck-arrow">▾</span>
+        </div>
+        <div class="ck-body">
+          <div class="ck-mode-tabs">
+            <button class="ck-mode-btn active" onclick="setCKMode('servir','texto',this)">✏️ Texto</button>
+            <button class="ck-mode-btn" onclick="setCKMode('servir','imagen',this)">📸 Imagen / SS</button>
+            <button class="ck-mode-btn" onclick="setCKMode('servir','pdf',this)">📄 PDF</button>
+          </div>
+          <div id="ckm-servir">
+            <div id="ckm-texto-servir">
+              <div class="ck-input-row">
+                <select class="ck-tipo" id="ck-tipo-servir"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select>
+                <textarea class="ck-text" id="ck-text-servir" placeholder="Versículo, enseñanza pastoral, reflexión personal…"></textarea>
+                <button class="ck-add" onclick="addKnowledge('servir')">＋ Insertar</button>
+              </div>
+            </div>
+            <div id="ckm-imagen-servir" style="display:none"><div id="ck-img-ui-servir"></div></div>
+            <div id="ckm-pdf-servir" style="display:none"><div id="ck-pdf-ui-servir"></div></div>
+          </div>
+          <div class="ck-list" id="ck-list-servir"></div>
+        </div>
+      </div>
+      <div class="frases-wrap" id="frases-servir">
+        <div class="frases-header">
+          <div class="frases-title">✨ Frases de tu cerebro</div>
+          <div class="frases-actions">
+            <button class="frase-add-btn" onclick="showFraseInput('servir')">✏️ Escribir frase</button>
+            <button class="frase-gen-btn" id="fgen-servir" onclick="generarFrase('servir')">⚡ Generar con IA</button>
+          </div>
+        </div>
+        <div class="frases-body">
+          <div class="frase-input-row" id="fi-row-servir" style="display:none">
+            <input id="fi-inp-servir" placeholder="Escribe tu propia frase o conclusión…">
+            <button onclick="saveFrase('servir','dante')">Guardar</button>
+          </div>
+          <div class="frases-list" id="frases-list-servir"></div>
+        </div>
+      </div>
+      <div class="cerebro-chat-wrap">
+        <div class="cerebro-log" id="log-servir"><div class="cerebro-bubble sys">"Si puedes creer, al que cree todo le es posible." — ¿Qué decisión o dilema quieres ver desde la fe hoy?</div></div>
+        <div class="cerebro-input-bar">
+          <textarea id="inp-servir" placeholder="Ej: ¿Cómo sé si estoy tomando esta decisión desde el miedo o desde la fe?…"></textarea>
+          <button class="cerebro-clear" onclick="clearCerebro('servir')" title="Limpiar conversación">🗑️</button>
+          <button class="cerebro-send" id="send-servir" onclick="sendCerebro('servir')">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MINDSET -->
+    <div class="cerebro-panel" id="mod-mindset" style="--mc:#9B6BD6">
+      <div class="cerebro-mod-card">
+        <div class="cerebro-mod-title">🧠 Mindset · Consejo de Mentores</div>
+        <div class="cerebro-mod-desc">Gary Vee · Tony Robbins · Alex Hormozi · Perspectivas de clase mundial para tus decisiones más difíciles</div>
+      </div>
+      <div class="ck-wrap" id="ck-mindset">
+        <div class="ck-header" onclick="toggleCK('mindset')">
+          <div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-mindset">0 entradas</span></div>
+          <span class="ck-arrow">▾</span>
+        </div>
+        <div class="ck-body">
+          <div class="ck-mode-tabs">
+            <button class="ck-mode-btn active" onclick="setCKMode('mindset','texto',this)">✏️ Texto</button>
+            <button class="ck-mode-btn" onclick="setCKMode('mindset','imagen',this)">📸 Imagen / SS</button>
+            <button class="ck-mode-btn" onclick="setCKMode('mindset','pdf',this)">📄 PDF</button>
+          </div>
+          <div id="ckm-mindset">
+            <div id="ckm-texto-mindset">
+              <div class="ck-input-row">
+                <select class="ck-tipo" id="ck-tipo-mindset"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select>
+                <textarea class="ck-text" id="ck-text-mindset" placeholder="Frase de Gary Vee, principio de Hormozi, enseñanza de Robbins…"></textarea>
+                <button class="ck-add" onclick="addKnowledge('mindset')">＋ Insertar</button>
+              </div>
+            </div>
+            <div id="ckm-imagen-mindset" style="display:none"><div id="ck-img-ui-mindset"></div></div>
+            <div id="ckm-pdf-mindset" style="display:none"><div id="ck-pdf-ui-mindset"></div></div>
+          </div>
+          <div class="ck-list" id="ck-list-mindset"></div>
+        </div>
+      </div>
+      <div class="frases-wrap" id="frases-mindset">
+        <div class="frases-header">
+          <div class="frases-title">✨ Frases de tu cerebro</div>
+          <div class="frases-actions">
+            <button class="frase-add-btn" onclick="showFraseInput('mindset')">✏️ Escribir frase</button>
+            <button class="frase-gen-btn" id="fgen-mindset" onclick="generarFrase('mindset')">⚡ Generar con IA</button>
+          </div>
+        </div>
+        <div class="frases-body">
+          <div class="frase-input-row" id="fi-row-mindset" style="display:none">
+            <input id="fi-inp-mindset" placeholder="Escribe tu propia frase o conclusión…">
+            <button onclick="saveFrase('mindset','dante')">Guardar</button>
+          </div>
+          <div class="frases-list" id="frases-list-mindset"></div>
+        </div>
+      </div>
+      <div class="cerebro-chat-wrap">
+        <div class="cerebro-log" id="log-mindset"><div class="cerebro-bubble sys">Trae tu dilema más difícil. Tu consejo de mentores está listo para darte la perspectiva sin filtro que necesitas.</div></div>
+        <div class="cerebro-input-bar">
+          <textarea id="inp-mindset" placeholder="Ej: No sé si escalar Vía Sana ahora o consolidar primero…"></textarea>
+          <button class="cerebro-clear" onclick="clearCerebro('mindset')" title="Limpiar conversación">🗑️</button>
+          <button class="cerebro-send" id="send-mindset" onclick="sendCerebro('mindset')">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL -->
@@ -1231,6 +1623,376 @@ async function sendChat(){
 }
 document.getElementById('wsChatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
 ['wsNoteInput','wsTemaInput','wsIdeaInput'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ ({wsNoteInput:addNote,wsTemaInput:addTema,wsIdeaInput:addIdeaWS})[id](); } }));
+
+/* ===== 🧠 CEREBRO ===== */
+const MODS=['sinergia','conexion','servir','mindset'];
+const cerebroChats={sinergia:[],conexion:[],servir:[],mindset:[]};
+const ckData={sinergia:[],conexion:[],servir:[],mindset:[]};   // conocimiento local cache
+const frasesData={sinergia:[],conexion:[],servir:[],mindset:[]}; // frases local cache
+const CEREBRO_SYS_MSG={
+  sinergia:'Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.',
+  conexion:'¿Qué situación relacional quieres trabajar hoy? Pareja, familia, amigos. Aquí no hay prisa — hay profundidad.',
+  servir:'"Si puedes creer, al que cree todo le es posible." — ¿Qué decisión o dilema quieres ver desde la fe hoy?',
+  mindset:'Trae tu dilema más difícil. Tu consejo de mentores está listo para darte la perspectiva sin filtro que necesitas.'
+};
+const TIPO_LABEL={idea:'💡 Idea',libro:'📖 Libro/Podcast',conclusion:'🏆 Conclusión',mentor:'🎯 Mentor',reflexion:'🙏 Reflexión'};
+
+/* ── UPLOAD: MODOS CONOCIMIENTO ── */
+// Estado de archivo seleccionado por módulo
+const ckFile={sinergia:null,conexion:null,servir:null,mindset:null};
+
+function setCKMode(mod,mode,btn){
+  // toggle botones
+  btn.closest('.ck-mode-tabs').querySelectorAll('.ck-mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  // show/hide panels
+  ['texto','imagen','pdf'].forEach(m=>{
+    const el=document.getElementById('ckm-'+m+'-'+mod);
+    if(el) el.style.display=(m===mode?'block':'none');
+  });
+  // render upload zone if needed
+  if(mode==='imagen') renderImgZone(mod);
+  if(mode==='pdf') renderPDFZone(mod);
+}
+
+/* ── IMAGEN / SCREENSHOT ── */
+function renderImgZone(mod){
+  const wrap=document.getElementById('ck-img-ui-'+mod);
+  if(!wrap) return;
+  if(ckFile[mod]&&ckFile[mod].type!=='pdf'){
+    const f=ckFile[mod];
+    const url=URL.createObjectURL(f);
+    wrap.innerHTML=`
+      <div class="ck-preview">
+        <img class="ck-preview-thumb" src="${url}" alt="preview">
+        <div class="ck-preview-info">
+          <div class="ck-preview-name">${escapeHtml(f.name)}</div>
+          <div class="ck-preview-size">${(f.size/1024).toFixed(0)} KB</div>
+          <input class="ck-preview-nota" id="ck-nota-${mod}" placeholder="Nota opcional (ej: página 42 del libro…)">
+          <button class="ck-preview-clear" onclick="clearCKFile('${mod}')">✕ Quitar imagen</button>
+        </div>
+      </div>
+      <div class="ck-input-row" style="margin-top:0">
+        <select class="ck-tipo" id="ck-itipo-${mod}"><option value="libro">📖 Libro/Podcast</option><option value="idea">💡 Idea</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select>
+        <button class="ck-add" onclick="insertImagen('${mod}')">⚡ Extraer e insertar</button>
+      </div>`;
+  } else {
+    wrap.innerHTML=`
+      <div class="ck-upload-zone" id="ck-imgzone-${mod}">
+        <input type="file" accept="image/*" onchange="onImgSelected('${mod}',this)">
+        <span class="ck-upload-icon">📸</span>
+        <div class="ck-upload-hint">Arrastra una imagen o <b>haz click para seleccionar</b></div>
+        <div class="ck-upload-hint" style="margin-top:4px;font-size:11px">Capturas de pantalla, fotos de libros, slides… Claude extrae el texto.</div>
+      </div>`;
+    setupImgDrop(mod);
+  }
+}
+
+function onImgSelected(mod,input){
+  if(!input.files[0]) return;
+  ckFile[mod]=input.files[0]; ckFile[mod].fileType='image';
+  renderImgZone(mod);
+}
+function setupImgDrop(mod){
+  const z=document.getElementById('ck-imgzone-'+mod); if(!z) return;
+  z.addEventListener('dragover',e=>{ e.preventDefault(); z.classList.add('drag'); });
+  z.addEventListener('dragleave',()=>z.classList.remove('drag'));
+  z.addEventListener('drop',e=>{ e.preventDefault(); z.classList.remove('drag');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.type.startsWith('image/')){ ckFile[mod]=f; ckFile[mod].fileType='image'; renderImgZone(mod); }
+  });
+}
+function clearCKFile(mod){ ckFile[mod]=null; renderImgZone(mod); }
+
+async function insertImagen(mod){
+  const f=ckFile[mod]; if(!f) return;
+  const tipo=document.getElementById('ck-itipo-'+mod)?.value||'libro';
+  const nota=document.getElementById('ck-nota-'+mod)?.value||'';
+  // Mostrar processing
+  const wrap=document.getElementById('ck-img-ui-'+mod);
+  wrap.innerHTML=`<div class="ck-processing"><div class="ck-spinner"></div>Claude está leyendo la imagen y extrayendo el contenido…</div>`;
+  try{
+    // Comprimir/convertir a base64
+    const base64=await fileToBase64(f);
+    const mediaType=f.type||'image/jpeg';
+    const r=await fetch('/api/cerebro-upload',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({modulo:mod,base64,mediaType,nota})});
+    const data=await r.json();
+    if(data.error){ wrap.innerHTML=`<div style="color:var(--danger);padding:12px">${escapeHtml(data.error)}</div>`; return; }
+    // Guardar en Supabase
+    await saveKnowledgeEntry(mod,tipo,`[Imagen: ${f.name}]\n${data.contenido}`);
+    ckFile[mod]=null;
+    renderImgZone(mod);
+  }catch(e){
+    wrap.innerHTML=`<div style="color:var(--danger);padding:12px">Error: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+/* ── PDF ── */
+function renderPDFZone(mod){
+  const wrap=document.getElementById('ck-pdf-ui-'+mod); if(!wrap) return;
+  if(ckFile[mod]&&ckFile[mod].fileType==='pdf'){
+    const f=ckFile[mod];
+    const preview=f._extractedText
+      ? `<div class="ck-pdf-label">Texto extraído (${f._charCount} caracteres)</div>
+         <div class="ck-pdf-extracted">${escapeHtml(f._extractedText.slice(0,600))}${f._extractedText.length>600?'…':''}</div>`
+      : `<div class="ck-processing"><div class="ck-spinner"></div>Extrayendo texto del PDF…</div>`;
+    wrap.innerHTML=`
+      <div class="ck-preview">
+        <div class="ck-preview-pdf">📄<small>PDF</small></div>
+        <div class="ck-preview-info">
+          <div class="ck-preview-name">${escapeHtml(f.name)}</div>
+          <div class="ck-preview-size">${(f.size/1024).toFixed(0)} KB · ${f._pages||'?'} páginas</div>
+          <button class="ck-preview-clear" onclick="clearCKFilePDF('${mod}')">✕ Quitar PDF</button>
+        </div>
+      </div>
+      ${preview}
+      ${f._extractedText?`
+      <div class="ck-input-row" style="margin-top:0">
+        <select class="ck-tipo" id="ck-ptipo-${mod}"><option value="libro">📖 Libro/Podcast</option><option value="idea">💡 Idea</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select>
+        <button class="ck-add" onclick="insertPDF('${mod}')">＋ Insertar en cerebro</button>
+      </div>`:''}`;
+  } else {
+    wrap.innerHTML=`
+      <div class="ck-upload-zone" id="ck-pdfzone-${mod}">
+        <input type="file" accept=".pdf,application/pdf" onchange="onPDFSelected('${mod}',this)">
+        <span class="ck-upload-icon">📄</span>
+        <div class="ck-upload-hint">Arrastra un PDF o <b>haz click para seleccionar</b></div>
+        <div class="ck-upload-hint" style="margin-top:4px;font-size:11px">El texto se extrae en tu navegador — no se sube el archivo completo.</div>
+      </div>`;
+    setupPDFDrop(mod);
+  }
+}
+
+function clearCKFilePDF(mod){ ckFile[mod]=null; renderPDFZone(mod); }
+function setupPDFDrop(mod){
+  const z=document.getElementById('ck-pdfzone-'+mod); if(!z) return;
+  z.addEventListener('dragover',e=>{ e.preventDefault(); z.classList.add('drag'); });
+  z.addEventListener('dragleave',()=>z.classList.remove('drag'));
+  z.addEventListener('drop',e=>{ e.preventDefault(); z.classList.remove('drag');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.type==='application/pdf'){ processPDF(mod,f); }
+  });
+}
+function onPDFSelected(mod,input){
+  if(!input.files[0]) return;
+  processPDF(mod,input.files[0]);
+}
+async function processPDF(mod,file){
+  file.fileType='pdf'; ckFile[mod]=file; renderPDFZone(mod);
+  try{
+    if(!window.pdfjsLib){ alert('PDF.js no cargó. Verifica tu conexión.'); return; }
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const ab=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    file._pages=pdf.numPages;
+    let text='';
+    for(let i=1;i<=Math.min(pdf.numPages,40);i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      text+=content.items.map(it=>it.str).join(' ')+'\n';
+    }
+    file._extractedText=text.trim();
+    file._charCount=text.length;
+    renderPDFZone(mod);
+  }catch(e){ alert('Error leyendo PDF: '+e.message); }
+}
+async function insertPDF(mod){
+  const f=ckFile[mod]; if(!f||!f._extractedText) return;
+  const tipo=document.getElementById('ck-ptipo-'+mod)?.value||'libro';
+  const wrap=document.getElementById('ck-pdf-ui-'+mod);
+  wrap.innerHTML=`<div class="ck-processing"><div class="ck-spinner"></div>Guardando contenido del PDF en tu cerebro…</div>`;
+  // Dividir en chunks de 3000 chars si es muy largo
+  const chunks=chunkText(f._extractedText,3000);
+  const label=`[PDF: ${f.name}]`;
+  try{
+    for(let i=0;i<chunks.length;i++){
+      const contenido=chunks.length>1?`${label} Parte ${i+1}/${chunks.length}\n${chunks[i]}`:`${label}\n${chunks[i]}`;
+      await saveKnowledgeEntry(mod,tipo,contenido);
+    }
+    ckFile[mod]=null; renderPDFZone(mod);
+  }catch(e){ wrap.innerHTML=`<div style="color:var(--danger);padding:12px">Error guardando: ${escapeHtml(e.message)}</div>`; }
+}
+
+/* ── HELPERS ── */
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+function chunkText(text,size){
+  const chunks=[]; let i=0;
+  while(i<text.length){ chunks.push(text.slice(i,i+size)); i+=size; }
+  return chunks;
+}
+async function saveKnowledgeEntry(mod,tipo,contenido){
+  const r=await fetch(`${SB_URL}/rest/v1/cerebro_conocimiento`,{
+    method:'POST',headers:{...sbHeaders,Prefer:'return=representation'},
+    body:JSON.stringify({modulo:mod,tipo,contenido})});
+  const data=await r.json();
+  if(Array.isArray(data)&&data[0]) ckData[mod].push(data[0]);
+  renderCK(mod);
+}
+
+/* ── CHAT ── */
+function renderCerebroLog(mod){
+  const log=cerebroChats[mod], el=document.getElementById('log-'+mod); if(!el) return;
+  if(!log.length){ el.innerHTML=`<div class="cerebro-bubble sys">${CEREBRO_SYS_MSG[mod]}</div>`; return; }
+  el.innerHTML=log.map(m=>`<div class="cerebro-bubble ${m.role==='user'?'user':'ai'}">${escapeHtml(m.content)}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+async function sendCerebro(mod){
+  const inp=document.getElementById('inp-'+mod), v=inp.value.trim(); if(!v) return;
+  const log=cerebroChats[mod];
+  log.push({role:'user',content:v}); inp.value=''; renderCerebroLog(mod);
+  const btn=document.getElementById('send-'+mod); btn.disabled=true;
+  const logEl=document.getElementById('log-'+mod);
+  logEl.innerHTML+=`<div class="cerebro-bubble ai" id="c-think-${mod}">Pensando…</div>`; logEl.scrollTop=logEl.scrollHeight;
+  try{
+    const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({modulo:mod,conocimiento:ckData[mod],messages:log.map(m=>({role:m.role,content:m.content}))})});
+    const data=await r.json();
+    const reply=(data&&data.reply)||'Sin respuesta.';
+    log.push({role:'assistant',content:reply}); renderCerebroLog(mod);
+  }catch(e){
+    document.getElementById('c-think-'+mod)?.remove();
+    log.push({role:'assistant',content:'⚠️ Sin conexión a Claude. Funciona en Vercel con ANTHROPIC_API_KEY configurada.'});
+    renderCerebroLog(mod);
+  }finally{ btn.disabled=false; }
+}
+function clearCerebro(mod){ cerebroChats[mod]=[]; renderCerebroLog(mod); }
+
+/* ── CONOCIMIENTO ── */
+function toggleCK(mod){
+  const el=document.getElementById('ck-'+mod); el.classList.toggle('ck-open');
+}
+function renderCK(mod){
+  const list=ckData[mod], el=document.getElementById('ck-list-'+mod), cnt=document.getElementById('ck-count-'+mod);
+  cnt.textContent=list.length+' '+(list.length===1?'entrada':'entradas');
+  if(!el) return;
+  if(!list.length){ el.innerHTML=`<div class="ck-empty">Aún no has insertado conocimiento. Cada idea que agregas hace al cerebro más tuyo.</div>`; return; }
+  el.innerHTML=list.map(item=>`
+    <div class="ck-item" data-id="${item.id}">
+      <div class="ck-item-body">
+        <div class="ck-item-tipo">${TIPO_LABEL[item.tipo]||item.tipo}</div>
+        <div class="ck-item-texto">${escapeHtml(item.contenido)}</div>
+        <div class="ck-item-fecha">${new Date(item.creado_en).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})}</div>
+      </div>
+      <button class="ck-del" onclick="delKnowledge('${mod}','${item.id}')" title="Eliminar">×</button>
+    </div>`).join('');
+}
+async function loadKnowledge(mod){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/cerebro_conocimiento?modulo=eq.${mod}&order=creado_en.asc`,{headers:sbHeaders});
+    const data=await r.json();
+    ckData[mod]=Array.isArray(data)?data:[];
+    renderCK(mod);
+  }catch(e){ console.warn('ck load error',e); }
+}
+async function addKnowledge(mod){
+  const tipo=document.getElementById('ck-tipo-'+mod).value;
+  const txt=document.getElementById('ck-text-'+mod), v=txt.value.trim(); if(!v) return;
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/cerebro_conocimiento`,{
+      method:'POST',headers:{...sbHeaders,Prefer:'return=representation'},
+      body:JSON.stringify({modulo:mod,tipo,contenido:v})});
+    const data=await r.json();
+    if(Array.isArray(data)&&data[0]) ckData[mod].push(data[0]);
+    txt.value=''; renderCK(mod);
+    // abrir el panel si estaba cerrado
+    const wrap=document.getElementById('ck-'+mod); if(!wrap.classList.contains('ck-open')) toggleCK(mod);
+  }catch(e){ alert('Error guardando: '+e.message); }
+}
+async function delKnowledge(mod,id){
+  try{
+    await fetch(`${SB_URL}/rest/v1/cerebro_conocimiento?id=eq.${id}`,{method:'DELETE',headers:sbHeaders});
+    ckData[mod]=ckData[mod].filter(i=>i.id!==id); renderCK(mod);
+  }catch(e){ console.warn('ck del error',e); }
+}
+['sinergia','conexion','servir','mindset'].forEach(mod=>{
+  const t=document.getElementById('ck-text-'+mod);
+  if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addKnowledge(mod); } });
+});
+
+/* ── FRASES ── */
+function renderFrases(mod){
+  const list=frasesData[mod], el=document.getElementById('frases-list-'+mod); if(!el) return;
+  if(!list.length){ el.innerHTML=`<div class="frases-empty">Aún no hay frases. Genera con IA o escribe la tuya.</div>`; return; }
+  el.innerHTML=list.map(f=>`
+    <div class="frase-item" data-id="${f.id}">
+      "${escapeHtml(f.frase)}"
+      <span class="fi-fuente">${f.fuente==='dante'?'✍️ Escrita por ti':'⚡ Generada por IA'}</span>
+      <button class="fi-del" onclick="delFrase('${mod}','${f.id}')" title="Eliminar">×</button>
+    </div>`).join('');
+}
+async function loadFrases(mod){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/cerebro_frases?modulo=eq.${mod}&order=creado_en.desc`,{headers:sbHeaders});
+    const data=await r.json();
+    frasesData[mod]=Array.isArray(data)?data:[];
+    renderFrases(mod);
+  }catch(e){ console.warn('frases load error',e); }
+}
+async function saveFrase(mod,fuente,texto){
+  const v=texto||document.getElementById('fi-inp-'+mod)?.value.trim(); if(!v) return;
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/cerebro_frases`,{
+      method:'POST',headers:{...sbHeaders,Prefer:'return=representation'},
+      body:JSON.stringify({modulo:mod,frase:v,fuente})});
+    const data=await r.json();
+    if(Array.isArray(data)&&data[0]){ frasesData[mod].unshift(data[0]); renderFrases(mod); }
+    const inp=document.getElementById('fi-inp-'+mod); if(inp){ inp.value=''; document.getElementById('fi-row-'+mod).style.display='none'; }
+  }catch(e){ alert('Error guardando frase: '+e.message); }
+}
+async function delFrase(mod,id){
+  try{
+    await fetch(`${SB_URL}/rest/v1/cerebro_frases?id=eq.${id}`,{method:'DELETE',headers:sbHeaders});
+    frasesData[mod]=frasesData[mod].filter(f=>f.id!==id); renderFrases(mod);
+  }catch(e){ console.warn('frase del error',e); }
+}
+function showFraseInput(mod){
+  const row=document.getElementById('fi-row-'+mod);
+  row.style.display=row.style.display==='none'?'flex':'none';
+  if(row.style.display==='flex') document.getElementById('fi-inp-'+mod)?.focus();
+}
+['sinergia','conexion','servir','mindset'].forEach(mod=>{
+  const inp=document.getElementById('fi-inp-'+mod);
+  if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); saveFrase(mod,'dante'); } });
+});
+async function generarFrase(mod){
+  if(!ckData[mod].length){ alert('Primero inserta conocimiento en este cerebro para que la IA pueda generar frases tuyas.'); return; }
+  const btn=document.getElementById('fgen-'+mod); btn.disabled=true; btn.textContent='Generando…';
+  const contexto=ckData[mod].map(i=>`[${TIPO_LABEL[i.tipo]}] ${i.contenido}`).join('\n');
+  try{
+    const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({
+        modulo:mod,
+        conocimiento:ckData[mod],
+        messages:[{role:'user',content:`Basándote ÚNICAMENTE en el conocimiento que tengo guardado en este módulo, genera UNA sola frase poderosa, concisa y propia que destile mi esencia y pensamiento en este tema. Que suene a mí, no a libro de autoayuda genérico. Solo la frase, sin explicación.`}]
+      })});
+    const data=await r.json();
+    if(data&&data.reply) await saveFrase(mod,'ia',data.reply.replace(/^["']|["']$/g,'').trim());
+  }catch(e){ alert('Error generando frase: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='⚡ Generar con IA'; }
+}
+
+/* ── NAV TABS + INIT CEREBRO ── */
+function switchCerebroMod(mod){
+  document.querySelectorAll('.cerebro-tab').forEach(t=>t.classList.toggle('active',t.dataset.mod===mod));
+  document.querySelectorAll('.cerebro-panel').forEach(p=>p.classList.toggle('active',p.id==='mod-'+mod));
+}
+document.querySelectorAll('.cerebro-tab').forEach(t=>t.addEventListener('click',()=>switchCerebroMod(t.dataset.mod)));
+MODS.forEach(mod=>{
+  const inp=document.getElementById('inp-'+mod);
+  if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendCerebro(mod); } });
+});
+// Carga inicial de conocimiento y frases al abrir la página Cerebro
+document.querySelector('[data-page="cerebro"]').addEventListener('click',()=>{
+  MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); });
+},{ once:false });
 
 /* ----- NAV / THEME / INIT ----- */
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
