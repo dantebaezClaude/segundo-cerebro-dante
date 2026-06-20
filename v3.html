@@ -235,6 +235,8 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .postit:nth-child(3n){background:#BDE8B0}.postit:nth-child(3n+1){background:#FFC9D4}.postit:nth-child(3n+2){background:#FFE08A}
 .note-conv{margin-top:9px;width:100%;background:rgba(0,0,0,.16);border:none;color:#3a2a10;border-radius:7px;padding:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
 .note-conv:active{transform:scale(.97)}
+.note-del{margin-top:5px;width:100%;background:rgba(180,0,0,.18);border:none;color:#7a1a1a;border-radius:7px;padding:5px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.note-del:active{transform:scale(.97)}
 .li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--tile);border-left:4px solid var(--wc,var(--accent));border-radius:5px 10px 10px 5px;padding:10px;margin-bottom:7px;font-size:13px}
 .li .conv{background:transparent;border:1px solid var(--wc);color:var(--wc);border-radius:8px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
 .chat{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;margin-bottom:10px}
@@ -763,9 +765,9 @@ let INBOX=['Idea: combo familiar Chilaquiles','Llamar a proveedor de aguacate','
 function renderInbox(){document.getElementById('inbox-cnt').textContent=INBOX.length;
   document.getElementById('inboxList').innerHTML=INBOX.length?INBOX.map((x,i)=>`<div class="inbox"><span>${x}</span><button class="convert" onclick="convert(${i})">⚙️ Convertir</button></div>`).join(''):'<div class="art-note">🎉 Inbox a cero. Mente despejada.</div>';}
 function addInbox(){const i=document.getElementById('capIn'),v=i.value.trim();if(!v)return;INBOX.unshift(v);i.value='';renderInbox();toast('Capturado ⚡');}
-let convertIdx=null,convertData={};
+let convertIdx=null,convertData={},convertSource='inbox';
 function convert(i){
-  convertIdx=i;convertData={e:'sistema',ty:'🔧 Mec',block:null};
+  convertIdx=i;convertSource='inbox';convertData={e:'sistema',ty:'🔧 Mec',block:null};
   const title=INBOX[i];
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
@@ -783,9 +785,12 @@ function renderConvertForm(){
 }
 async function confirmConvert(){
   if(convertIdx===null)return;
-  const title=INBOX[convertIdx];INBOX.splice(convertIdx,1);convertIdx=null;
+  let title;
+  if(convertSource==='note'){title=NOTES[convertIdx];NOTES.splice(convertIdx,1);renderNotes();}
+  else{title=INBOX[convertIdx];INBOX.splice(convertIdx,1);renderInbox();}
+  convertIdx=null;
   const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:2,block:convertData.block||null,done:false,stage:'todo'};
-  TASKS.push(t);closeSheets();render();renderInbox();
+  TASKS.push(t);closeSheets();render();
   const realId=await cloudInsert(t);if(realId)t.id=realId;
   toast('✅ Tarea creada · '+etag(convertData.e));
 }
@@ -804,12 +809,15 @@ function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();
 let NOTES=['Pagar INDET el viernes','Idea: bundle envío gratis WhatsApp'];
 function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.length;
   document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
-  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div>${n}</div><button class="note-conv" onclick="convertNote(${i})">⚙️ Convertir en tarea</button></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
+  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div>${n}</div><button class="note-conv" onclick="convertNote(${i})">⚙️ Convertir en tarea</button><button class="note-del" onclick="deleteNote(${i})">🗑️ Borrar nota</button></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
 function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
-async function convertNote(i){const v=NOTES[i];NOTES.splice(i,1);renderNotes();
-  const t={id:'tmp'+Date.now(),t:v,e:'sistema',ty:'🔧 Mec',d:'30m',f:2,block:null,done:false,stage:'todo'};
-  TASKS.push(t);render();toast('📋 Nota convertida en tarea · está en "Por acomodar"');
-  const realId=await cloudInsert(t);if(realId){t.id=realId;render();}}
+function deleteNote(i){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){{NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}}
+function convertNote(i){
+  convertIdx=i;convertSource='note';convertData={e:'sistema',ty:'🔧 Mec',block:null};
+  const title=NOTES[i];
+  document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
+  renderConvertForm();openSheet('convertSheet');
+}
 function openNotes(){renderNotes();openSheet('notesSheet');}
 
 /* ---- BOTÓN DE PÁNICO 🚨 (ultra importante: aparece en el pop-up cada refresh) ---- */
