@@ -261,6 +261,8 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 /* ---- toast ---- */
 .toast{position:absolute;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);background:var(--green);color:#fff;font-weight:800;font-size:13px;padding:11px 18px;border-radius:13px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.3s;z-index:60;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.clickable{pointer-events:auto;cursor:pointer;padding-right:14px}
+.toast.clickable::after{content:' →';opacity:.75}
 
 /* ---- overlays / bottom sheets ---- */
 .ovl{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:45;display:none}
@@ -794,8 +796,9 @@ async function confirmConvert(){
   convertIdx=null;
   const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:2,block:convertData.block||null,done:false,stage:'todo'};
   TASKS.push(t);closeSheets();render();
+  const empTag=etag(convertData.e);
+  toast('✅ Tarea creada · '+empTag, ()=>openTaskMenu(t.id));
   const realId=await cloudInsert(t);if(realId)t.id=realId;
-  toast('✅ Tarea creada · '+etag(convertData.e));
 }
 const WEEK=[['LUN','Vía Sana'],['MAR','Ventas'],['MIÉ','Cultura'],['JUE','Digital'],['VIE','CEO']];
 document.getElementById('weekmap').innerHTML=WEEK.map(d=>`<div class="daycol"><h4>${d[0]}</h4><div class="blk"><b>🚀 Lanzamiento</b>Webinar $47</div><div class="blk"><b>🧠 Sagrado</b>${d[1]}</div><div class="blk"><b>🛠️ Operación</b>WP urgentes</div></div>`).join('');
@@ -945,7 +948,17 @@ function restoreTask(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.stage='
 function purgeTask(id){const i=TASKS.findIndex(x=>x.id===id);if(i<0)return;cloudDelete(id);TASKS.splice(i,1);renderTrash();toast('❌ Eliminada definitivamente');}
 
 /* ---- toast ---- */
-let toT;function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toT);toT=setTimeout(()=>el.classList.remove('show'),2200);}
+let toT,toastCb=null;
+function toast(m,cb){
+  const el=document.getElementById('toast');
+  el.textContent=m;
+  toastCb=cb||null;
+  el.classList.toggle('clickable',!!cb);
+  el.onclick=cb?()=>{cb();el.classList.remove('show','clickable');toastCb=null;}:null;
+  el.classList.add('show');
+  clearTimeout(toT);
+  toT=setTimeout(()=>{el.classList.remove('show','clickable');toastCb=null;},cb?4000:2200);
+}
 
 /* ---- periodo (Hoy recalcula ejemplo) ---- */
 const PER={dia:{label:'hoy',num:60,arc:'117 195',sub:'3 de 5 fuegos apagados · 3.3 h de Arquitecto.'},
