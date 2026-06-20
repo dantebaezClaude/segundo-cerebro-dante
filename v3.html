@@ -264,6 +264,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
   z-index:50;transform:translateY(100%);transition:.28s cubic-bezier(.4,0,.2,1);max-height:80%;display:flex;flex-direction:column}
 .sheet.on{transform:translateY(0)}
 /* menú de tarea = modal centrado para editar rápido (las otras hojas siguen subiendo) */
+#convertSheet{max-height:82%;overflow-y:auto}
 #taskSheet{top:50%;left:50%;right:auto;bottom:auto;width:calc(100% - 40px);max-width:382px;max-height:76%;
   border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);pointer-events:none;
   transform:translate(-50%,-50%) scale(.9);opacity:0;
@@ -544,6 +545,11 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
     <div class="sh-body"><div class="menu-actions" id="taskActions"></div></div>
   </div>
 
+  <div class="sheet" id="convertSheet">
+    <div class="sh-head"><h3 id="convertTitle">Nueva tarea</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
+    <div class="sh-body"><div id="convertForm"></div></div>
+  </div>
+
   <div class="sheet" id="focusSheet">
     <div class="sh-head"><h3>⭐ Elige tu foco de hoy</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
     <div class="sh-body"><div class="blockpick" id="focusPick"></div></div>
@@ -757,7 +763,32 @@ let INBOX=['Idea: combo familiar Chilaquiles','Llamar a proveedor de aguacate','
 function renderInbox(){document.getElementById('inbox-cnt').textContent=INBOX.length;
   document.getElementById('inboxList').innerHTML=INBOX.length?INBOX.map((x,i)=>`<div class="inbox"><span>${x}</span><button class="convert" onclick="convert(${i})">⚙️ Convertir</button></div>`).join(''):'<div class="art-note">🎉 Inbox a cero. Mente despejada.</div>';}
 function addInbox(){const i=document.getElementById('capIn'),v=i.value.trim();if(!v)return;INBOX.unshift(v);i.value='';renderInbox();toast('Capturado ⚡');}
-function convert(i){INBOX.splice(i,1);renderInbox();toast('Convertida en tarea ⚙️');}
+let convertIdx=null,convertData={};
+function convert(i){
+  convertIdx=i;convertData={e:'sistema',ty:'🔧 Mec',block:null};
+  const title=INBOX[i];
+  document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
+  renderConvertForm();openSheet('convertSheet');
+}
+function renderConvertForm(){
+  const btn=(label,active,onclick,color)=>`<button onclick="${onclick}" style="padding:6px 10px;border-radius:8px;border:1.5px solid ${active?(color||'var(--accent)'):'var(--line)'};background:${active?(color||'var(--accent)'):'var(--tile)'};color:${active?'var(--on-accent)':'var(--text2)'};font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${label}</button>`;
+  let h='<div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:7px">🏢 EMPRESA</div>';
+  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${Object.keys(COMPANIES).map(k=>btn(COMPANIES[k].emoji+' '+COMPANIES[k].name,convertData.e===k,`convertData.e='${k}';renderConvertForm()`)).join('')}</div>`;
+  h+='<div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:7px">⚙️ TIPO</div>';
+  h+=`<div style="display:flex;gap:8px;margin-bottom:16px">${btn('🏛️ Arquitecto',convertData.ty.includes('Arq'),"convertData.ty='🏛️ Arq';renderConvertForm()")}${btn('🔧 Mecánico',convertData.ty.includes('Mec'),"convertData.ty='🔧 Mec';renderConvertForm()")}</div>`;
+  h+='<div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:7px">📌 BLOQUE (opcional)</div>';
+  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${btn('📥 Sin bloque',!convertData.block,"convertData.block=null;renderConvertForm()")}${BLOCKS.map(b=>btn(b.label,convertData.block===b.id,`convertData.block='${b.id}';renderConvertForm()`,b.c)).join('')}</div>`;
+  h+=`<button onclick="confirmConvert()" style="width:100%;padding:13px;border-radius:10px;background:var(--accent);color:var(--on-accent);border:none;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit">✅ Crear tarea</button>`;
+  document.getElementById('convertForm').innerHTML=h;
+}
+async function confirmConvert(){
+  if(convertIdx===null)return;
+  const title=INBOX[convertIdx];INBOX.splice(convertIdx,1);convertIdx=null;
+  const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:2,block:convertData.block||null,done:false,stage:'todo'};
+  TASKS.push(t);closeSheets();render();renderInbox();
+  const realId=await cloudInsert(t);if(realId)t.id=realId;
+  toast('✅ Tarea creada · '+etag(convertData.e));
+}
 const WEEK=[['LUN','Vía Sana'],['MAR','Ventas'],['MIÉ','Cultura'],['JUE','Digital'],['VIE','CEO']];
 document.getElementById('weekmap').innerHTML=WEEK.map(d=>`<div class="daycol"><h4>${d[0]}</h4><div class="blk"><b>🚀 Lanzamiento</b>Webinar $47</div><div class="blk"><b>🧠 Sagrado</b>${d[1]}</div><div class="blk"><b>🛠️ Operación</b>WP urgentes</div></div>`).join('');
 
