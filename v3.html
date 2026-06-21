@@ -149,6 +149,9 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .task .chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
 .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding-left:28px}
 .tag{background:var(--tile);border-radius:7px;padding:3px 8px;font-size:10px;font-weight:700;color:var(--text2)}
+.age-badge{border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;white-space:nowrap}
+.age-badge.rez{background:rgba(224,165,60,.18);color:var(--amber)}
+.age-badge.muy{background:rgba(210,69,44,.2);color:var(--red)}
 .assign{margin-left:auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:5px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
 .fire{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:2px 4px}
 .fire button{width:20px;height:20px;border:none;background:var(--tile);color:var(--text);border-radius:6px;font-weight:800;font-size:14px;cursor:pointer}
@@ -681,6 +684,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div id="wsIdeas"></div>
 
       <div class="sect">📋 To-Do de la empresa</div>
+      <div class="miniadd"><input id="wsTaskIn" placeholder="Nueva tarea directa…" onkeydown="if(event.key==='Enter')wsAddTask()"><button onclick="wsAddTask()" style="background:var(--wc,var(--accent))">＋</button></div>
       <div id="wsTodos"></div>
 
       <div class="sect">🤖 Claude — tu copiloto</div>
@@ -713,7 +717,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <!-- Tabs: KPIs | Semana -->
       <div class="seg" style="margin-bottom:14px">
         <button class="on" id="kpiTab-kpis" onclick="switchKpiTab('kpis')">📈 KPIs</button>
-        <button id="kpiTab-semana" onclick="switchKpiTab('semana')">🗓️ Semana</button>
+        <button id="kpiTab-semana" onclick="switchKpiTab('semana')">🌐 Vista global</button>
       </div>
 
       <!-- Panel KPIs -->
@@ -723,17 +727,8 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div class="sect">🏢 Por empresa</div>
       <div id="kpiEmp"></div>
 
-      <div class="sect">⚖️ Arquitecto vs Mecánico</div>
-      <div class="kpi" style="--kc:var(--accent)">
-        <div class="kt"><div class="name">🏛️ Arquitecto</div><div class="pct">44%</div></div>
-        <div class="stats"><div><div class="v">3.3 h</div><div class="l">de visión</div></div><div><div class="v">4</div><div class="l">tareas ✓</div></div></div>
-        <div class="bar"><i style="width:44%;background:var(--accent)"></i></div><div class="goal">Meta semana: 16 h · 21% logrado</div>
-      </div>
-      <div class="kpi" style="--kc:#9a8278">
-        <div class="kt"><div class="name">🔧 Mecánico</div><div class="pct">56%</div></div>
-        <div class="stats"><div><div class="v">4.1 h</div><div class="l">de operación</div></div><div><div class="v">10</div><div class="l">tareas ✓</div></div></div>
-        <div class="bar"><i style="width:56%;background:#9a8278"></i></div><div class="goal">Meta semana: 5 h · 82% logrado</div>
-      </div>
+      <div class="sect">⚖️ Arquitecto vs Mecánico <span class="cnt" id="kpiPerLabel">esta semana</span></div>
+      <div id="kpiArqMec"></div>
 
       <div class="sect">🎯 Foco — últimos 7 días</div>
       <div class="card" style="padding:14px"><div id="focoHistorial"></div></div>
@@ -1140,7 +1135,8 @@ const COMPANIES={
   viasana:{name:'Vía Sana',emoji:'🥬',color:'var(--green)',h:'2.8 h',done:7},
   chilaquiles:{name:'Chilaquiles',emoji:'🌶️',color:'var(--red)',h:'1.3 h',done:2},
   marca:{name:'Marca Personal',emoji:'📚',color:'var(--purple)',h:'0.8 h',done:2},
-  algorithmics:{name:'Algorithmics',emoji:'🧮',color:'var(--blue)',h:'0.5 h',done:1}
+  algorithmics:{name:'Algorithmics',emoji:'🧮',color:'var(--blue)',h:'0.5 h',done:1},
+  general:{name:'General',emoji:'📥',color:'var(--amber)',h:'—',done:0,general:true}
 };
 let BLOCKS=[
   {id:'arranque',time:'7:30–9:00',label:'🌅 Arranque Espiritual',c:'var(--amber)'},
@@ -1156,7 +1152,11 @@ const SB_URL='https://qetocoxizvumespgocij.supabase.co';
 const SB_KEY='sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
 const SBH={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
 const PRIO2F={fuego:3,importante:2,sistema:1,idea:1};
-function rowToTask(r){return {id:r.id,t:r.title,e:r.project,ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id,panic:!!r.panic,foco:!!r.foco};}
+function rowToTask(r){return {id:r.id,t:r.title,e:(COMPANIES[r.project]?r.project:'general'),ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id,panic:!!r.panic,foco:!!r.foco,creado:r.creado_en,done_at:r.done_at};}
+/* ---- antigüedad de tareas (tracking de rezagadas) ---- */
+function taskAgeDays(t){ if(!t||!t.creado)return 0; const ms=Date.now()-new Date(t.creado).getTime(); return Math.max(0,Math.floor(ms/86400000)); }
+function ageBadge(t){ if(t.done||t.stage!=='todo')return ''; const d=taskAgeDays(t); if(d>=8)return `<span class="age-badge muy" title="Muy rezagada: ${d} días en cola">🔴 ${d}d</span>`; if(d>=4)return `<span class="age-badge rez" title="Rezagada: ${d} días en cola">⏳ ${d}d</span>`; return ''; }
+function inPeriod(iso,p){ if(!iso)return false; const d=new Date(iso),n=new Date(); if(p==='dia')return d.toDateString()===n.toDateString(); if(p==='mes')return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth(); const wk=new Date(n); const day=(n.getDay()+6)%7; wk.setDate(n.getDate()-day); wk.setHours(0,0,0,0); return d>=wk; }
 function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,panic:!!t.panic,foco:!!t.foco,actualizado_en:new Date().toISOString()};}
 async function cloudLoad(){const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return (await r.json()).map(rowToTask);}
 async function cloudPatch(t){try{await fetch(SB_URL+'/rest/v1/cerebro_tareas?id=eq.'+t.id,{method:'PATCH',headers:SBH,body:JSON.stringify(taskToRow(t))});}catch(e){console.warn('cloud patch',e);}}
@@ -1218,11 +1218,12 @@ function toggleTheme(){
 /* ---- HOY: tareas sueltas + bloques ---- */
 function render(){
   const loose=TASKS.filter(t=>t.stage==='todo'&&!t.block);
-  document.getElementById('loose-cnt').textContent=loose.length+' sin bloque';
+  const rez=TASKS.filter(t=>t.stage==='todo'&&!t.done&&taskAgeDays(t)>=4).length;
+  document.getElementById('loose-cnt').innerHTML=loose.length+' sin bloque'+(rez?` · <span style="color:var(--amber)">⏳ ${rez} rezagada${rez>1?'s':''}</span>`:'');
   document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
     <div class="task${t.panic?' ultra':''}" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
       <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span></div>
-      <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>
+      <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>${ageBadge(t)}
         <div class="fire"><button onclick="bumpPrio('${t.id}',-1)">−</button><div class="fl">${fire(t.f)}</div><button onclick="bumpPrio('${t.id}',1)">+</button></div>
         <button class="panic-btn${t.foco?' focon':''}" onclick="setFocus('${t.id}')" title="Hacer foco de hoy">⭐</button>
         <button class="panic-btn${t.panic?' on':''}" onclick="togglePanic('${t.id}')" title="Botón de pánico: ultra importante">🚨</button>
@@ -1240,8 +1241,11 @@ function render(){
   }).join('');
 
   document.getElementById('hoyMinis').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
-    return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${c.h}</div><div class="sub">${c.done} hechas hoy</div></div>`;}).join('');
+    const act=TASKS.filter(t=>t.e===k&&t.stage==='todo').length;
+    const doneHoy=TASKS.filter(t=>t.e===k&&t.stage==='done'&&inPeriod(t.done_at||t.creado,'dia')).length;
+    return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${doneHoy} ✓ hoy</div></div>`;}).join('');
   renderFocus();renderFocoSesiones();
+  if(typeof renderKpis==='function')renderKpis(kpiPeriod);
 }
 function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(document.getElementById('panicOvl').classList.contains('on'))renderPanic();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
 
@@ -1318,16 +1322,20 @@ function openWS(k){wsKey=k;const c=COMPANIES[k];const w=ensureWS(k);
   document.getElementById('wsTemas').innerHTML=w.temas.length?w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${escapeHtml(t.contenido)}</span><button class="ws-del" onclick="wsDel('${t.id}','temas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin temas aún.</div>';
   document.getElementById('wsIdeas').innerHTML=w.ideas.length?w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${escapeHtml(i.contenido)}</span><button class="conv" onclick="wsConvertIdea('${i.id}')">Convertir</button></div>`).join(''):'<div class="art-note">Sin ideas aún.</div>';
   const todos=TASKS.filter(t=>t.e===k&&t.stage!=='trash');
-  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${escapeHtml(t.t)}</span><span class="tag">${t.d}</span></div>`).join(''):'<div class="art-note">Sin tareas de esta empresa.</div>';
+  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${escapeHtml(t.t)}</span><span style="display:flex;gap:5px;align-items:center;flex-shrink:0">${ageBadge(t)}<span class="tag">${t.d}</span></span></div>`).join(''):'<div class="art-note">Sin tareas aún. Agrega una arriba ↑</div>';
   document.getElementById('wsChat').innerHTML='<div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso para '+c.name+'.</div>';
   go('workspace');
 }
 async function wsAddNote(){const i=document.getElementById('wsNoteIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey,w=ensureWS(k);const tmp={id:'tmp'+Date.now(),contenido:v};w.notas.unshift(tmp);openWS(k);const id=await cloudInsertWorkspace(k,'nota',v);if(id)tmp.id=id;}
 async function wsAddTema(){const i=document.getElementById('wsTemaIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey,w=ensureWS(k);const tmp={id:'tmp'+Date.now(),contenido:v};w.temas.unshift(tmp);openWS(k);const id=await cloudInsertWorkspace(k,'tema',v);if(id)tmp.id=id;}
 async function wsAddIdea(){const i=document.getElementById('wsIdeaIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey,w=ensureWS(k);const tmp={id:'tmp'+Date.now(),contenido:v};w.ideas.unshift(tmp);openWS(k);const id=await cloudInsertWorkspace(k,'idea',v);if(id)tmp.id=id;}
+async function wsAddTask(){const i=document.getElementById('wsTaskIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey;
+  const t={id:'tmp'+Date.now(),t:v,e:k,ty:'🔧 Mec',d:'30m',f:2,block:null,done:false,stage:'todo',panic:false,creado:new Date().toISOString()};
+  TASKS.push(t);openWS(k);render();renderProj();toast('✅ Tarea agregada a '+(COMPANIES[k]?COMPANIES[k].name:'General'));
+  const realId=await cloudInsert(t);if(realId)t.id=realId;}
 function wsDel(id,bucket){if(!wsKey)return;const w=ensureWS(wsKey);const i=w[bucket].findIndex(x=>String(x.id)===String(id));if(i<0)return;const it=w[bucket][i];if(it&&it.id&&!String(it.id).startsWith('tmp'))cloudDeleteWorkspace(it.id);w[bucket].splice(i,1);openWS(wsKey);}
 async function wsConvertIdea(id){if(!wsKey)return;const k=wsKey,w=ensureWS(k);const i=w.ideas.findIndex(x=>String(x.id)===String(id));if(i<0)return;const idea=w.ideas[i];
-  const t={id:'tmp'+Date.now(),t:idea.contenido,e:k,ty:'🔧 Mec',d:'30m',f:2,block:null,done:false,stage:'todo',panic:false};
+  const t={id:'tmp'+Date.now(),t:idea.contenido,e:k,ty:'🔧 Mec',d:'30m',f:2,block:null,done:false,stage:'todo',panic:false,creado:new Date().toISOString()};
   TASKS.push(t);
   if(idea.id&&!String(idea.id).startsWith('tmp'))cloudDeleteWorkspace(idea.id);
   w.ideas.splice(i,1);openWS(k);render();
@@ -1371,7 +1379,7 @@ async function addInbox(){const i=document.getElementById('capIn'),v=i.value.tri
 let convertIdx=null,convertData={},convertSource='inbox';
 function convert(id){
   const i=INBOX.findIndex(x=>String(x.id)===String(id));if(i<0)return;
-  convertIdx=i;convertSource='inbox';convertData={e:'sistema',ty:'🔧 Mec',block:null,panic:false};
+  convertIdx=i;convertSource='inbox';convertData={e:'general',ty:'🔧 Mec',block:null,panic:false};
   const title=INBOX[i].texto;
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
@@ -1395,7 +1403,7 @@ async function confirmConvert(){
   if(convertSource==='note'){const n=NOTES[convertIdx];title=n.texto;if(n&&n.id&&!String(n.id).startsWith('tmp'))cloudDeleteNote(n.id);NOTES.splice(convertIdx,1);renderNotes();}
   else{const x=INBOX[convertIdx];title=x.texto;if(x&&x.id&&!String(x.id).startsWith('tmp'))cloudDeleteInbox(x.id);INBOX.splice(convertIdx,1);renderInbox();}
   convertIdx=null;
-  const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:convertData.panic?3:2,block:convertData.block||null,done:false,stage:'todo',panic:convertData.panic||false};
+  const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:convertData.panic?3:2,block:convertData.block||null,done:false,stage:'todo',panic:convertData.panic||false,creado:new Date().toISOString()};
   TASKS.push(t);closeSheets();render();
   const empTag=etag(convertData.e);
   toast('✅ Tarea creada · '+empTag, ()=>openTaskMenu(t.id));
@@ -1405,8 +1413,29 @@ const WEEK=[['LUN','Vía Sana'],['MAR','Ventas'],['MIÉ','Cultura'],['JUE','Digi
 document.getElementById('weekmap').innerHTML=WEEK.map(d=>`<div class="daycol"><h4>${d[0]}</h4><div class="blk"><b>🚀 Lanzamiento</b>Webinar $47</div><div class="blk"><b>🧠 Sagrado</b>${d[1]}</div><div class="blk"><b>🛠️ Operación</b>WP urgentes</div></div>`).join('');
 
 /* ---- KPI por empresa ---- */
-document.getElementById('kpiEmp').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];const w=parseFloat(c.h);const pct=Math.round(w/2.8*100);
-  return `<div class="kpi" style="--kc:${c.color}"><div class="kt"><div class="name">${c.emoji} ${c.name}</div><div class="pct">${c.h}</div></div><div class="bar"><i style="width:${pct}%;background:${c.color}"></i></div><div class="goal">${c.done} tareas ✓ esta semana</div></div>`;}).join('');
+var kpiPeriod='sem';
+function kpiDoneInPeriod(filterFn,period){return TASKS.filter(t=>filterFn(t)&&t.stage==='done'&&inPeriod(t.done_at||t.creado,period)).length;}
+function renderKpis(period){
+  kpiPeriod=period||kpiPeriod||'sem';
+  const pl={dia:'hoy',sem:'esta semana',mes:'este mes'}[kpiPeriod];
+  const lbl=document.getElementById('kpiPerLabel'); if(lbl)lbl.textContent=pl;
+  // Por empresa: metas realizadas (tareas ✓) en el periodo + activas pendientes
+  const emp=document.getElementById('kpiEmp');
+  if(emp) emp.innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
+    const done=kpiDoneInPeriod(t=>t.e===k,kpiPeriod);
+    const active=TASKS.filter(t=>t.e===k&&t.stage==='todo').length;
+    const total=done+active,pct=total?Math.round(done/total*100):0;
+    return `<div class="kpi" style="--kc:${c.color}"><div class="kt"><div class="name">${c.emoji} ${c.name}</div><div class="pct">${pct}%</div></div><div class="bar"><i style="width:${pct}%;background:${c.color}"></i></div><div class="goal">${done} ✓ ${pl} · ${active} activas</div></div>`;
+  }).join('');
+  // Arquitecto vs Mecánico (metas realizadas en el periodo)
+  const arq=kpiDoneInPeriod(t=>(t.ty||'').includes('Arq'),kpiPeriod);
+  const mec=kpiDoneInPeriod(t=>(t.ty||'').includes('Mec'),kpiPeriod);
+  const tot=arq+mec,arqPct=tot?Math.round(arq/tot*100):0,mecPct=tot?100-arqPct:0;
+  const am=document.getElementById('kpiArqMec');
+  if(am) am.innerHTML=`<div class="kpi" style="--kc:var(--accent)"><div class="kt"><div class="name">🏛️ Arquitecto</div><div class="pct">${arqPct}%</div></div><div class="bar"><i style="width:${arqPct}%;background:var(--accent)"></i></div><div class="goal">${arq} tareas ✓ ${pl}</div></div>`+
+    `<div class="kpi" style="--kc:#9a8278"><div class="kt"><div class="name">🔧 Mecánico</div><div class="pct">${mecPct}%</div></div><div class="bar"><i style="width:${mecPct}%;background:#9a8278"></i></div><div class="goal">${mec} tareas ✓ ${pl}</div></div>`;
+}
+renderKpis('sem');
 
 /* ---- diario ---- */
 let DIARIO=[];
@@ -1428,7 +1457,7 @@ async function addNote(){const i=document.getElementById('noteIn'),v=i.value.tri
 function deleteNote(id){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){const i=NOTES.findIndex(n=>String(n.id)===String(id));if(i<0)return;cloudDeleteNote(id);NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}
 function convertNote(id){
   const i=NOTES.findIndex(n=>String(n.id)===String(id));if(i<0)return;
-  convertIdx=i;convertSource='note';convertData={e:'sistema',ty:'🔧 Mec',block:null,panic:false};
+  convertIdx=i;convertSource='note';convertData={e:'general',ty:'🔧 Mec',block:null,panic:false};
   const title=NOTES[i].texto;
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
@@ -1578,7 +1607,7 @@ function wireP(id,apply){const box=document.getElementById(id);if(!box)return;
 wireP('periodHoy',p=>{const d=PER[p];document.getElementById('ringNum').textContent=d.num;
   const a=document.getElementById('ringArc');a.setAttribute('stroke-dasharray',d.arc);a.setAttribute('stroke',d.num>=66?'var(--green)':d.num>=33?'var(--accent)':'var(--red)');
   document.getElementById('balLabel').textContent=d.label;document.getElementById('balSub').textContent=d.sub;});
-wireP('periodKpi');wireP('periodCfg');
+wireP('periodKpi',p=>renderKpis(p));wireP('periodCfg');
 
 /* ---- focus timer ---- */
 let foInt,foSec=1500,foTaskId=null,foName='';
@@ -2311,6 +2340,7 @@ function switchKpiTab(tab){
   document.getElementById('kpiTab-kpis').classList.toggle('on', tab==='kpis');
   document.getElementById('kpiTab-semana').classList.toggle('on', tab==='semana');
   if(tab==='semana'){ renderWeekmap2(); renderInbox2(); }
+  if(tab==='kpis'){ renderKpis(kpiPeriod); }
 }
 // Inbox del panel Semana (espejo del inbox de s-semana)
 function renderInbox2(){
