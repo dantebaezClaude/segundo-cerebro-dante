@@ -244,7 +244,13 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .note-dot.green{background:#43B584}
 .note-dot.red{background:#E05252}
 .li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--tile);border-left:4px solid var(--wc,var(--accent));border-radius:5px 10px 10px 5px;padding:10px;margin-bottom:7px;font-size:13px}
-.li .conv{background:transparent;border:1px solid var(--wc);color:var(--wc);border-radius:8px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
+.li>span{flex:1}
+.li .conv{background:transparent;border:1px solid var(--wc);color:var(--wc);border-radius:8px;padding:6px 11px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.li .conv:active{transform:scale(.94)}
+.postit>span:first-child{flex:1;margin-bottom:8px}
+.ws-del{align-self:flex-end;flex-shrink:0;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.14);color:#4a3700;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.ws-del:active{transform:scale(.9)}
+.li .ws-del{background:transparent;color:var(--text3);width:26px;height:26px;font-size:14px}
 .chat{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;margin-bottom:10px}
 .bub{max-width:85%;padding:9px 12px;border-radius:12px;font-size:12px;line-height:1.4}
 .bub.u{align-self:flex-end;background:var(--wc,var(--accent));color:#fff;border-bottom-right-radius:4px}
@@ -604,7 +610,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         </div>
         <div class="top-actions">
           <button class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Tema">🌙</button>
-          <button class="iconbtn" onclick="openNotes()" title="Notas">📝<span class="badge" id="noteBadge">2</span></button>
+          <button class="iconbtn" onclick="openNotes()" title="Notas">📝<span class="badge" id="noteBadge" style="display:none">0</span></button>
         </div>
       </div>
 
@@ -671,6 +677,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div id="wsTemas"></div>
 
       <div class="sect">💡 Ideas por convertir</div>
+      <div class="miniadd"><input id="wsIdeaIn" placeholder="Una idea para volver tarea…"><button onclick="wsAddIdea()" style="background:var(--wc,var(--accent))">＋</button></div>
       <div id="wsIdeas"></div>
 
       <div class="sect">📋 To-Do de la empresa</div>
@@ -785,7 +792,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 
       <div class="sect">🌿 Diario de Vida</div>
       <div class="miniadd"><input id="diaryIn" placeholder="Algo que disfrutaste hoy…"><button onclick="addDiary()" style="background:var(--green)">＋</button></div>
-      <div id="diaryList"><div class="dia"><span>🌿 Jugué fútbol con los niños</span><span class="w">hoy</span></div></div>
+      <div id="diaryList"></div>
 
       <div class="sect">🗑️ Papelera <span class="cnt" id="trash-cnt"></span></div>
       <div class="hi-date" style="margin:-4px 2px 10px">Las tareas que eliminas caen aquí. Puedes restaurarlas.</div>
@@ -1167,6 +1174,21 @@ async function saveBlockOrder(){try{await Promise.all(BLOCKS.map((b,i)=>fetch(SB
 let FOCO=[];
 async function cloudLoadFoco(){const r=await fetch(SB_URL+'/rest/v1/cerebro_foco_sesiones?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
 async function cloudInsertFoco(s){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_foco_sesiones',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({task_id:s.task_id,task_title:s.task_title,minutos:s.minutos,completada:s.completada})});const row=(await r.json())[0];if(row&&row.id)s.id=row.id;}catch(e){console.warn('foco insert',e);}}
+/* ---- notas rápidas en la nube (cerebro_notas) ---- */
+async function cloudLoadNotes(){const r=await fetch(SB_URL+'/rest/v1/cerebro_notas?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertNote(texto){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_notas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({texto})});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('note insert',e);return null;}}
+async function cloudDeleteNote(id){try{await fetch(SB_URL+'/rest/v1/cerebro_notas?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('note del',e);}}
+/* ---- inbox de la semana (cerebro_inbox) ---- */
+async function cloudLoadInbox(){const r=await fetch(SB_URL+'/rest/v1/cerebro_inbox?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertInbox(texto){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_inbox',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({texto})});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('inbox insert',e);return null;}}
+async function cloudDeleteInbox(id){try{await fetch(SB_URL+'/rest/v1/cerebro_inbox?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('inbox del',e);}}
+/* ---- diario de vida (cerebro_diario) ---- */
+async function cloudLoadDiario(){const r=await fetch(SB_URL+'/rest/v1/cerebro_diario?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertDiario(texto){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_diario',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({texto})});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('diario insert',e);return null;}}
+/* ---- workspace por empresa (cerebro_workspace) ---- */
+async function cloudLoadWorkspace(){const r=await fetch(SB_URL+'/rest/v1/cerebro_workspace?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertWorkspace(empresa,tipo,contenido){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_workspace',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({empresa,tipo,contenido})});const row=(await r.json())[0];return row&&row.id;}catch(e){console.warn('ws insert',e);return null;}}
+async function cloudDeleteWorkspace(id){try{await fetch(SB_URL+'/rest/v1/cerebro_workspace?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('ws del',e);}}
 function isToday(iso){if(!iso)return false;const d=new Date(iso),n=new Date();return d.toDateString()===n.toDateString();}
 function focoMinHoy(){return FOCO.filter(s=>isToday(s.creado_en)).reduce((a,s)=>a+(s.minutos||0),0);}
 function focoSesHoy(){return FOCO.filter(s=>isToday(s.creado_en));}
@@ -1284,41 +1306,51 @@ function renderProj(){document.getElementById('projGrid').innerHTML=Object.keys(
   const done=TASKS.filter(t=>t.e===k&&t.stage==='done').length;
   return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${done} ✓ · toca para editar</div></div>`;}).join('');}
 
-/* ---- WORKSPACE empresa ---- */
-const WS={ viasana:{notas:['Pancho: dar estructura al mercado','Calidad con Beto y Tyler'],temas:['Escalar admin a lo contable'],ideas:['Reventa de frutería']},
-  chilaquiles:{notas:['Flyer de WiFi para sucursal'],temas:['Wansoft + Didi'],ideas:['Platillos nuevos en Didi']},
-  marca:{notas:['Brief de colores para diseñador'],temas:['Serie de reels con Pancho'],ideas:['Flyer envío gratis']},
-  algorithmics:{notas:['Plan de clases demo'],temas:['Alianza con escuela'],ideas:['Campaña de inscripciones']} };
+/* ---- WORKSPACE empresa (persistido en cerebro_workspace) ---- */
+let WS={};
+function ensureWS(k){if(!WS[k])WS[k]={notas:[],temas:[],ideas:[]};return WS[k];}
+function buildWS(rows){const o={};rows.forEach(r=>{if(!o[r.empresa])o[r.empresa]={notas:[],temas:[],ideas:[]};const b=o[r.empresa][r.tipo+'s'];if(b)b.push({id:r.id,contenido:r.contenido});});return o;}
 let wsKey=null;
-function openWS(k){wsKey=k;const c=COMPANIES[k];
+function openWS(k){wsKey=k;const c=COMPANIES[k];const w=ensureWS(k);
   document.getElementById('s-workspace').style.setProperty('--wc',c.color);
   document.getElementById('wsTitle').textContent=c.emoji+' '+c.name;
-  const w=WS[k];
-  document.getElementById('wsNotes').innerHTML=w.notas.map(n=>`<div class="postit">${n}</div>`).join('')||'<div class="art-note">Sin notas aún.</div>';
-  document.getElementById('wsTemas').innerHTML=w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${t}</span></div>`).join('');
-  document.getElementById('wsIdeas').innerHTML=w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${i}</span><button class="conv" onclick="toast('Convertida en tarea ⚙️')">Convertir</button></div>`).join('');
-  const todos=TASKS.filter(t=>t.e===k);
-  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${t.t}</span><span class="tag">${t.d}</span></div>`).join(''):'<div class="art-note">Sin tareas de esta empresa.</div>';
+  document.getElementById('wsNotes').innerHTML=w.notas.length?w.notas.map(n=>`<div class="postit"><span>${escapeHtml(n.contenido)}</span><button class="ws-del" onclick="wsDel('${n.id}','notas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin notas aún.</div>';
+  document.getElementById('wsTemas').innerHTML=w.temas.length?w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${escapeHtml(t.contenido)}</span><button class="ws-del" onclick="wsDel('${t.id}','temas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin temas aún.</div>';
+  document.getElementById('wsIdeas').innerHTML=w.ideas.length?w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${escapeHtml(i.contenido)}</span><button class="conv" onclick="wsConvertIdea('${i.id}')">Convertir</button></div>`).join(''):'<div class="art-note">Sin ideas aún.</div>';
+  const todos=TASKS.filter(t=>t.e===k&&t.stage!=='trash');
+  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${escapeHtml(t.t)}</span><span class="tag">${t.d}</span></div>`).join(''):'<div class="art-note">Sin tareas de esta empresa.</div>';
   document.getElementById('wsChat').innerHTML='<div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso para '+c.name+'.</div>';
   go('workspace');
 }
-function wsAddNote(){const i=document.getElementById('wsNoteIn'),v=i.value.trim();if(!v||!wsKey)return;WS[wsKey].notas.unshift(v);i.value='';openWS(wsKey);}
-function wsAddTema(){const i=document.getElementById('wsTemaIn'),v=i.value.trim();if(!v||!wsKey)return;WS[wsKey].temas.unshift(v);i.value='';openWS(wsKey);}
+async function wsAddNote(){const i=document.getElementById('wsNoteIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey,w=ensureWS(k);const tmp={id:'tmp'+Date.now(),contenido:v};w.notas.unshift(tmp);openWS(k);const id=await cloudInsertWorkspace(k,'nota',v);if(id)tmp.id=id;}
+async function wsAddTema(){const i=document.getElementById('wsTemaIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey,w=ensureWS(k);const tmp={id:'tmp'+Date.now(),contenido:v};w.temas.unshift(tmp);openWS(k);const id=await cloudInsertWorkspace(k,'tema',v);if(id)tmp.id=id;}
+async function wsAddIdea(){const i=document.getElementById('wsIdeaIn'),v=i.value.trim();if(!v||!wsKey)return;i.value='';const k=wsKey,w=ensureWS(k);const tmp={id:'tmp'+Date.now(),contenido:v};w.ideas.unshift(tmp);openWS(k);const id=await cloudInsertWorkspace(k,'idea',v);if(id)tmp.id=id;}
+function wsDel(id,bucket){if(!wsKey)return;const w=ensureWS(wsKey);const i=w[bucket].findIndex(x=>String(x.id)===String(id));if(i<0)return;const it=w[bucket][i];if(it&&it.id&&!String(it.id).startsWith('tmp'))cloudDeleteWorkspace(it.id);w[bucket].splice(i,1);openWS(wsKey);}
+async function wsConvertIdea(id){if(!wsKey)return;const k=wsKey,w=ensureWS(k);const i=w.ideas.findIndex(x=>String(x.id)===String(id));if(i<0)return;const idea=w.ideas[i];
+  const t={id:'tmp'+Date.now(),t:idea.contenido,e:k,ty:'🔧 Mec',d:'30m',f:2,block:null,done:false,stage:'todo',panic:false};
+  TASKS.push(t);
+  if(idea.id&&!String(idea.id).startsWith('tmp'))cloudDeleteWorkspace(idea.id);
+  w.ideas.splice(i,1);openWS(k);render();
+  toast('✅ Idea convertida en tarea de '+COMPANIES[k].name);
+  const realId=await cloudInsert(t);if(realId)t.id=realId;}
 function wsSend(){const i=document.getElementById('wsChatIn'),v=i.value.trim();if(!v)return;const ch=document.getElementById('wsChat');
   ch.insertAdjacentHTML('beforeend',`<div class="bub u">${v}</div>`);i.value='';
   setTimeout(()=>{ch.insertAdjacentHTML('beforeend','<div class="bub a">👌 Lo separo en 2 frentes: un sistema que te libere (Arquitecto) y la operación de hoy (Mecánico). Siguiente paso concreto: define quién es el dueño y la fecha.</div>');ch.scrollTop=ch.scrollHeight;},500);
   ch.scrollTop=ch.scrollHeight;
 }
 
-/* ---- SEMANA / INBOX ---- */
-let INBOX=['Idea: combo familiar Chilaquiles','Llamar a proveedor de aguacate','Revisar tarea de Manus'];
+/* ---- SEMANA / INBOX (persistido en cerebro_inbox) ---- */
+let INBOX=[];
 function renderInbox(){document.getElementById('inbox-cnt').textContent=INBOX.length;
-  document.getElementById('inboxList').innerHTML=INBOX.length?INBOX.map((x,i)=>`<div class="inbox"><span>${x}</span><button class="convert" onclick="convert(${i})">⚙️ Convertir</button></div>`).join(''):'<div class="art-note">🎉 Inbox a cero. Mente despejada.</div>';}
-function addInbox(){const i=document.getElementById('capIn'),v=i.value.trim();if(!v)return;INBOX.unshift(v);i.value='';renderInbox();toast('Capturado ⚡');}
+  document.getElementById('inboxList').innerHTML=INBOX.length?INBOX.map((x)=>`<div class="inbox"><span>${escapeHtml(x.texto)}</span><button class="convert" onclick="convert('${x.id}')">⚙️ Convertir</button></div>`).join(''):'<div class="art-note">🎉 Inbox a cero. Mente despejada.</div>';}
+async function addInbox(){const i=document.getElementById('capIn'),v=i.value.trim();if(!v)return;i.value='';
+  const tmp={id:'tmp'+Date.now(),texto:v};INBOX.unshift(tmp);renderInbox();toast('Capturado ⚡');
+  const id=await cloudInsertInbox(v);if(id){tmp.id=id;renderInbox();}}
 let convertIdx=null,convertData={},convertSource='inbox';
-function convert(i){
+function convert(id){
+  const i=INBOX.findIndex(x=>String(x.id)===String(id));if(i<0)return;
   convertIdx=i;convertSource='inbox';convertData={e:'sistema',ty:'🔧 Mec',block:null,panic:false};
-  const title=INBOX[i];
+  const title=INBOX[i].texto;
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
 }
@@ -1338,8 +1370,8 @@ function renderConvertForm(){
 async function confirmConvert(){
   if(convertIdx===null)return;
   let title;
-  if(convertSource==='note'){title=NOTES[convertIdx];NOTES.splice(convertIdx,1);renderNotes();}
-  else{title=INBOX[convertIdx];INBOX.splice(convertIdx,1);renderInbox();}
+  if(convertSource==='note'){const n=NOTES[convertIdx];title=n.texto;if(n&&n.id&&!String(n.id).startsWith('tmp'))cloudDeleteNote(n.id);NOTES.splice(convertIdx,1);renderNotes();}
+  else{const x=INBOX[convertIdx];title=x.texto;if(x&&x.id&&!String(x.id).startsWith('tmp'))cloudDeleteInbox(x.id);INBOX.splice(convertIdx,1);renderInbox();}
   convertIdx=null;
   const t={id:'tmp'+Date.now(),t:title,e:convertData.e,ty:convertData.ty,d:'30m',f:convertData.panic?3:2,block:convertData.block||null,done:false,stage:'todo',panic:convertData.panic||false};
   TASKS.push(t);closeSheets();render();
@@ -1355,19 +1387,27 @@ document.getElementById('kpiEmp').innerHTML=Object.keys(COMPANIES).map(k=>{const
   return `<div class="kpi" style="--kc:${c.color}"><div class="kt"><div class="name">${c.emoji} ${c.name}</div><div class="pct">${c.h}</div></div><div class="bar"><i style="width:${pct}%;background:${c.color}"></i></div><div class="goal">${c.done} tareas ✓ esta semana</div></div>`;}).join('');
 
 /* ---- diario ---- */
-function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();if(!v)return;
-  document.getElementById('diaryList').insertAdjacentHTML('afterbegin',`<div class="dia"><span>🌿 ${v}</span><span class="w">hoy</span></div>`);i.value='';toast('Anotado 🌿 la vida también cuenta');}
+let DIARIO=[];
+function fmtDiaW(iso){if(!iso)return'hoy';if(isToday(iso))return'hoy';const d=new Date(iso),n=new Date(),y=new Date(n);y.setDate(n.getDate()-1);if(d.toDateString()===y.toDateString())return'ayer';return d.getDate()+'/'+(d.getMonth()+1);}
+function renderDiario(){const el=document.getElementById('diaryList');if(!el)return;
+  el.innerHTML=DIARIO.length?DIARIO.map(d=>`<div class="dia"><span>🌿 ${escapeHtml(d.texto)}</span><span class="w">${fmtDiaW(d.creado_en)}</span></div>`).join(''):'<div class="art-note">Aún no anotas nada. La vida también cuenta 🌿</div>';}
+async function addDiary(){const i=document.getElementById('diaryIn'),v=i.value.trim();if(!v)return;i.value='';
+  const tmp={id:'tmp'+Date.now(),texto:v,creado_en:new Date().toISOString()};DIARIO.unshift(tmp);renderDiario();toast('Anotado 🌿 la vida también cuenta');
+  const id=await cloudInsertDiario(v);if(id)tmp.id=id;}
 
-/* ---- notas flotantes ---- */
-let NOTES=['Pagar INDET el viernes','Idea: bundle envío gratis WhatsApp'];
+/* ---- notas flotantes (persistidas en cerebro_notas) ---- */
+let NOTES=[];
 function renderNotes(){document.getElementById('noteBadge').textContent=NOTES.length;
   document.getElementById('noteBadge').style.display=NOTES.length?'flex':'none';
-  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n,i)=>`<div class="postit"><div class="note-text">${n}</div><div class="note-btns"><button class="note-dot green" onclick="convertNote(${i})" title="Convertir en tarea">⚙️</button><button class="note-dot red" onclick="deleteNote(${i})" title="Borrar nota">🗑️</button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
-function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;NOTES.unshift(v);i.value='';renderNotes();toast('Nota guardada 📝');}
-function deleteNote(i){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){{NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}}
-function convertNote(i){
+  document.getElementById('notesList').innerHTML=NOTES.length?NOTES.map((n)=>`<div class="postit"><div class="note-text">${escapeHtml(n.texto)}</div><div class="note-btns"><button class="note-dot green" onclick="convertNote('${n.id}')" title="Convertir en tarea">⚙️</button><button class="note-dot red" onclick="deleteNote('${n.id}')" title="Borrar nota">🗑️</button></div></div>`).join(''):'<div class="art-note">Sin notas todavía.</div>';}
+async function addNote(){const i=document.getElementById('noteIn'),v=i.value.trim();if(!v)return;i.value='';
+  const tmp={id:'tmp'+Date.now(),texto:v};NOTES.unshift(tmp);renderNotes();toast('Nota guardada 📝');
+  const id=await cloudInsertNote(v);if(id){tmp.id=id;renderNotes();}}
+function deleteNote(id){if(confirm('¿Borrar esta nota? Esta acción no se puede deshacer.')){const i=NOTES.findIndex(n=>String(n.id)===String(id));if(i<0)return;cloudDeleteNote(id);NOTES.splice(i,1);renderNotes();toast('🗑️ Nota borrada');}}
+function convertNote(id){
+  const i=NOTES.findIndex(n=>String(n.id)===String(id));if(i<0)return;
   convertIdx=i;convertSource='note';convertData={e:'sistema',ty:'🔧 Mec',block:null,panic:false};
-  const title=NOTES[i];
+  const title=NOTES[i].texto;
   document.getElementById('convertTitle').textContent=title.length>36?title.slice(0,36)+'…':title;
   renderConvertForm();openSheet('convertSheet');
 }
@@ -1575,8 +1615,12 @@ renderInbox();renderNotes();renderProj();
   try{ const b=await cloudLoadBlocks(); if(b&&b.length)BLOCKS=b; }catch(e){ console.warn('Nube de bloques offline; uso los de ejemplo',e); }
   try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
   try{ FOCO=await cloudLoadFoco(); }catch(e){ console.warn('Nube de foco offline',e); }
+  try{ NOTES=await cloudLoadNotes(); }catch(e){ console.warn('Nube de notas offline',e); }
+  try{ INBOX=await cloudLoadInbox(); }catch(e){ console.warn('Nube de inbox offline',e); }
+  try{ DIARIO=await cloudLoadDiario(); }catch(e){ console.warn('Nube de diario offline',e); }
+  try{ WS=buildWS(await cloudLoadWorkspace()); }catch(e){ console.warn('Nube de workspace offline',e); }
   updateClock(); // re-detectar bloque activo con bloques reales de Supabase
-  render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();animateRing();
+  render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();animateRing();
   setTimeout(maybeShowPanic,600);
 })();
 
