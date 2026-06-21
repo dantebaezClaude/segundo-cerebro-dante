@@ -152,6 +152,45 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .age-badge{border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;white-space:nowrap}
 .age-badge.rez{background:rgba(224,165,60,.18);color:var(--amber)}
 .age-badge.muy{background:rgba(210,69,44,.2);color:var(--red)}
+/* ===== Mis proyectos / metas de vida ===== */
+.meta-add-btn{width:100%;background:var(--tile);border:1.5px dashed var(--line);color:var(--text2);border-radius:13px;padding:13px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;margin:4px 0 12px;touch-action:manipulation}
+.meta-add-btn:active{transform:scale(.99)}
+.meta-card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--mc,var(--amber));border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:var(--sh);touch-action:manipulation}
+.meta-card:active{transform:scale(.99)}
+.meta-card .mc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.meta-card .mc-emoji{font-size:26px;line-height:1}
+.meta-card .mc-title{font-size:18px;font-weight:800;color:var(--text);line-height:1.2}
+.meta-card .mc-open{font-size:11px;color:var(--text3);font-weight:700;white-space:nowrap}
+.meta-card .mc-why{font-size:13px;color:var(--text2);line-height:1.45;margin-top:9px;font-style:italic}
+.meta-card .mc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:13px;gap:12px}
+.meta-card .mc-date{font-size:11px;font-weight:800;color:var(--mc,var(--amber));background:rgba(224,165,60,.14);padding:4px 10px;border-radius:20px;white-space:nowrap}
+.meta-card .mc-bar{flex:1;height:6px;background:var(--tile);border-radius:6px;overflow:hidden}
+.meta-card .mc-bar i{display:block;height:100%;background:var(--mc,var(--amber))}
+.nf-label{display:block;font-size:11px;font-weight:800;color:var(--text3);margin:13px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.nf-input{width:100%;background:var(--tile);border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;color:var(--text);font-family:inherit;font-size:14px;box-sizing:border-box}
+.nf-input:focus{outline:none;border-color:var(--accent)}
+.nf-save{width:100%;margin-top:18px;background:var(--accent);color:var(--on-accent);border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;touch-action:manipulation}
+.meta-emoji-row{display:flex;flex-wrap:wrap;gap:8px}
+.meta-emoji-row button{width:42px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:var(--tile);font-size:20px;cursor:pointer;touch-action:manipulation}
+.meta-emoji-row button.on{border-color:var(--accent);background:var(--surface)}
+.meta-hero{background:linear-gradient(135deg,var(--surface),var(--tile));border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:8px}
+.meta-hero .mh-emoji{font-size:38px}
+.meta-hero .mh-title{font-size:21px;font-weight:800;color:var(--text);margin-top:6px;line-height:1.2}
+.meta-hero .mh-date{font-size:12px;color:var(--text2);margin-top:9px}
+.meta-hero .mh-count{font-weight:800;color:var(--accent)}
+.meta-hero .mh-edit{float:right;background:var(--tile);border:1px solid var(--line);color:var(--text2);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.meta-prog{height:8px;background:var(--tile);border-radius:8px;overflow:hidden;margin:10px 0}
+.meta-prog i{display:block;height:100%;background:var(--green);transition:width .3s}
+.meta-why{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:11px;padding:13px;font-size:14px;color:var(--text);line-height:1.5;font-style:italic}
+.meta-paso{display:flex;align-items:center;gap:10px;background:var(--tile);border:1px solid var(--line);border-radius:10px;padding:11px;margin-bottom:7px}
+.meta-paso .mp-chk{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
+.meta-paso.done .mp-chk{background:var(--green);border-color:var(--green);color:#fff}
+.meta-paso.done span{text-decoration:line-through;color:var(--text3)}
+.meta-paso span{flex:1;font-size:13px;color:var(--text)}
+.meta-paso .mp-del{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;flex-shrink:0}
+.meta-notas{width:100%;min-height:90px;background:var(--tile);border:1.5px solid var(--line);border-radius:12px;padding:12px;color:var(--text);font-family:inherit;font-size:14px;box-sizing:border-box;resize:vertical}
+.meta-notas:focus{outline:none;border-color:var(--accent)}
+.meta-del{width:100%;margin-top:20px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:11px;padding:12px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
 .assign{margin-left:auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:5px 9px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit}
 .fire{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:2px 4px}
 .fire button{width:20px;height:20px;border:none;background:var(--tile);color:var(--text);border-radius:6px;font-weight:800;font-size:14px;cursor:pointer}
@@ -663,6 +702,24 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div class="top"><div><div class="hi-date">Cada empresa abre su propio espacio editable</div><div class="hi-name">📋 Proyectos</div></div></div>
       <div class="minis" id="projGrid"></div>
       <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
+
+      <div class="sect" style="margin-top:24px">🌠 Mis proyectos <span class="cnt">sueños y metas de vida</span></div>
+      <button class="meta-add-btn" onclick="openMetaForm()">＋ Nuevo sueño / meta a largo plazo</button>
+      <div id="metasGrid"></div>
+    </div>
+
+    <!-- ================= ESPACIO DE META / SUEÑO ================= -->
+    <div class="screen" id="s-meta">
+      <button class="ws-back" onclick="go('proyectos')">← Mis proyectos</button>
+      <div class="meta-hero" id="metaHero"></div>
+      <div class="sect">🔥 Por qué lo quiero</div>
+      <div class="meta-why" id="metaWhy"></div>
+      <div class="sect">🪜 Pasos para lograrlo <span class="cnt" id="metaPasosCnt"></span></div>
+      <div class="miniadd"><input id="metaPasoIn" placeholder="Un paso concreto…" onkeydown="if(event.key==='Enter')addMetaPaso()"><button onclick="addMetaPaso()" style="background:var(--accent)">＋</button></div>
+      <div id="metaPasos"></div>
+      <div class="sect">📝 Notas del sueño</div>
+      <textarea id="metaNotas" class="meta-notas" placeholder="Apunta lo que se te ocurra sobre este sueño…" onblur="saveMetaNotas()"></textarea>
+      <button class="meta-del" onclick="deleteMeta()">🗑️ Eliminar este proyecto</button>
     </div>
 
     <!-- ================= WORKSPACE EMPRESA ================= -->
@@ -932,6 +989,22 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
     <div class="sh-body">
       <div class="noteadd"><textarea id="noteIn" placeholder="Anota una idea o pendiente…"></textarea><button onclick="addNote()">➕ Agregar nota</button></div>
       <div class="postgrid" id="notesList"></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="metaFormSheet" style="max-height:88%">
+    <div class="sh-head"><h3 id="metaFormTitle">🌠 Nuevo proyecto de vida</h3><button class="sh-x" onclick="closeSheets()">✕</button></div>
+    <div class="sh-body">
+      <input type="hidden" id="mfEditId" />
+      <label class="nf-label">Emoji</label>
+      <div class="meta-emoji-row" id="metaEmojiRow"></div>
+      <label class="nf-label">El sueño / la meta</label>
+      <input id="mfTitulo" class="nf-input" placeholder="Ej. Andar en ruta 4x4 en mi propio Jeep" />
+      <label class="nf-label">¿Por qué lo quiero?</label>
+      <textarea id="mfPorque" class="nf-input" rows="3" placeholder="Tu motivación: por qué este sueño importa…" style="resize:vertical"></textarea>
+      <label class="nf-label">¿Para cuándo? (opcional)</label>
+      <input id="mfFecha" class="nf-input" type="date" />
+      <button class="nf-save" onclick="saveMeta()">💾 Guardar proyecto</button>
     </div>
   </div>
 
@@ -1218,7 +1291,7 @@ function bumpPrio(id,d){const t=TASKS.find(x=>x.id===id);if(!t)return;t.f=Math.m
 const nav=document.getElementById('nav');
 nav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.s)));
 function go(s){
-  nav.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.s===s||(s==='workspace'&&x.dataset.s==='proyectos')));
+  nav.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.s===s||((s==='workspace'||s==='meta')&&x.dataset.s==='proyectos')));
   document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
   document.getElementById('s-'+s).classList.add('on');
   document.getElementById('scroll').scrollTo&&document.getElementById('scroll').scrollTo(0,0);
@@ -1326,7 +1399,70 @@ function removeBlock(id){if(BLOCKS.length<=1){toast('Deja al menos un bloque');r
 function renderProj(){document.getElementById('projGrid').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
   const act=TASKS.filter(t=>t.e===k&&t.stage==='todo').length;
   const done=TASKS.filter(t=>t.e===k&&t.stage==='done').length;
-  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${done} ✓ · toca para editar</div></div>`;}).join('');}
+  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${done} ✓ · toca para editar</div></div>`;}).join('');renderMetas();}
+
+/* ===== Mis proyectos / metas de vida ===== */
+let METAS=[],META_PASOS={},metaActual=null,metaEmojiSel='🌠';
+const META_EMOJIS=['🌠','🚙','🏔️','🏡','✈️','💪','📚','💰','❤️','🏆','🌊','🎸'];
+async function cloudLoadMetas(){const r=await fetch(SB_URL+'/rest/v1/cerebro_metas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudLoadMetaPasos(){const r=await fetch(SB_URL+'/rest/v1/cerebro_meta_pasos?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+function buildMetaPasos(rows){const o={};rows.forEach(r=>{(o[r.meta_id]=o[r.meta_id]||[]).push(r);});return o;}
+async function cloudInsertMeta(b){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_metas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify(b)});return (await r.json())[0];}catch(e){console.warn('meta insert',e);return null;}}
+async function cloudPatchMeta(id,b){try{await fetch(SB_URL+'/rest/v1/cerebro_metas?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:SBH,body:JSON.stringify(b)});}catch(e){console.warn('meta patch',e);}}
+async function cloudDeleteMeta(id){try{await fetch(SB_URL+'/rest/v1/cerebro_metas?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('meta del',e);}}
+async function cloudInsertPaso(b){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_meta_pasos',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify(b)});return (await r.json())[0];}catch(e){console.warn('paso insert',e);return null;}}
+async function cloudPatchPaso(id,b){try{await fetch(SB_URL+'/rest/v1/cerebro_meta_pasos?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:SBH,body:JSON.stringify(b)});}catch(e){console.warn('paso patch',e);}}
+async function cloudDeletePaso(id){try{await fetch(SB_URL+'/rest/v1/cerebro_meta_pasos?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('paso del',e);}}
+function metaPasosOf(id){return META_PASOS[id]||[];}
+function metaProgress(id){const p=metaPasosOf(id);if(!p.length)return 0;return Math.round(p.filter(x=>x.hecho).length/p.length*100);}
+function metaCountdown(fecha){ if(!fecha)return ''; const d=new Date(fecha+'T00:00:00'),n=new Date(); const ms=d-n; if(ms<0)return '✅ fecha cumplida'; const dias=Math.ceil(ms/86400000); if(dias>=365){const a=dias/365;return 'faltan ~'+(a>=1.6?Math.round(a)+' años':'1 año')+' · '+d.getFullYear();} if(dias>=60)return 'faltan ~'+Math.round(dias/30)+' meses · '+d.getFullYear(); return 'faltan '+dias+' días'; }
+function renderMetas(){
+  const el=document.getElementById('metasGrid'); if(!el)return;
+  el.innerHTML=METAS.length?METAS.map(m=>{ const pct=metaProgress(m.id), cd=metaCountdown(m.fecha_objetivo);
+    return `<div class="meta-card" onclick="openMeta('${m.id}')">
+      <div class="mc-top"><div><span class="mc-emoji">${m.emoji||'🌠'}</span> <span class="mc-title">${escapeHtml(m.titulo)}</span></div><span class="mc-open">abrir →</span></div>
+      ${m.porque?`<div class="mc-why">"${escapeHtml(m.porque)}"</div>`:''}
+      <div class="mc-foot">${cd?`<span class="mc-date">🎯 ${cd}</span>`:'<span></span>'}<div class="mc-bar"><i style="width:${pct}%"></i></div><span class="mc-open">${pct}%</span></div>
+    </div>`;
+  }).join(''):'<div class="art-note">Aún no tienes proyectos de vida. Toca "＋ Nuevo sueño" y suéltalo aquí.</div>';
+}
+function openMetaForm(editId){
+  document.getElementById('mfEditId').value=editId||'';
+  document.getElementById('metaFormTitle').textContent=editId?'✏️ Editar proyecto':'🌠 Nuevo proyecto de vida';
+  const m=editId?METAS.find(x=>x.id===editId):null;
+  document.getElementById('mfTitulo').value=m?m.titulo:'';
+  document.getElementById('mfPorque').value=m?(m.porque||''):'';
+  document.getElementById('mfFecha').value=m?(m.fecha_objetivo||''):'';
+  metaEmojiSel=m?(m.emoji||'🌠'):'🌠';
+  document.getElementById('metaEmojiRow').innerHTML=META_EMOJIS.map(e=>`<button class="${e===metaEmojiSel?'on':''}" onclick="selMetaEmoji('${e}')">${e}</button>`).join('');
+  openSheet('metaFormSheet');
+}
+function selMetaEmoji(e){metaEmojiSel=e;document.querySelectorAll('#metaEmojiRow button').forEach(b=>b.classList.toggle('on',b.textContent===e));}
+async function saveMeta(){
+  const titulo=document.getElementById('mfTitulo').value.trim(); if(!titulo){alert('Ponle un nombre al sueño');return;}
+  const body={titulo,porque:document.getElementById('mfPorque').value.trim()||null,fecha_objetivo:document.getElementById('mfFecha').value||null,emoji:metaEmojiSel};
+  const editId=document.getElementById('mfEditId').value;
+  if(editId){ const m=METAS.find(x=>x.id===editId); if(m)Object.assign(m,body); cloudPatchMeta(editId,body); closeSheets(); renderMetas(); if(metaActual===editId)renderMetaDetail(); toast('✅ Proyecto actualizado'); }
+  else{ const tmp={id:'tmp'+Date.now(),...body,notas:null}; METAS.push(tmp); closeSheets(); renderMetas(); toast('🌠 Proyecto guardado'); const row=await cloudInsertMeta(body); if(row&&row.id){tmp.id=row.id;renderMetas();} }
+}
+function openMeta(id){ metaActual=id; renderMetaDetail(); go('meta'); }
+function renderMetaDetail(){
+  const m=METAS.find(x=>x.id===metaActual); if(!m)return;
+  const pct=metaProgress(m.id), cd=metaCountdown(m.fecha_objetivo);
+  document.getElementById('metaHero').innerHTML=`<button class="mh-edit" onclick="openMetaForm('${m.id}')">✏️ Editar</button><div class="mh-emoji">${m.emoji||'🌠'}</div><div class="mh-title">${escapeHtml(m.titulo)}</div>${cd?`<div class="mh-date">🎯 <span class="mh-count">${cd}</span></div>`:''}<div class="meta-prog"><i style="width:${pct}%"></i></div><div class="mh-date">${pct}% logrado</div>`;
+  document.getElementById('metaWhy').innerHTML=m.porque?'"'+escapeHtml(m.porque)+'"':'<span style="color:var(--text3)">Aún no escribes por qué lo quieres. Toca ✏️ Editar para agregarlo.</span>';
+  const pasos=metaPasosOf(m.id);
+  document.getElementById('metaPasosCnt').textContent=pasos.length?pasos.filter(p=>p.hecho).length+'/'+pasos.length:'';
+  document.getElementById('metaPasos').innerHTML=pasos.length?pasos.map(p=>`<div class="meta-paso${p.hecho?' done':''}"><div class="mp-chk" onclick="toggleMetaPaso('${p.id}')">${p.hecho?'✓':''}</div><span>${escapeHtml(p.texto)}</span><button class="mp-del" onclick="delMetaPaso('${p.id}')">✕</button></div>`).join(''):'<div class="art-note">Sin pasos aún. Divide el sueño en pasos concretos ↑</div>';
+  document.getElementById('metaNotas').value=m.notas||'';
+}
+async function addMetaPaso(){const i=document.getElementById('metaPasoIn'),v=i.value.trim();if(!v||!metaActual)return;i.value='';
+  const tmp={id:'tmp'+Date.now(),meta_id:metaActual,texto:v,hecho:false}; (META_PASOS[metaActual]=META_PASOS[metaActual]||[]).push(tmp); renderMetaDetail(); renderMetas();
+  const row=await cloudInsertPaso({meta_id:metaActual,texto:v,hecho:false}); if(row&&row.id)tmp.id=row.id;}
+function toggleMetaPaso(id){const arr=META_PASOS[metaActual]||[];const p=arr.find(x=>x.id===id);if(!p)return;p.hecho=!p.hecho;if(p.id&&!String(p.id).startsWith('tmp'))cloudPatchPaso(id,{hecho:p.hecho});renderMetaDetail();renderMetas();}
+function delMetaPaso(id){const arr=META_PASOS[metaActual]||[];const i=arr.findIndex(x=>x.id===id);if(i<0)return;const p=arr[i];if(p.id&&!String(p.id).startsWith('tmp'))cloudDeletePaso(p.id);arr.splice(i,1);renderMetaDetail();renderMetas();}
+function saveMetaNotas(){const m=METAS.find(x=>x.id===metaActual);if(!m)return;const v=document.getElementById('metaNotas').value;if((m.notas||'')===v)return;m.notas=v;cloudPatchMeta(m.id,{notas:v||null});}
+function deleteMeta(){const m=METAS.find(x=>x.id===metaActual);if(!m)return;if(!confirm('¿Eliminar "'+m.titulo+'" y todos sus pasos? No se puede deshacer.'))return;cloudDeleteMeta(m.id);METAS=METAS.filter(x=>x.id!==m.id);delete META_PASOS[m.id];metaActual=null;go('proyectos');renderMetas();toast('🗑️ Proyecto eliminado');}
 
 /* ---- WORKSPACE empresa (persistido en cerebro_workspace) ---- */
 let WS={};
@@ -1688,8 +1824,10 @@ renderInbox();renderNotes();renderProj();
   try{ INBOX=await cloudLoadInbox(); }catch(e){ console.warn('Nube de inbox offline',e); }
   try{ DIARIO=await cloudLoadDiario(); }catch(e){ console.warn('Nube de diario offline',e); }
   try{ WS=buildWS(await cloudLoadWorkspace()); }catch(e){ console.warn('Nube de workspace offline',e); }
+  try{ METAS=await cloudLoadMetas(); }catch(e){ console.warn('Nube de metas offline',e); }
+  try{ META_PASOS=buildMetaPasos(await cloudLoadMetaPasos()); }catch(e){ console.warn('Nube de pasos offline',e); }
   updateClock(); // re-detectar bloque activo con bloques reales de Supabase
-  render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();animateRing();
+  render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();renderMetas();animateRing();
   setTimeout(maybeShowPanic,600);
 })();
 
