@@ -807,6 +807,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         <button class="cerebro-tab" data-mod="conexion" style="--mc:#E87EA1">❤️ Conexión</button>
         <button class="cerebro-tab" data-mod="servir" style="--mc:#E0A53C">✝️ Servir</button>
         <button class="cerebro-tab" data-mod="mindset" style="--mc:#9B6BD6">🧠 Mindset</button>
+        <button class="cerebro-tab" data-mod="ftverdad" style="--mc:#43B584">🗂️ Fuente de Verdad</button>
       </div>
 
       <!-- SINERGIA -->
@@ -839,6 +840,21 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         <div class="ck-wrap" id="ck-mindset"><div class="ck-header" onclick="toggleCK('mindset')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-mindset">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('mindset','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('mindset','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('mindset','pdf',this)">📄 PDF</button></div><div id="ckm-mindset"><div id="ckm-texto-mindset"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-mindset"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-mindset" placeholder="Frase de Gary Vee, principio de Hormozi, enseñanza de Robbins…"></textarea><button class="ck-add" onclick="addKnowledge('mindset')">＋ Insertar</button></div></div><div id="ckm-imagen-mindset" style="display:none"><div id="ck-img-ui-mindset"></div></div><div id="ckm-pdf-mindset" style="display:none"><div id="ck-pdf-ui-mindset"></div></div></div><div class="ck-list" id="ck-list-mindset"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('mindset')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-mindset" onclick="generarFrase('mindset')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-mindset" style="display:none"><input id="fi-inp-mindset" placeholder="Escribe tu frase…"><button onclick="saveFrase('mindset','dante')">Guardar</button></div><div class="frases-list" id="frases-list-mindset"></div></div></div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-mindset"><div class="cerebro-bubble sys">Trae tu dilema más difícil. Tu consejo de mentores está listo para darte la perspectiva sin filtro que necesitas.</div></div><div class="cerebro-input-bar"><textarea id="inp-mindset" placeholder="Ej: No sé si escalar Vía Sana ahora o consolidar primero…"></textarea><button class="cerebro-clear" onclick="clearCerebro('mindset')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-mindset" onclick="sendCerebro('mindset')">➤</button></div></div>
+      </div>
+
+      <!-- FUENTE DE VERDAD -->
+      <div class="cerebro-panel" id="mod-ftverdad" style="--mc:#43B584">
+        <div class="cerebro-mod-card"><div class="cerebro-mod-title">🗂️ Fuente de Verdad</div><div class="cerebro-mod-desc">Tu contexto personal completo. Todo lo que ingresas aquí alimenta automáticamente tu Cerebro IA en todos los módulos — sin que tengas que repetirte nunca.</div></div>
+
+        <div class="ck-wrap" id="ck-ft_esposo" style="--mc:#E87EA1"><div class="ck-header" onclick="toggleCK('ft_esposo')"><div class="ck-header-left">💍 Como Esposo <span class="ck-count" id="ck-count-ft_esposo">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_esposo"><option value="aprendizaje">🌱 Aprendizaje</option><option value="acuerdo">🤝 Acuerdo/Pacto</option><option value="conclusion">🏆 Conclusión</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-ft_esposo" placeholder="Algo que aprendiste como esposo, un acuerdo con tu esposa, una reflexión de pareja…"></textarea><button class="ck-add" onclick="addKnowledge('ft_esposo')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_esposo"></div></div>
+
+        <div class="ck-wrap" id="ck-ft_mentor" style="--mc:#4A90D9"><div class="ck-header" onclick="toggleCK('ft_mentor')"><div class="ck-header-left">🎯 Con Mentores <span class="ck-count" id="ck-count-ft_mentor">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_mentor"><option value="principio">⚡ Principio</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Del Mentor</option></select><textarea class="ck-text" id="ck-text-ft_mentor" placeholder="Enseñanza de un mentor, principio de un libro, lección de un podcast…"></textarea><button class="ck-add" onclick="addKnowledge('ft_mentor')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_mentor"></div></div>
+
+        <div class="ck-wrap" id="ck-ft_iglesia" style="--mc:#E0A53C"><div class="ck-header" onclick="toggleCK('ft_iglesia')"><div class="ck-header-left">✝️ En la Iglesia <span class="ck-count" id="ck-count-ft_iglesia">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_iglesia"><option value="sermon">🎤 Sermón</option><option value="versiculo">📖 Versículo</option><option value="reflexion">🙏 Reflexión</option><option value="conclusion">🏆 Conclusión</option></select><textarea class="ck-text" id="ck-text-ft_iglesia" placeholder="Punto de un sermón, versículo que resonó, reflexión del estudio bíblico…"></textarea><button class="ck-add" onclick="addKnowledge('ft_iglesia')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_iglesia"></div></div>
+
+        <div class="ck-wrap" id="ck-ft_metas" style="--mc:#43B584"><div class="ck-header" onclick="toggleCK('ft_metas')"><div class="ck-header-left">🌟 Metas & Sueños <span class="ck-count" id="ck-count-ft_metas">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_metas"><option value="meta">🎯 Meta</option><option value="sueno">💫 Sueño</option><option value="proposito">🌱 Propósito</option><option value="hito">🏆 Hito alcanzado</option></select><textarea class="ck-text" id="ck-text-ft_metas" placeholder="Una meta concreta, un sueño que quieres materializar, un propósito de vida…"></textarea><button class="ck-add" onclick="addKnowledge('ft_metas')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_metas"></div></div>
+
+        <div class="ck-wrap" id="ck-ft_gustos" style="--mc:#FF7E4D"><div class="ck-header" onclick="toggleCK('ft_gustos')"><div class="ck-header-left">❤️ Ideales & Gustos <span class="ck-count" id="ck-count-ft_gustos">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_gustos"><option value="valor">💎 Valor</option><option value="gusto">❤️ Gusto</option><option value="identidad">🪞 Identidad</option><option value="preferencia">✨ Preferencia</option></select><textarea class="ck-text" id="ck-text-ft_gustos" placeholder="Quién eres, lo que amas, tus valores más profundos, lo que te define…"></textarea><button class="ck-add" onclick="addKnowledge('ft_gustos')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_gustos"></div></div>
       </div>
     </div>
 
@@ -1205,7 +1221,7 @@ function go(s){
   document.getElementById('s-'+s).classList.add('on');
   document.getElementById('scroll').scrollTo&&document.getElementById('scroll').scrollTo(0,0);
   if(s==='network'&&typeof loadContacts==='function'){ loadContacts(); }
-  if(s==='cerebro'&&typeof MODS!=='undefined'){ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); }
+  if(s==='cerebro'&&typeof MODS!=='undefined'){ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); }
 }
 
 /* ---- tema ---- */
@@ -1679,8 +1695,10 @@ renderInbox();renderNotes();renderProj();
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const sbHeaders=SBH; // alias — SB_URL + SBH already defined above
 const MODS=['sinergia','conexion','servir','mindset'];
+const FT_MODS=['ft_esposo','ft_mentor','ft_iglesia','ft_metas','ft_gustos'];
 const cerebroChats={sinergia:[],conexion:[],servir:[],mindset:[]};
 const ckData={sinergia:[],conexion:[],servir:[],mindset:[]};
+FT_MODS.forEach(m=>{ckData[m]=[];});
 const frasesData={sinergia:[],conexion:[],servir:[],mindset:[]};
 const CEREBRO_SYS_MSG={
   sinergia:'Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.',
@@ -1688,8 +1706,9 @@ const CEREBRO_SYS_MSG={
   servir:'"Si puedes creer, al que cree todo le es posible." — ¿Qué decisión o dilema quieres ver desde la fe hoy?',
   mindset:'Trae tu dilema más difícil. Tu consejo de mentores está listo para darte la perspectiva sin filtro que necesitas.'
 };
-const TIPO_LABEL={idea:'💡 Idea',libro:'📖 Libro/Podcast',conclusion:'🏆 Conclusión',mentor:'🎯 Mentor',reflexion:'🙏 Reflexión'};
+const TIPO_LABEL={idea:'💡 Idea',libro:'📖 Libro/Podcast',conclusion:'🏆 Conclusión',mentor:'🎯 Mentor',reflexion:'🙏 Reflexión',aprendizaje:'🌱 Aprendizaje',acuerdo:'🤝 Acuerdo',principio:'⚡ Principio',sermon:'🎤 Sermón',versiculo:'📖 Versículo',meta:'🎯 Meta',sueno:'💫 Sueño',proposito:'🌱 Propósito',hito:'🏆 Hito',valor:'💎 Valor',gusto:'❤️ Gusto',identidad:'🪞 Identidad',preferencia:'✨ Preferencia'};
 const ckFile={sinergia:null,conexion:null,servir:null,mindset:null};
+FT_MODS.forEach(m=>{ckFile[m]=null;});
 
 function setCKMode(mod,mode,btn){
   btn.closest('.ck-mode-tabs').querySelectorAll('.ck-mode-btn').forEach(b=>b.classList.remove('active'));
@@ -1814,8 +1833,9 @@ async function sendCerebro(mod){
   const logEl=document.getElementById('log-'+mod);
   logEl.innerHTML+=`<div class="cerebro-bubble ai" id="c-think-${mod}">Pensando…</div>`; logEl.scrollTop=logEl.scrollHeight;
   try{
+    const ftGlobal=FT_MODS.flatMap(m=>ckData[m]||[]);
     const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({modulo:mod,conocimiento:ckData[mod],messages:log.map(m=>({role:m.role,content:m.content}))})});
+      body:JSON.stringify({modulo:mod,conocimiento:[...ckData[mod],...ftGlobal],messages:log.map(m=>({role:m.role,content:m.content}))})});
     const data=await r.json();
     const reply=(data&&data.reply)||'Sin respuesta.';
     log.push({role:'assistant',content:reply}); renderCerebroLog(mod);
@@ -1860,6 +1880,7 @@ async function delKnowledge(mod,id){
   }catch(e){ console.warn('ck del error',e); }
 }
 MODS.forEach(mod=>{ const t=document.getElementById('ck-text-'+mod); if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addKnowledge(mod); } }); });
+FT_MODS.forEach(mod=>{ const t=document.getElementById('ck-text-'+mod); if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addKnowledge(mod); } }); });
 
 function renderFrases(mod){
   const list=frasesData[mod], el=document.getElementById('frases-list-'+mod); if(!el)return;
@@ -1913,7 +1934,7 @@ function switchCerebroMod(mod){
 document.querySelectorAll('.cerebro-tab').forEach(t=>t.addEventListener('click',()=>switchCerebroMod(t.dataset.mod)));
 MODS.forEach(mod=>{ const inp=document.getElementById('inp-'+mod); if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendCerebro(mod); } }); });
 const _cerebroNav=document.querySelector('[data-s="cerebro"]');
-if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); },{ once:false }); }
+if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); },{ once:false }); }
 
 /* ===================================================================
    🤝  NETWORKING — Panel de Relaciones CEO
