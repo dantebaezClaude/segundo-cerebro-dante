@@ -594,7 +594,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
     <div class="screen on" id="s-hoy">
       <div class="top">
         <div style="display:flex;gap:11px;align-items:center">
-          <img class="avatar-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="Arquitecto">
+          <img class="avatar-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="Arquitecto" onclick="go('cerebro')" style="cursor:pointer;box-shadow:0 0 0 2px var(--accent)" title="Abrir Cerebro IA">
           <div>
             <div class="hi-date" id="hi-date-main">Cargando…</div>
             <div class="hi-name">Hola, Dante 👋 <span class="streak">🔥 4 días</span></div>
@@ -700,6 +700,15 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
     <!-- ================= KPIs ================= -->
     <div class="screen" id="s-kpis">
       <div class="top"><div><div class="hi-date">Cómo distribuyes tu energía</div><div class="hi-name">📈 KPIs</div></div></div>
+
+      <!-- Tabs: KPIs | Semana -->
+      <div class="seg" style="margin-bottom:14px">
+        <button class="on" id="kpiTab-kpis" onclick="switchKpiTab('kpis')">📈 KPIs</button>
+        <button id="kpiTab-semana" onclick="switchKpiTab('semana')">🗓️ Semana</button>
+      </div>
+
+      <!-- Panel KPIs -->
+      <div id="kpiPanel-kpis">
       <div class="seg" id="periodKpi"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
 
       <div class="sect">🏢 Por empresa</div>
@@ -729,6 +738,21 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
         <div class="hrow"><div class="hl">18–24 may<small>semana</small></div><div class="htrack"><i style="width:35%;background:var(--accent)"></i><i style="width:30%;background:#9a8278"></i></div><div class="hval">4.2h <small>·5✓</small></div></div>
         <div style="display:flex;gap:14px;font-size:11px;color:var(--text3);margin-top:10px"><span>🟧 Arquitecto</span><span>⬜ Mecánico</span></div>
       </div>
+      </div><!-- /kpiPanel-kpis -->
+
+      <!-- Panel Semana (contenido de s-semana movido aquí) -->
+      <div id="kpiPanel-semana" style="display:none">
+        <div class="capture"><input id="capIn2" placeholder="Suelta cualquier idea o fuga…" onkeydown="if(event.key==='Enter')addInbox2()"><button onclick="addInbox2()">Capturar</button></div>
+        <div class="sect">🗂️ Por procesar <span class="cnt" id="inbox-cnt2"></span></div>
+        <div id="inboxList2"></div>
+        <div class="sect">🗓️ Mapa visual de la semana</div>
+        <div class="weekmap" id="weekmap2"></div>
+        <div class="sect">🔑 Las 3 reglas de oro</div>
+        <div class="gold"><div class="num">1</div><div class="tx"><b>El Bloque Sagrado tiene un solo dueño por día.</b> Lun Vía Sana · Mar Ventas · Mié Cultura · Jue Digital · Vie CEO.</div></div>
+        <div class="gold"><div class="num">2</div><div class="tx"><b>La libreta de fugas.</b> Si algo urgente aparece → al Inbox → se atiende a las 12 PM. No rompe tu enfoque.</div></div>
+        <div class="gold"><div class="num">3</div><div class="tx"><b>El Lanzamiento avanza diario</b> (9–10:30 AM). Tu capitalización más rápida.</div></div>
+      </div><!-- /kpiPanel-semana -->
+
     </div>
 
     <!-- ================= AJUSTES ================= -->
@@ -871,10 +895,8 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
   <div class="nav" id="nav">
     <button class="on" data-s="hoy"><span class="ic">🏠</span>Hoy</button>
     <button data-s="proyectos"><span class="ic">📋</span>Proyectos</button>
-    <button data-s="semana"><span class="ic">🗓️</span>Semana</button>
     <button data-s="kpis"><span class="ic">📈</span>KPIs</button>
     <button data-s="config"><span class="ic">🧭</span>Ajustes</button>
-    <button data-s="cerebro"><span class="ic">🧠</span>Cerebro</button>
     <button data-s="network"><span class="ic">🤝</span>Network</button>
   </div>
 
@@ -2212,6 +2234,40 @@ async function deleteContact(){
 function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
 // ---- Cargar al entrar a la pantalla ----
+// ---- Tab switcher KPIs / Semana ----
+function switchKpiTab(tab){
+  document.getElementById('kpiPanel-kpis').style.display = tab==='kpis'?'block':'none';
+  document.getElementById('kpiPanel-semana').style.display = tab==='semana'?'block':'none';
+  document.getElementById('kpiTab-kpis').classList.toggle('on', tab==='kpis');
+  document.getElementById('kpiTab-semana').classList.toggle('on', tab==='semana');
+  if(tab==='semana'){ renderWeekmap2(); renderInbox2(); }
+}
+// Inbox del panel Semana (espejo del inbox de s-semana)
+function renderInbox2(){
+  // Reusa los mismos datos que el inbox original
+  const cnt2 = document.getElementById('inbox-cnt2');
+  const list2 = document.getElementById('inboxList2');
+  if(!cnt2||!list2) return;
+  // Sync desde el inbox original si existe
+  const origList = document.getElementById('inboxList');
+  if(origList){ list2.innerHTML = origList.innerHTML; }
+  const cnt = document.getElementById('inbox-cnt');
+  if(cnt && cnt2) cnt2.textContent = cnt.textContent;
+}
+function addInbox2(){
+  const inp = document.getElementById('capIn2');
+  if(!inp||!inp.value.trim()) return;
+  document.getElementById('capIn').value = inp.value;
+  inp.value='';
+  addInbox(); // llama al original
+  setTimeout(renderInbox2, 200);
+}
+function renderWeekmap2(){
+  const wm2 = document.getElementById('weekmap2');
+  const wm = document.getElementById('weekmap');
+  if(wm && wm2) wm2.innerHTML = wm.innerHTML;
+}
+
 document.querySelector('[data-s="network"]').addEventListener('click',()=>{
   loadContacts();
 },{ once:false });
