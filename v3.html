@@ -1172,6 +1172,8 @@ function rowToTask(r){return {id:r.id,t:r.title,e:(COMPANIES[r.project]?r.projec
 /* ---- antigüedad de tareas (tracking de rezagadas) ---- */
 function taskAgeDays(t){ if(!t||!t.creado)return 0; const ms=Date.now()-new Date(t.creado).getTime(); return Math.max(0,Math.floor(ms/86400000)); }
 function ageBadge(t){ if(t.done||t.stage!=='todo')return ''; const d=taskAgeDays(t); if(d>=8)return `<span class="age-badge muy" title="Muy rezagada: ${d} días en cola">🔴 ${d}d</span>`; if(d>=4)return `<span class="age-badge rez" title="Rezagada: ${d} días en cola">⏳ ${d}d</span>`; return ''; }
+/* ---- orden por prioridad: más fuegos arriba (topar = al inicio); hechas al fondo; antiguas primero en empate ---- */
+function byPriority(a,b){ return (a.done?1:0)-(b.done?1:0) || (b.f||0)-(a.f||0) || (new Date(a.creado||0)-new Date(b.creado||0)); }
 function inPeriod(iso,p){ if(!iso)return false; const d=new Date(iso),n=new Date(); if(p==='dia')return d.toDateString()===n.toDateString(); if(p==='mes')return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth(); const wk=new Date(n); const day=(n.getDay()+6)%7; wk.setDate(n.getDate()-day); wk.setHours(0,0,0,0); return d>=wk; }
 function taskToRow(t){return {title:t.t,project:t.e,type:(t.ty||'').includes('Mec')?'mecanico':'arquitecto',dur:parseInt(t.d)||30,prio:({3:'fuego',2:'importante',1:'sistema'})[t.f]||'importante',block:t.block||null,stage:t.stage||(t.done?'done':'todo'),done_at:(t.stage==='done'||t.done)?new Date().toISOString():null,panic:!!t.panic,foco:!!t.foco,actualizado_en:new Date().toISOString()};}
 async function cloudLoad(){const r=await fetch(SB_URL+'/rest/v1/cerebro_tareas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return (await r.json()).map(rowToTask);}
@@ -1233,7 +1235,7 @@ function toggleTheme(){
 
 /* ---- HOY: tareas sueltas + bloques ---- */
 function render(){
-  const loose=TASKS.filter(t=>t.stage==='todo'&&!t.block);
+  const loose=TASKS.filter(t=>t.stage==='todo'&&!t.block).sort(byPriority);
   const rez=TASKS.filter(t=>t.stage==='todo'&&!t.done&&taskAgeDays(t)>=4).length;
   document.getElementById('loose-cnt').innerHTML=loose.length+' sin bloque'+(rez?` · <span style="color:var(--amber)">⏳ ${rez} rezagada${rez>1?'s':''}</span>`:'');
   document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
@@ -1248,7 +1250,7 @@ function render(){
     </div>`).join(''):'<div class="art-note">🎉 Todo acomodado en tu día.</div>';
 
   document.getElementById('blocksList').innerHTML=BLOCKS.map(b=>{
-    const ts=TASKS.filter(t=>t.block===b.id&&t.stage!=='trash');
+    const ts=TASKS.filter(t=>t.block===b.id&&t.stage!=='trash').sort(byPriority);
     return `<div class="block ${b.active?'active':''}" style="--bc:${b.c}">
       <div class="bh"><span class="btime">${b.time}</span>${b.active?'<span class="nowtag">ahora</span>':''}</div>
       <div class="bt">${b.label}</div>
@@ -1337,7 +1339,7 @@ function openWS(k){wsKey=k;const c=COMPANIES[k];const w=ensureWS(k);
   document.getElementById('wsNotes').innerHTML=w.notas.length?w.notas.map(n=>`<div class="postit"><span>${escapeHtml(n.contenido)}</span><button class="ws-del" onclick="wsDel('${n.id}','notas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin notas aún.</div>';
   document.getElementById('wsTemas').innerHTML=w.temas.length?w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${escapeHtml(t.contenido)}</span><button class="ws-del" onclick="wsDel('${t.id}','temas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin temas aún.</div>';
   document.getElementById('wsIdeas').innerHTML=w.ideas.length?w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${escapeHtml(i.contenido)}</span><button class="conv" onclick="wsConvertIdea('${i.id}')">Convertir</button></div>`).join(''):'<div class="art-note">Sin ideas aún.</div>';
-  const todos=TASKS.filter(t=>t.e===k&&t.stage!=='trash');
+  const todos=TASKS.filter(t=>t.e===k&&t.stage!=='trash').sort(byPriority);
   document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${escapeHtml(t.t)}</span><span style="display:flex;gap:5px;align-items:center;flex-shrink:0">${ageBadge(t)}<span class="tag">${t.d}</span></span></div>`).join(''):'<div class="art-note">Sin tareas aún. Agrega una arriba ↑</div>';
   document.getElementById('wsChat').innerHTML='<div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso para '+c.name+'.</div>';
   go('workspace');
