@@ -508,9 +508,9 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .nai-days{font-size:11px;font-weight:800;background:var(--accent);color:var(--on-accent);border-radius:9px;padding:3px 9px;flex-shrink:0}
 .nai-days.green{background:var(--green)}.nai-days.amber{background:var(--amber);color:#160C09}
 .net-searchbar{display:flex;gap:8px;margin-bottom:11px}
-.net-searchbar input{flex:1;background:var(--surface);border:2px solid var(--line);border-radius:13px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:14px}
+.net-searchbar input{flex:1;min-width:0;background:var(--surface);border:2px solid var(--line);border-radius:13px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:14px}
 .net-searchbar input:focus{outline:none;border-color:var(--accent)}
-.net-searchbar button{background:var(--accent);border:none;color:var(--on-accent);border-radius:13px;width:45px;font-size:17px;cursor:pointer}
+.net-searchbar button{background:var(--accent);border:none;color:var(--on-accent);border-radius:13px;width:45px;min-width:45px;flex-shrink:0;font-size:17px;cursor:pointer}
 .net-cat-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:5px;margin-bottom:12px}
 .net-cat-row::-webkit-scrollbar{height:0}
 .netcat{flex-shrink:0;padding:6px 13px;border:1.5px solid var(--line);background:var(--tile);color:var(--text3);border-radius:20px;font-size:12px;font-weight:800;cursor:pointer;transition:.15s;font-family:inherit}
@@ -799,10 +799,6 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div id="trashList"></div>
     </div>
 
-  </div>
-
-  <!-- nav -->
-
     <!-- ================= 🧠 CEREBRO ================= -->
     <div class="screen" id="s-cerebro">
 <div class="cerebro-hero-wrap">
@@ -903,6 +899,8 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
       <div class="net-tip"><div class="net-tip-n">7 · Toca base sin motivo</div><div class="net-tip-t">"Vi esto y pensé en ti" es la frase más poderosa de relaciones. No necesitas razón para conectar.</div></div>
 
     </div><!-- /s-network -->
+
+  </div><!-- /scroll -->
 
   <div class="nav" id="nav">
     <button class="on" data-s="hoy"><span class="ic">🏠</span>Hoy</button>
@@ -1206,6 +1204,8 @@ function go(s){
   document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
   document.getElementById('s-'+s).classList.add('on');
   document.getElementById('scroll').scrollTo&&document.getElementById('scroll').scrollTo(0,0);
+  if(s==='network'&&typeof loadContacts==='function'){ loadContacts(); }
+  if(s==='cerebro'&&typeof MODS!=='undefined'){ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); }
 }
 
 /* ---- tema ---- */
@@ -1861,9 +1861,8 @@ function switchCerebroMod(mod){
 }
 document.querySelectorAll('.cerebro-tab').forEach(t=>t.addEventListener('click',()=>switchCerebroMod(t.dataset.mod)));
 MODS.forEach(mod=>{ const inp=document.getElementById('inp-'+mod); if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendCerebro(mod); } }); });
-document.querySelector('[data-s="cerebro"]').addEventListener('click',()=>{
-  MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); });
-},{ once:false });
+const _cerebroNav=document.querySelector('[data-s="cerebro"]');
+if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); },{ once:false }); }
 
 /* ===================================================================
    🤝  NETWORKING — Panel de Relaciones CEO
@@ -2317,9 +2316,7 @@ function renderWeekmap2(){
   if(wm && wm2) wm2.innerHTML = wm.innerHTML;
 }
 
-document.querySelector('[data-s="network"]').addEventListener('click',()=>{
-  loadContacts();
-},{ once:false });
+// (la carga de contactos ahora la dispara go('network'))
 
 // ---- Enter en textareas de relación ----
 ['conversaciones','gustos','metas','gestos'].forEach(tipo=>{
