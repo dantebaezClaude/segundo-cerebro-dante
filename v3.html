@@ -1333,9 +1333,31 @@ async function wsConvertIdea(id){if(!wsKey)return;const k=wsKey,w=ensureWS(k);co
   w.ideas.splice(i,1);openWS(k);render();
   toast('✅ Idea convertida en tarea de '+COMPANIES[k].name);
   const realId=await cloudInsert(t);if(realId)t.id=realId;}
-function wsSend(){const i=document.getElementById('wsChatIn'),v=i.value.trim();if(!v)return;const ch=document.getElementById('wsChat');
-  ch.insertAdjacentHTML('beforeend',`<div class="bub u">${v}</div>`);i.value='';
-  setTimeout(()=>{ch.insertAdjacentHTML('beforeend','<div class="bub a">👌 Lo separo en 2 frentes: un sistema que te libere (Arquitecto) y la operación de hoy (Mecánico). Siguiente paso concreto: define quién es el dueño y la fecha.</div>');ch.scrollTop=ch.scrollHeight;},500);
+let wsChatHist={};
+function wsCleanMd(s){ return String(s).replace(/\*\*(.+?)\*\*/g,'$1').replace(/^#{1,6}\s*/gm,'').replace(/^\s*---\s*$/gm,'').replace(/\n{3,}/g,'\n\n').trim(); }
+async function wsSend(){
+  const i=document.getElementById('wsChatIn'),v=i.value.trim();if(!v||!wsKey)return;
+  const ch=document.getElementById('wsChat'),c=COMPANIES[wsKey],w=ensureWS(wsKey);
+  ch.insertAdjacentHTML('beforeend',`<div class="bub u">${escapeHtml(v)}</div>`);i.value='';
+  ch.insertAdjacentHTML('beforeend','<div class="bub a" id="wsThink">Pensando…</div>');ch.scrollTop=ch.scrollHeight;
+  if(!wsChatHist[wsKey])wsChatHist[wsKey]=[];
+  wsChatHist[wsKey].push({role:'user',content:v});
+  if(wsChatHist[wsKey].length>10)wsChatHist[wsKey]=wsChatHist[wsKey].slice(-10);
+  const ctx=[{tipo:'idea',contenido:`Contexto: Dante es CEO de ${c.name}. Eres su copiloto estratégico para ESTA empresa. Ayúdalo a ordenar el tema que plantee y dale SIEMPRE el siguiente paso concreto, aunque no haya más conocimiento cargado. Distingue lo de Arquitecto (sistema que lo libera) de lo Mecánico (operación de hoy). Sé breve y directo.`}];
+  w.notas.forEach(n=>ctx.push({tipo:'idea',contenido:'Nota: '+n.contenido}));
+  w.temas.forEach(t=>ctx.push({tipo:'idea',contenido:'Tema a futuro: '+t.contenido}));
+  w.ideas.forEach(x=>ctx.push({tipo:'idea',contenido:'Idea: '+x.contenido}));
+  try{
+    const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({modulo:'mindset',conocimiento:ctx,messages:wsChatHist[wsKey]})});
+    const d=await r.json();
+    const reply=(d&&d.reply)||'Sin respuesta.';
+    wsChatHist[wsKey].push({role:'assistant',content:reply});
+    document.getElementById('wsThink')?.remove();
+    ch.insertAdjacentHTML('beforeend',`<div class="bub a" style="white-space:pre-wrap">${escapeHtml(wsCleanMd(reply))}</div>`);
+  }catch(e){
+    document.getElementById('wsThink')?.remove();
+    ch.insertAdjacentHTML('beforeend','<div class="bub a">👌 Lo separo en 2 frentes: un sistema que te libere (Arquitecto) y la operación de hoy (Mecánico). Siguiente paso concreto: define quién es el dueño y la fecha.</div>');
+  }
   ch.scrollTop=ch.scrollHeight;
 }
 
