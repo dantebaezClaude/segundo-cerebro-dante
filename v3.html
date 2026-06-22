@@ -750,6 +750,11 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   .cerebro-tabs{flex-direction:column !important;overflow-x:unset !important;overflow-y:unset !important;padding-bottom:0}
   .cerebro-tab{flex-shrink:unset !important;min-width:unset !important}
   .cerebro-tab.ceo-tab{min-width:unset !important}
+  /* ── DESK-GRID: 2 columnas genérico para todas las pantallas ── */
+  .desk-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .desk-col{display:flex;flex-direction:column;min-width:0}
+  /* Cerebro: sidebar angosto (tabs) | contenido amplio */
+  .desk-grid.cerebro-layout{grid-template-columns:210px 1fr;gap:24px}
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -827,12 +832,17 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
     <!-- ================= PROYECTOS ================= -->
     <div class="screen" id="s-proyectos">
       <div class="top"><div><div class="hi-date">Cada empresa abre su propio espacio editable</div><div class="hi-name">📋 Proyectos</div></div></div>
-      <div class="minis" id="projGrid"></div>
-      <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
-
-      <div class="sect" style="margin-top:24px">🌠 Mis proyectos <span class="cnt">sueños y metas de vida</span></div>
-      <button class="meta-add-btn" onclick="openMetaForm()">＋ Nuevo sueño / meta a largo plazo</button>
-      <div id="metasGrid"></div>
+      <div class="desk-grid">
+        <div class="desk-col">
+          <div class="minis" id="projGrid"></div>
+          <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
+        </div>
+        <div class="desk-col">
+          <div class="sect" style="margin-top:0">🌠 Mis proyectos <span class="cnt">sueños y metas de vida</span></div>
+          <button class="meta-add-btn" onclick="openMetaForm()">＋ Nuevo sueño / meta a largo plazo</button>
+          <div id="metasGrid"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ================= ESPACIO DE META / SUEÑO ================= -->
@@ -907,15 +917,16 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- Panel KPIs -->
       <div id="kpiPanel-kpis">
       <div class="seg" id="periodKpi"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
-
-      <div class="sect">🏢 Por empresa</div>
-      <div id="kpiEmp"></div>
-
-      <div class="sect">⚖️ Arquitecto vs Mecánico <span class="cnt" id="kpiPerLabel">esta semana</span></div>
-      <div id="kpiArqMec"></div>
-
-      <div class="sect">🎯 Foco — últimos 7 días</div>
-      <div class="card" style="padding:14px"><div id="focoHistorial"></div></div>
+      <div class="desk-grid">
+        <div class="desk-col">
+          <div class="sect">🏢 Por empresa</div>
+          <div id="kpiEmp"></div>
+          <div class="sect">⚖️ Arquitecto vs Mecánico <span class="cnt" id="kpiPerLabel">esta semana</span></div>
+          <div id="kpiArqMec"></div>
+        </div>
+        <div class="desk-col">
+          <div class="sect">🎯 Foco — últimos 7 días</div>
+          <div class="card" style="padding:14px"><div id="focoHistorial"></div></div>
 
       <div class="sect">📊 Historial — últimas 5 semanas</div>
       <div class="card" style="padding:14px">
@@ -925,7 +936,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="hrow"><div class="hl">25–31 may<small>semana</small></div><div class="htrack"><i style="width:20%;background:var(--accent)"></i><i style="width:22%;background:#9a8278"></i></div><div class="hval">2.7h <small>·3✓</small></div></div>
         <div class="hrow"><div class="hl">18–24 may<small>semana</small></div><div class="htrack"><i style="width:35%;background:var(--accent)"></i><i style="width:30%;background:#9a8278"></i></div><div class="hval">4.2h <small>·5✓</small></div></div>
         <div style="display:flex;gap:14px;font-size:11px;color:var(--text3);margin-top:10px"><span>🟧 Arquitecto</span><span>⬜ Mecánico</span></div>
-      </div>
+      </div><!-- card historial -->
+        </div><!-- desk-col der -->
+      </div><!-- desk-grid kpis -->
       </div><!-- /kpiPanel-kpis -->
 
       <!-- Panel Semana (contenido de s-semana movido aquí) -->
@@ -949,6 +962,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="top-actions"><button class="iconbtn" id="themeBtn2" onclick="toggleTheme()">🌙</button></div></div>
       <div class="seg" id="periodCfg"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
 
+      <div class="desk-grid">
+        <div class="desk-col"><!-- izq: metas + principios -->
       <div class="sect">⏱️ Metas de horas (día · semana · mes)</div>
       <div class="card">
         <div class="goalrow"><div class="lab">🏛️ Arquitecto (visión)</div>
@@ -959,6 +974,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="bar"><i style="width:82%;background:#9a8278"></i></div><div class="goal">4.1 h esta semana · 82% de la meta (5 h)</div></div>
       </div>
 
+        </div><!-- desk-col izq -->
+        <div class="desk-col"><!-- der: bloques + diario + papelera -->
       <div class="sect">⏰ Tus bloques del día <span class="cnt">edítalos</span></div>
       <div class="hi-date" style="margin:-4px 2px 10px">Cambia nombre, horario y color. Reordénalos o agrega los tuyos — se sincroniza en tus dispositivos.</div>
       <div id="blocksEditor"></div>
@@ -976,7 +993,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="sect">🗑️ Papelera <span class="cnt" id="trash-cnt"></span></div>
       <div class="hi-date" style="margin:-4px 2px 10px">Las tareas que eliminas caen aquí. Puedes restaurarlas.</div>
       <div id="trashList"></div>
-    </div>
+        </div><!-- desk-col der -->
+      </div><!-- desk-grid config -->
+    </div><!-- /s-config -->
 
     <!-- ================= 🧠 CEREBRO ================= -->
     <div class="screen" id="s-cerebro">
@@ -986,6 +1005,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="sec-title">🧠 Segundo Cerebro</div>
       <div class="sec-sub">Tu consejo privado. Sin datos genéricos — responde solo desde tu conocimiento, tus mentores y tus principios.</div>
 
+      <div class="desk-grid cerebro-layout">
+      <div class="desk-col"><!-- sidebar tabs -->
       <div class="cerebro-tabs" id="cerebroTabs">
         <button class="cerebro-tab active" data-mod="sinergia" style="--mc:#4A90D9">🤝 Sinergia</button>
         <button class="cerebro-tab" data-mod="conexion" style="--mc:#E87EA1">❤️ Conexión</button>
@@ -993,7 +1014,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <button class="cerebro-tab" data-mod="mindset" style="--mc:#9B6BD6">🧠 Mindset</button>
         <button class="cerebro-tab" data-mod="ftverdad" style="--mc:#43B584">🗂️ Fuente de Verdad</button>
         <button class="cerebro-tab ceo-tab" data-mod="ceo">👑 CEO del Corazón</button>
-      </div>
+      </div><!-- /cerebro-tabs -->
+      </div><!-- desk-col sidebar -->
+      <div class="desk-col"><!-- panels content -->
 
       <!-- SINERGIA -->
       <div class="cerebro-panel active" id="mod-sinergia" style="--mc:#4A90D9">
@@ -1116,8 +1139,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="kc-list" id="kcList"><div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div></div>
           <div class="kc-add-form"><input id="kcPersona" placeholder="¿Con quién fue la conversación?"><textarea id="kcTexto" placeholder="¿Qué le dijiste? ¿Cómo reaccionó?"></textarea><input id="kcResultado" placeholder="Resultado o seguimiento (opcional)…"><button onclick="addKC()">Registrar conversación Kind Candor</button></div>
         </div>
-      </div>
-    </div>
+      </div><!-- last ceo-section -->
+      </div><!-- /desk-col panels -->
+      </div><!-- /desk-grid cerebro -->
+    </div><!-- /s-cerebro -->
 
     <!-- ===== 🤝 NETWORKING ===== -->
     <div class="screen" id="s-network">
@@ -1151,6 +1176,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       </div>
 
       <!-- Grid de contactos -->
+      <div class="desk-grid">
+        <div class="desk-col"><!-- izq: contactos -->
       <div class="net-grid" id="netGrid">
         <div class="net-empty" style="grid-column:1/-1">
           <div class="ne-ico">🤝</div>
@@ -1158,9 +1185,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="ne-sub">Un momento</div>
         </div>
       </div>
-
+        </div><!-- /desk-col contactos -->
+        <div class="desk-col"><!-- der: tips -->
       <!-- Tips de liderazgo y amistad -->
-      <div class="sect" style="margin-top:22px">🌟 Ser un amigo y líder inolvidable</div>
+      <div class="sect" style="margin-top:0">🌟 Ser un amigo y líder inolvidable</div>
 
       <div class="net-tip"><div class="net-tip-n">1 · Sé específico</div><div class="net-tip-t">Menciona algo concreto de lo que te contó la última vez. "¿Cómo te fue con el proyecto X?" vale mil veces más que "¿Cómo estás?"</div></div>
       <div class="net-tip"><div class="net-tip-n">2 · Arrivals matter</div><div class="net-tip-t">Llega antes, no después. Un mensaje 3 días antes del cumpleaños es memorable. El día exacto ya lo hacen todos.</div></div>
@@ -1169,6 +1197,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="net-tip"><div class="net-tip-n">5 · Da sin cuenta</div><div class="net-tip-t">Conecta personas, comparte recursos, recomienda sin que te pidan. El líder que da sin llevar la cuenta nunca lleva las manos vacías.</div></div>
       <div class="net-tip"><div class="net-tip-n">6 · Escucha con intención de recordar</div><div class="net-tip-t">La mayoría escucha para responder. Los líderes excepcionales escuchan para guardar. Si lo anotas aquí, nunca olvidarás.</div></div>
       <div class="net-tip"><div class="net-tip-n">7 · Toca base sin motivo</div><div class="net-tip-t">"Vi esto y pensé en ti" es la frase más poderosa de relaciones. No necesitas razón para conectar.</div></div>
+
+        </div><!-- /desk-col tips -->
+      </div><!-- /desk-grid network -->
 
     </div><!-- /s-network -->
 
