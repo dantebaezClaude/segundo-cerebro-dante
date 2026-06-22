@@ -139,9 +139,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .balc .l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px}
 
 /* ---- bloques del día (calendario) + tareas dentro ---- */
-.block{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--bc,var(--accent));
+.block{background:color-mix(in srgb,var(--bc,var(--accent)) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--bc,var(--accent)) 22%,var(--line));border-left:5px solid var(--bc,var(--accent));
   border-radius:5px 14px 14px 5px;padding:11px 12px;margin-bottom:9px}
-.block.active{box-shadow:0 0 0 2px color-mix(in srgb,var(--bc) 40%,transparent)}
+.block.active{background:color-mix(in srgb,var(--bc,var(--accent)) 17%,var(--panel));box-shadow:0 0 0 2px color-mix(in srgb,var(--bc) 40%,transparent)}
 .block .bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .block .bt{font-size:13px;font-weight:800}
 .block .btime{font-size:10px;font-weight:800;color:var(--bc);text-transform:uppercase;letter-spacing:.3px}
@@ -207,7 +207,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 
 /* ---- minis empresas / kanban ---- */
 .minis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mini{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--mc,var(--accent));border-radius:14px;padding:12px;cursor:pointer}
+.mini{background:color-mix(in srgb,var(--mc,var(--accent)) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--mc,var(--accent)) 22%,var(--line));border-top:3px solid var(--mc,var(--accent));border-radius:14px;padding:12px;cursor:pointer}
 .mini .n{font-size:13px;font-weight:800;color:var(--mc);display:flex;align-items:center;gap:5px;justify-content:space-between}
 .mini .big{font-size:18px;font-weight:800;margin-top:5px}
 .mini .sub{font-size:10px;color:var(--text3)}
