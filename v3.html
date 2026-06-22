@@ -399,13 +399,98 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 /* ===== 🧠 CEREBRO (ported from Segundo Cerebro v2) ===== */
 .sec-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
 .sec-sub{font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.5}
-.cerebro-tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
-.cerebro-tab{ flex:1; min-width:130px; padding:13px 16px; border:2px solid var(--line);
-  background:var(--surface); color:var(--text2); border-radius:13px; cursor:pointer;
-  font-weight:800; font-size:14px; transition:.2s ease; text-align:center; }
-.cerebro-tab:hover{ border-color:var(--mc,var(--accent)); color:var(--text); background:rgba(255,255,255,.04); }
-.cerebro-tab.active{ background:var(--mc,var(--accent)); color:var(--on-accent); border-color:var(--mc,var(--accent));
-  box-shadow:0 4px 18px color-mix(in srgb, var(--mc,var(--accent)) 38%, transparent); }
+.cerebro-tabs{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.cerebro-tab{ padding:12px 8px; border:2px solid transparent;
+  background:var(--tile); color:var(--text3); border-radius:13px; cursor:pointer;
+  font-weight:800; font-size:13px; transition:.2s ease; text-align:center; }
+.cerebro-tab:hover{ border-color:var(--mc,var(--accent)); color:var(--text2); }
+.cerebro-tab.active{ background:color-mix(in srgb,var(--mc,var(--accent)) 15%,var(--surface)); color:var(--mc,var(--accent)); border-color:var(--mc,var(--accent)); }
+.cerebro-tab.ceo-tab{ grid-column:1/-1; background:color-mix(in srgb,#C0392B 12%,var(--surface)); border:2px solid #C0392B44; color:#E57370; font-size:14px; letter-spacing:.3px; }
+.cerebro-tab.ceo-tab.active{ background:color-mix(in srgb,#C0392B 22%,var(--surface)); border-color:#C0392B; color:#FF6B6B; }
+/* === CEO del Corazón (panel táctico v4) === */
+.ceo-hero{background:linear-gradient(135deg,#2D0A0A 0%,#1A0808 100%);border:1px solid #C0392B44;border-radius:16px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden}
+.ceo-hero-kicker{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#E57370;margin-bottom:5px;font-family:'Space Mono',monospace}
+.ceo-hero-title{font-size:20px;font-weight:400;color:#fff;margin-bottom:4px;font-family:'Instrument Serif',serif}
+.ceo-hero-sub{font-size:11px;color:#CBA796;line-height:1.5}
+.ceo-hero-quote{font-size:11px;font-style:italic;color:#E57370;margin-top:8px;border-left:3px solid #C0392B;padding-left:10px}
+.ceo-section{margin-bottom:14px}
+.ceo-sect-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#E57370;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;font-family:'Space Mono',monospace}
+.ceo-sect-action{font-size:10px;font-weight:800;background:#C0392B22;border:1px solid #C0392B55;color:#E57370;border-radius:7px;padding:3px 9px;cursor:pointer}
+.plan-progress{background:var(--tile);border-radius:9px;padding:11px;margin-bottom:9px}
+.plan-prog-header{display:flex;justify-content:space-between;margin-bottom:7px}
+.plan-prog-label{font-size:12px;font-weight:800;color:var(--text2)}
+.plan-prog-pct{font-size:12px;font-weight:800;color:#E57370}
+.plan-bar{height:8px;background:var(--surface);border-radius:5px;overflow:hidden}
+.plan-bar-fill{height:100%;background:linear-gradient(90deg,#C0392B,#E57370);border-radius:5px;transition:width .8s}
+.plan-phases{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.plan-phase{background:var(--surface);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.plan-phase-head{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer}
+.plan-phase-icon{width:32px;height:32px;border-radius:9px;background:#C0392B22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.plan-phase-info{flex:1}
+.plan-phase-title{font-size:12px;font-weight:800;color:var(--text)}
+.plan-phase-sub{font-size:10px;color:var(--text3)}
+.plan-phase-pct{font-size:11px;font-weight:800;color:#E57370}
+.plan-phase-body{display:none;padding:0 12px 12px;border-top:1px solid var(--line)}
+.plan-phase.open .plan-phase-body{display:block}
+.plan-step{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--line)}
+.plan-step:last-child{border-bottom:none}
+.plan-chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px;transition:.15s;color:transparent}
+.plan-chk.done{background:#C0392B;border-color:#C0392B;color:#fff}
+.plan-step-text{flex:1;font-size:11px;color:var(--text2);line-height:1.5}
+.plan-step-text b{color:var(--text);font-size:11px}
+.cult-grid{display:flex;flex-direction:column;gap:7px}
+.cult-person{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.cult-avatar{width:34px;height:34px;border-radius:10px;background:#C0392B22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.cult-info{flex:1}
+.cult-name{font-size:12px;font-weight:800;margin-bottom:4px}
+.cult-bar-wrap{display:flex;align-items:center;gap:8px}
+.cult-bar{flex:1;height:6px;background:var(--tile);border-radius:4px;overflow:hidden}
+.cult-bar-fill{height:100%;border-radius:4px;transition:width .6s}
+.cult-score{font-size:11px;font-weight:800;min-width:20px;text-align:right}
+.cult-avg{background:linear-gradient(135deg,#2D0A0A,#1A0808);border:1px solid #C0392B44;border-radius:11px;padding:11px;display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.cult-avg-num{font-size:28px;font-weight:400;color:#E57370;font-family:'Instrument Serif',serif}
+.cult-avg-label{font-size:11px;color:var(--text3);line-height:1.4}
+.cult-add{display:flex;gap:8px;margin-top:9px}
+.cult-add input{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:8px 11px;color:var(--text);font-size:12px;font-family:inherit}
+.cult-add input:focus{outline:none;border-color:#C0392B}
+.cult-add-score{width:54px;flex:0 0 54px!important}
+.cult-add button{background:#C0392B;border:none;color:#fff;border-radius:9px;padding:0 13px;font-weight:800;cursor:pointer}
+.cajas-list{display:flex;flex-direction:column;gap:7px}
+.caja-item{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.caja-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.caja-name{font-size:13px;font-weight:800}
+.caja-tipo{font-size:10px;font-weight:800;border-radius:6px;padding:3px 9px}
+.caja-tipo.h{background:#43B58422;color:#43B584}
+.caja-tipo.f{background:#4DA3FF22;color:#4DA3FF}
+.caja-tipo.a{background:#FF7A3D22;color:#FF7A3D}
+.caja-palanca{font-size:11px;color:var(--text3);line-height:1.4}
+.cajas-add{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.cajas-add input,.cajas-add select{background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--text);font-size:12px;font-family:inherit}
+.cajas-add-name{flex:1;min-width:110px}
+.cajas-add-tipo{flex:0 0 120px}
+.cajas-add button{background:#C0392B;border:none;color:#fff;border-radius:9px;padding:0 13px;font-weight:800;cursor:pointer}
+.tracker-list{display:flex;flex-direction:column;gap:7px}
+.tracker-item{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px 13px;display:flex;align-items:center;gap:10px}
+.tracker-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tracker-dot.reciente{background:#43B584}.tracker-dot.pronto{background:#FF7A3D}.tracker-dot.pendiente{background:#FF5A4D}
+.tracker-info{flex:1}
+.tracker-name{font-size:12px;font-weight:800;margin-bottom:2px}
+.tracker-fecha{font-size:10px;color:var(--text3)}
+.tracker-btn{background:var(--tile);border:none;color:var(--text2);border-radius:7px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer}
+.tracker-add{display:flex;gap:8px;margin-top:9px}
+.tracker-add input{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:8px 11px;color:var(--text);font-size:12px;font-family:inherit}
+.tracker-add button{background:#C0392B;border:none;color:#fff;border-radius:9px;padding:0 13px;font-weight:800;cursor:pointer}
+.kc-list{display:flex;flex-direction:column;gap:8px}
+.kc-item{background:var(--surface);border:1px solid var(--line);border-left:4px solid #C0392B;border-radius:4px 11px 11px 4px;padding:11px 13px}
+.kc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.kc-persona{font-size:12px;font-weight:800}
+.kc-fecha{font-size:10px;color:var(--text3)}
+.kc-texto{font-size:11px;color:var(--text2);line-height:1.5}
+.kc-resultado{font-size:10px;color:#43B584;font-weight:700;margin-top:5px}
+.kc-add-form{background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-top:9px}
+.kc-add-form input,.kc-add-form textarea{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;color:var(--text);font-size:12px;font-family:inherit}
+.kc-add-form textarea{resize:none;height:60px}
+.kc-add-form button{background:#C0392B;border:none;color:#fff;border-radius:9px;padding:10px;font-weight:800;cursor:pointer}
 .cerebro-panel{ display:none; animation:fade .3s ease; }
 .cerebro-panel.active{ display:flex; flex-direction:column; gap:16px; }
 .cerebro-mod-card{ background:var(--surface); border:1px solid var(--line);
@@ -641,7 +726,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .net-gen-spin{display:none;align-items:center;gap:8px;font-size:12px;color:var(--text3)}
 .net-gen-spin.on{display:flex}
 .cerebro-hero-wrap{width:100%;overflow:hidden;border-radius:14px;margin-bottom:18px;}
-.cerebro-hero-img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);}
+.cerebro-hero-img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);filter:hue-rotate(168deg) saturate(1.25) brightness(1.04);}
+.shell.light .cerebro-hero-img{filter:hue-rotate(168deg) saturate(1.05) brightness(.96);}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -874,6 +960,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <button class="cerebro-tab" data-mod="servir" style="--mc:#E0A53C">✝️ Servir</button>
         <button class="cerebro-tab" data-mod="mindset" style="--mc:#9B6BD6">🧠 Mindset</button>
         <button class="cerebro-tab" data-mod="ftverdad" style="--mc:#43B584">🗂️ Fuente de Verdad</button>
+        <button class="cerebro-tab ceo-tab" data-mod="ceo">👑 CEO del Corazón</button>
       </div>
 
       <!-- SINERGIA -->
@@ -921,6 +1008,82 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="ck-wrap" id="ck-ft_metas" style="--mc:#43B584"><div class="ck-header" onclick="toggleCK('ft_metas')"><div class="ck-header-left">🌟 Metas & Sueños <span class="ck-count" id="ck-count-ft_metas">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_metas"><option value="meta">🎯 Meta</option><option value="sueno">💫 Sueño</option><option value="proposito">🌱 Propósito</option><option value="hito">🏆 Hito alcanzado</option></select><textarea class="ck-text" id="ck-text-ft_metas" placeholder="Una meta concreta, un sueño que quieres materializar, un propósito de vida…"></textarea><button class="ck-add" onclick="addKnowledge('ft_metas')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_metas"></div></div>
 
         <div class="ck-wrap" id="ck-ft_gustos" style="--mc:#E87EA1"><div class="ck-header" onclick="toggleCK('ft_gustos')"><div class="ck-header-left">❤️ Ideales & Gustos <span class="ck-count" id="ck-count-ft_gustos">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_gustos"><option value="valor">💎 Valor</option><option value="gusto">❤️ Gusto</option><option value="identidad">🪞 Identidad</option><option value="preferencia">✨ Preferencia</option></select><textarea class="ck-text" id="ck-text-ft_gustos" placeholder="Quién eres, lo que amas, tus valores más profundos, lo que te define…"></textarea><button class="ck-add" onclick="addKnowledge('ft_gustos')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_gustos"></div></div>
+      </div>
+
+      <!-- CEO DEL CORAZÓN -->
+      <div class="cerebro-panel" id="mod-ceo" style="--mc:#C0392B">
+        <div class="ceo-hero">
+          <div class="ceo-hero-kicker">Sistema Gary Vee · Aplicado a Dante Báez</div>
+          <div class="ceo-hero-title">👑 CEO del Corazón</div>
+          <div class="ceo-hero-sub">Lidera con empatía. Exige con amor. Construye cultura que escale.</div>
+          <div class="ceo-hero-quote">"Amar hasta servir. Servir hasta transformar. Transformar hasta multiplicar."</div>
+        </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">📋 Plan 90 Días <span class="ceo-sect-action" onclick="togglePhase('all')">Ver todo</span></div>
+          <div class="plan-progress">
+            <div class="plan-prog-header"><div class="plan-prog-label">Progreso general</div><div class="plan-prog-pct" id="planPct">0%</div></div>
+            <div class="plan-bar"><div class="plan-bar-fill" id="planBar" style="width:0%"></div></div>
+          </div>
+          <div class="plan-phases">
+            <div class="plan-phase" id="phase-s1">
+              <div class="plan-phase-head" onclick="togglePhase('s1')"><div class="plan-phase-icon">🚀</div><div class="plan-phase-info"><div class="plan-phase-title">Semana 1 — Fundamentos</div><div class="plan-phase-sub">Lo que haces ESTA semana</div></div><div class="plan-phase-pct" id="pct-s1">0/4</div></div>
+              <div class="plan-phase-body">
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'s1')" data-phase="s1">✓</div><div class="plan-step-text"><b>Define tus 3 valores no negociables</b> — Escribe a mano los 3 valores que definen tu empresa. Serán el filtro de contratación y de salida.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'s1')" data-phase="s1">✓</div><div class="plan-step-text"><b>Primer 1:1 con cada líder directo</b> — 15 min con cada líder. Solo 3 preguntas, sin hablar de operación.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'s1')" data-phase="s1">✓</div><div class="plan-step-text"><b>Mapea las 'cajas' de tu top 5</b> — ¿Qué mueve a cada persona? ¿Dinero, tiempo o aprendizaje? Pregúntales directamente.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'s1')" data-phase="s1">✓</div><div class="plan-step-text"><b>Envía un reconocimiento HOY</b> — WhatsApp directo reconociendo algo específico que un colaborador hizo bien.</div></div>
+              </div>
+            </div>
+            <div class="plan-phase" id="phase-m1">
+              <div class="plan-phase-head" onclick="togglePhase('m1')"><div class="plan-phase-icon">🏗️</div><div class="plan-phase-info"><div class="plan-phase-title">Mes 1 — Sistema Base</div><div class="plan-phase-sub">Semanas 2–4: Instalar el sistema</div></div><div class="plan-phase-pct" id="pct-m1">0/5</div></div>
+              <div class="plan-phase-body">
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m1')" data-phase="m1">✓</div><div class="plan-step-text"><b>1:1 semanales como ritual fijo</b> — Bloquea todos los lunes 30 min. Siempre las 3 preguntas. Documenta.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m1')" data-phase="m1">✓</div><div class="plan-step-text"><b>Identifica tu Culture Champion</b> — La persona con alta empatía en cada empresa. Conviértela en tu antena interna.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m1')" data-phase="m1">✓</div><div class="plan-step-text"><b>Protocolo anti-chisme</b> — Triangulación inmediata: "Vamos a llamarlo ahora los tres."</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m1')" data-phase="m1">✓</div><div class="plan-step-text"><b>Fichas individuales de tu equipo</b> — Para cada líder: qué lo motiva, qué lo frena, su palanca de incentivo.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m1')" data-phase="m1">✓</div><div class="plan-step-text"><b>Comunica los valores a tu equipo</b> — Junta de 20 min en cada empresa. Conversación, no discurso.</div></div>
+              </div>
+            </div>
+            <div class="plan-phase" id="phase-m2">
+              <div class="plan-phase-head" onclick="togglePhase('m2')"><div class="plan-phase-icon">🔥</div><div class="plan-phase-info"><div class="plan-phase-title">Mes 2 — Kind Candor</div><div class="plan-phase-sub">Semanas 5–8: Exigencia con amor</div></div><div class="plan-phase-pct" id="pct-m2">0/4</div></div>
+              <div class="plan-phase-body">
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m2')" data-phase="m2">✓</div><div class="plan-step-text"><b>Identifica al 'genio tóxico' (si lo hay)</b> — 2 semanas para la conversación Kind Candor. Si en 30 días no cambia, actúa.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m2')" data-phase="m2">✓</div><div class="plan-step-text"><b>Practica el guion Kind Candor</b> — "Te valoro como persona. Pero tu meta era X y llevas Y. Tienes 30 días."</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m2')" data-phase="m2">✓</div><div class="plan-step-text"><b>Primera métrica de cultura</b> — Promedio de felicidad 1-10. Si baja de 7: resolver. Si sube de 8: vas bien.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m2')" data-phase="m2">✓</div><div class="plan-step-text"><b>Delega con indicadores</b> — Suelta una responsabilidad con un KPI claro: "cuando llegue a X, está bien hecho".</div></div>
+              </div>
+            </div>
+            <div class="plan-phase" id="phase-m3">
+              <div class="plan-phase-head" onclick="togglePhase('m3')"><div class="plan-phase-icon">🏛️</div><div class="plan-phase-info"><div class="plan-phase-title">Mes 3 — Escalar</div><div class="plan-phase-sub">Semanas 9–12: Institucionalizar</div></div><div class="plan-phase-pct" id="pct-m3">0/3</div></div>
+              <div class="plan-phase-body">
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m3')" data-phase="m3">✓</div><div class="plan-step-text"><b>Nombra tu Chief Heart Officer informal</b> — La persona con más empatía. Dale el rol de "puente": te dice cómo está la gente.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m3')" data-phase="m3">✓</div><div class="plan-step-text"><b>Ritual de reconocimiento semanal</b> — Cada viernes, una persona, reconocimiento específico y público.</div></div>
+                <div class="plan-step"><div class="plan-chk" onclick="toggleStep(this,'m3')" data-phase="m3">✓</div><div class="plan-step-text"><b>Auditoría día 90</b> — Carta a ti mismo: ¿qué cambió? ¿qué mejoró? Base para los próximos 90 días.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">🌡️ Termómetro del Equipo</div>
+          <div class="cult-avg"><div class="cult-avg-num" id="cultAvg">—</div><div class="cult-avg-label">Promedio de felicidad del equipo<br><span style="color:#E57370;font-weight:800">Meta: 8 o más</span></div></div>
+          <div class="cult-grid" id="cultGrid"></div>
+          <div class="cult-add"><input class="cult-add-name" id="cultNombre" placeholder="Nombre del colaborador…"><input class="cult-add-score" id="cultScore" type="number" min="1" max="10" placeholder="1-10"><button onclick="addCultPerson()">+</button></div>
+        </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">📦 Cajas del Equipo</div>
+          <div class="cajas-list" id="cajasList"></div>
+          <div class="cajas-add"><input class="cajas-add-name" id="cajaName" placeholder="Nombre…"><select class="cajas-add-tipo" id="cajaTipo"><option value="h">🔥 Hambriento</option><option value="f">🕐 Flexible</option><option value="a">📚 Aprendiz</option></select><button onclick="addCaja()">+</button></div>
+        </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">⏱️ Tracker de 1:1</div>
+          <div class="tracker-list" id="trackerList"></div>
+          <div class="tracker-add"><input id="trackerName" placeholder="Agregar persona al tracker…"><button onclick="addTracker()">+</button></div>
+        </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">💬 Kind Candor Log</div>
+          <div class="kc-list" id="kcList"><div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div></div>
+          <div class="kc-add-form"><input id="kcPersona" placeholder="¿Con quién fue la conversación?"><textarea id="kcTexto" placeholder="¿Qué le dijiste? ¿Cómo reaccionó?"></textarea><input id="kcResultado" placeholder="Resultado o seguimiento (opcional)…"><button onclick="addKC()">Registrar conversación Kind Candor</button></div>
+        </div>
       </div>
     </div>
 
@@ -2082,6 +2245,20 @@ function switchCerebroMod(mod){
 }
 document.querySelectorAll('.cerebro-tab').forEach(t=>t.addEventListener('click',()=>switchCerebroMod(t.dataset.mod)));
 MODS.forEach(mod=>{ const inp=document.getElementById('inp-'+mod); if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendCerebro(mod); } }); });
+
+/* ===== 👑 CEO del Corazón — Panel táctico (demo local v4) ===== */
+const phaseTotals={s1:4,m1:5,m2:4,m3:3};
+function toggleStep(el){ el.classList.toggle('done'); updatePlan(); }
+function togglePhase(id){ if(id==='all'){ document.querySelectorAll('.plan-phase').forEach(p=>p.classList.toggle('open')); return; } const el=document.getElementById('phase-'+id); if(el)el.classList.toggle('open'); }
+function updatePlan(){ let total=0,done=0; ['s1','m1','m2','m3'].forEach(ph=>{ const chks=document.querySelectorAll(`[data-phase="${ph}"].plan-chk.done`); const t=phaseTotals[ph]; const el=document.getElementById('pct-'+ph); if(el)el.textContent=chks.length+'/'+t; total+=t; done+=chks.length; }); const pct=total?Math.round(done/total*100):0; const p=document.getElementById('planPct'); if(p)p.textContent=pct+'%'; const b=document.getElementById('planBar'); if(b)b.style.width=pct+'%'; }
+function addCultPerson(){ const nombre=document.getElementById('cultNombre').value.trim(); const score=parseInt(document.getElementById('cultScore').value); if(!nombre||isNaN(score)||score<1||score>10)return; const color=score>=8?'#37D67A':score>=6?'#FF7A3D':'#FF5A4D'; const grid=document.getElementById('cultGrid'); const it=document.createElement('div'); it.className='cult-person'; const em=['👤','👩','👨','🧑'][Math.floor(Math.random()*4)]; it.innerHTML=`<div class="cult-avatar">${em}</div><div class="cult-info"><div class="cult-name">${escapeHtml(nombre)}</div><div class="cult-bar-wrap"><div class="cult-bar"><div class="cult-bar-fill" style="width:${score*10}%;background:${color}"></div></div><div class="cult-score" style="color:${color}">${score}</div></div></div>`; grid.appendChild(it); document.getElementById('cultNombre').value=''; document.getElementById('cultScore').value=''; updateAvg(); toast('Colaborador agregado ✓'); }
+function updateAvg(){ const scores=[...document.querySelectorAll('.cult-score')].map(el=>parseInt(el.textContent)).filter(n=>!isNaN(n)); const el=document.getElementById('cultAvg'); if(!el)return; if(!scores.length){el.textContent='—';return;} el.textContent=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1); }
+const cajaLabels={h:'🔥 Hambriento',f:'🕐 Flexible',a:'📚 Aprendiz'};
+const cajaDescs={h:'Quiere dinero y ascensos rápidos. Se le amarran KPIs agresivos a comisiones claras.',f:'Valora tiempo y autonomía. Mismo resultado exigido, diferente recompensa.',a:'Quiere mentoría y acceso al líder. Su incentivo es tu tiempo y atención.'};
+function addCaja(){ const nombre=document.getElementById('cajaName').value.trim(); const tipo=document.getElementById('cajaTipo').value; if(!nombre)return; const it=document.createElement('div'); it.className='caja-item'; it.innerHTML=`<div class="caja-top"><div class="caja-name">${escapeHtml(nombre)}</div><div class="caja-tipo ${tipo}">${cajaLabels[tipo]}</div></div><div class="caja-palanca">${cajaDescs[tipo]}</div>`; document.getElementById('cajasList').appendChild(it); document.getElementById('cajaName').value=''; toast('Caja del equipo guardada ✓'); }
+function addTracker(){ const nombre=document.getElementById('trackerName').value.trim(); if(!nombre)return; const it=document.createElement('div'); it.className='tracker-item'; it.innerHTML=`<div class="tracker-dot pendiente"></div><div class="tracker-info"><div class="tracker-name">${escapeHtml(nombre)}</div><div class="tracker-fecha">Aún sin 1:1 registrado</div></div><button class="tracker-btn" onclick="registrar11(this)">Registrar</button>`; document.getElementById('trackerList').appendChild(it); document.getElementById('trackerName').value=''; }
+function registrar11(btn){ const it=btn.closest('.tracker-item'); it.querySelector('.tracker-dot').className='tracker-dot reciente'; it.querySelector('.tracker-fecha').textContent='Último 1:1: hoy · ¡Bien hecho!'; toast('1:1 registrado ✓'); }
+function addKC(){ const persona=document.getElementById('kcPersona').value.trim(); const texto=document.getElementById('kcTexto').value.trim(); if(!persona||!texto)return; const resultado=document.getElementById('kcResultado').value.trim(); const list=document.getElementById('kcList'); const empty=list.querySelector('[style*="dashed"]'); if(empty)empty.remove(); const today=new Date().toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'}); const it=document.createElement('div'); it.className='kc-item'; it.innerHTML=`<div class="kc-top"><div class="kc-persona">${escapeHtml(persona)}</div><div class="kc-fecha">${today}</div></div><div class="kc-texto">${escapeHtml(texto)}</div>${resultado?`<div class="kc-resultado">→ ${escapeHtml(resultado)}</div>`:''}`; list.appendChild(it); ['kcPersona','kcTexto','kcResultado'].forEach(id=>document.getElementById(id).value=''); toast('Conversación registrada ✓'); }
 const _cerebroNav=document.querySelector('[data-s="cerebro"]');
 if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); },{ once:false }); }
 
