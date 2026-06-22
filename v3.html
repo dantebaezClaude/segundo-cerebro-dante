@@ -44,12 +44,12 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
     flex-direction:column;align-items:stretch;
     width:90px;height:100%;
     border-top:none;border-right:1px solid var(--line);
-    padding:20px 8px 20px;
-    justify-content:flex-start;gap:6px;
+    padding:20px 8px;
+    justify-content:space-evenly;gap:4px;
     order:-1;flex-shrink:0}
   .nav button{
     flex:none;width:100%;
-    padding:12px 4px;border-radius:14px;
+    padding:14px 4px;border-radius:14px;
     font-size:9px;font-weight:800;letter-spacing:.3px}
   .nav button.on{background:var(--accent-soft);border-radius:14px}
   .nav button .ic{font-size:22px}
@@ -61,7 +61,13 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   .shell::before{inset:-30% -10% auto}
   /* toast reposicionado (no tiene ref de bottom nav) */
   .toast{bottom:24px}
-  /* sheets siguen siendo absolutos al shell — OK */
+  /* cerebro tabs: columna vertical en desktop */
+  .cerebro-tabs{
+    flex-direction:column;
+    overflow-x:unset;overflow-y:unset;
+    padding-bottom:0}
+  .cerebro-tab{ flex-shrink:unset; min-width:unset; }
+  .cerebro-tab.ceo-tab{ min-width:unset; }
 }
 /* === Blueprint typography: serif en títulos/cifras · mono en etiquetas === */
 .hero-h,.hi-name,.ws-title,.sec-title,.cerebro-mod-title,.mc-title,.mh-title,.bt,.num,.v,.big,.pct,.hval,.meta-why{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:.2px}
@@ -433,13 +439,16 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 /* ===== 🧠 CEREBRO (ported from Segundo Cerebro v2) ===== */
 .sec-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
 .sec-sub{font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.5}
-.cerebro-tabs{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
-.cerebro-tab{ padding:12px 8px; border:2px solid transparent;
+/* mobile: tabs cerebro = fila horizontal con scroll */
+.cerebro-tabs{ display:flex; flex-direction:row; gap:8px; margin-bottom:14px;
+  overflow-x:auto; overflow-y:hidden; scrollbar-width:none; padding-bottom:4px; }
+.cerebro-tabs::-webkit-scrollbar{display:none}
+.cerebro-tab{ flex-shrink:0; min-width:110px; padding:12px 8px; border:2px solid transparent;
   background:var(--tile); color:var(--text3); border-radius:13px; cursor:pointer;
   font-weight:800; font-size:13px; transition:.2s ease; text-align:center; }
 .cerebro-tab:hover{ border-color:var(--mc,var(--accent)); color:var(--text2); }
 .cerebro-tab.active{ background:color-mix(in srgb,var(--mc,var(--accent)) 15%,var(--surface)); color:var(--mc,var(--accent)); border-color:var(--mc,var(--accent)); }
-.cerebro-tab.ceo-tab{ grid-column:1/-1; background:color-mix(in srgb,var(--accent) 12%,var(--surface)); border:2px solid color-mix(in srgb,var(--accent) 27%,transparent); color:var(--accent); font-size:14px; letter-spacing:.3px; }
+.cerebro-tab.ceo-tab{ min-width:160px; background:color-mix(in srgb,var(--accent) 12%,var(--surface)); border:2px solid color-mix(in srgb,var(--accent) 27%,transparent); color:var(--accent); font-size:14px; letter-spacing:.3px; }
 .cerebro-tab.ceo-tab.active{ background:color-mix(in srgb,var(--accent) 22%,var(--surface)); border-color:var(--accent); color:var(--accent); }
 /* === CEO del Corazón (panel táctico v4) === */
 .ceo-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--surface)) 0%,var(--bg2) 100%);border:1px solid color-mix(in srgb,var(--accent) 27%,transparent);border-radius:16px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden}
