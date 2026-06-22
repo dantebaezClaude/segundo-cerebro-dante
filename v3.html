@@ -4,28 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🧠 Segundo Cerebro — Rediseño v3 Premium (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ===== Prototipo de rediseño v2 · mobile-first · para VoBo de Dante ===== */
+/* ===== Blueprint · mobile-first ===== */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 button{touch-action:manipulation}
-body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:#06090F;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
+  font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 /* ---- TEMA (variables viven en .shell para poder cambiar a claro) ---- */
 .shell{
-  --bg:#160C09; --bg2:#1F0F0A; --panel:#20120D; --surface:#271812; --tile:#30201A;
-  --text:#FFEEE2; --text2:#FFB591; --text3:#CBA796;
-  --accent:#FF7E4D; --cherry:#8E2014;
-  --green:#43B584; --red:#D2452C; --amber:#E0A53C; --purple:#9B6BD6; --blue:#4A90D9; --pink:#E87EA1;
-  --on-accent:#160C09; --line:#3C261E; --sh:0 8px 28px rgba(0,0,0,.42);
+  --bg:#0A0E14; --bg2:#0E141C; --panel:#0D141D; --surface:#111923; --tile:#16202C;
+  --text:#E6EEF7; --text2:#9DB2C9; --text3:#62788F;
+  --accent:#20C7FF; --cherry:#FF6B35;
+  --green:#37D67A; --red:#FF5A4D; --amber:#FF7A3D; --purple:#B06BFF; --blue:#4DA3FF; --pink:#E87EA1;
+  --on-accent:#06141C; --line:rgba(120,190,255,0.16); --accent-soft:rgba(32,199,255,0.14); --sh:0 8px 28px rgba(0,0,0,.5);
   position:relative;width:100%;max-width:440px;height:100vh;height:100dvh;
   background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
   overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.6);color:var(--text)}
 .shell.light{
-  --bg:#FFFCF6; --bg2:#F1E9D6; --panel:#FFFFFF; --surface:#FFFFFF; --tile:#F7F2E4;
-  --text:#5D0703; --text2:#8A3B22; --text3:#7A5A4E;
-  --accent:#FC703C; --cherry:#A8542F;
-  --green:#2E8C63; --red:#C5471F; --on-accent:#FFFCF6; --line:#FBD3BC; --sh:0 8px 28px rgba(93,7,3,.12)}
-@media(min-width:480px){ body{padding:22px 0} .shell{min-height:auto;height:900px;border-radius:34px;border:9px solid #2b2422} }
+  --bg:#E9F0F7; --bg2:#DDE8F2; --panel:#F1F6FC; --surface:#FFFFFF; --tile:#F1F6FC;
+  --text:#0E2233; --text2:#3F5C77; --text3:#7C95AC;
+  --accent:#0094E6; --cherry:#E0492C;
+  --green:#2E9E63; --red:#E0492C; --amber:#E07A2D; --purple:#9B5BD6; --blue:#3A86D9; --pink:#D86E91;
+  --on-accent:#FFFFFF; --line:rgba(0,160,235,0.18); --accent-soft:rgba(0,148,230,0.12); --sh:0 8px 28px rgba(14,34,51,.12)}
+@media(min-width:480px){ body{padding:22px 0} .shell{min-height:auto;height:900px;border-radius:34px;border:9px solid #1A2430} }
+/* === Blueprint typography: serif en títulos/cifras · mono en etiquetas === */
+.hero-h,.hi-name,.ws-title,.sec-title,.cerebro-mod-title,.mc-title,.mh-title,.bt,.num,.v,.big,.pct,.hval,.meta-why{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:.2px}
+.sect,.btime,.hi-date,.cnt,.tag,.age-badge,.ptag{font-family:'Space Mono','SF Mono',ui-monospace,monospace}
+.sect{color:var(--accent)}
+.cnt{color:var(--text3);font-weight:400}
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 15px 96px}
 .scroll::-webkit-scrollbar{width:0}
 .screen{display:none;animation:fade .3s ease}
@@ -70,9 +78,10 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .sheet{transition:transform .42s cubic-bezier(.34,1.4,.5,1) !important}
 /* hero del Arquitecto (arte Higgsfield) */
 .hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:13px;border:1px solid var(--line);box-shadow:var(--sh);min-height:122px}
-.hero img{width:100%;height:160px;object-fit:cover;display:block;animation:slowzoom 18s ease-in-out infinite alternate}
+.hero img{width:100%;height:160px;object-fit:cover;display:block;animation:slowzoom 18s ease-in-out infinite alternate;filter:hue-rotate(168deg) saturate(1.25) brightness(1.04)}
+.shell.light .hero img{filter:hue-rotate(168deg) saturate(1.05) brightness(.96)}
 @keyframes slowzoom{from{transform:scale(1)}to{transform:scale(1.08)}}
-.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,12,9,.15) 0%,rgba(22,12,9,.82) 100%)}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,20,.12) 0%,rgba(10,14,20,.86) 100%)}
 .hero .hero-txt{position:absolute;left:15px;bottom:13px;right:15px}
 .hero .hero-k{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent)}
 .hero .hero-h{font-size:18px;font-weight:800;color:#fff;margin-top:2px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
@@ -548,7 +557,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 .nai-ico{font-size:22px;flex-shrink:0}
 .nai-info{flex:1}.nai-name{font-size:13px;font-weight:800}.nai-sub{font-size:11px;color:var(--text3)}
 .nai-days{font-size:11px;font-weight:800;background:var(--accent);color:var(--on-accent);border-radius:9px;padding:3px 9px;flex-shrink:0}
-.nai-days.green{background:var(--green)}.nai-days.amber{background:var(--amber);color:#160C09}
+.nai-days.green{background:var(--green)}.nai-days.amber{background:var(--amber);color:#06141C}
 .net-searchbar{display:flex;gap:8px;margin-bottom:11px}
 .net-searchbar input{flex:1;min-width:0;background:var(--surface);border:2px solid var(--line);border-radius:13px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:14px}
 .net-searchbar input:focus{outline:none;border-color:var(--accent)}
@@ -911,7 +920,7 @@ body{background:#0c0605;min-height:100vh;display:flex;justify-content:center;ali
 
         <div class="ck-wrap" id="ck-ft_metas" style="--mc:#43B584"><div class="ck-header" onclick="toggleCK('ft_metas')"><div class="ck-header-left">🌟 Metas & Sueños <span class="ck-count" id="ck-count-ft_metas">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_metas"><option value="meta">🎯 Meta</option><option value="sueno">💫 Sueño</option><option value="proposito">🌱 Propósito</option><option value="hito">🏆 Hito alcanzado</option></select><textarea class="ck-text" id="ck-text-ft_metas" placeholder="Una meta concreta, un sueño que quieres materializar, un propósito de vida…"></textarea><button class="ck-add" onclick="addKnowledge('ft_metas')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_metas"></div></div>
 
-        <div class="ck-wrap" id="ck-ft_gustos" style="--mc:#FF7E4D"><div class="ck-header" onclick="toggleCK('ft_gustos')"><div class="ck-header-left">❤️ Ideales & Gustos <span class="ck-count" id="ck-count-ft_gustos">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_gustos"><option value="valor">💎 Valor</option><option value="gusto">❤️ Gusto</option><option value="identidad">🪞 Identidad</option><option value="preferencia">✨ Preferencia</option></select><textarea class="ck-text" id="ck-text-ft_gustos" placeholder="Quién eres, lo que amas, tus valores más profundos, lo que te define…"></textarea><button class="ck-add" onclick="addKnowledge('ft_gustos')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_gustos"></div></div>
+        <div class="ck-wrap" id="ck-ft_gustos" style="--mc:#E87EA1"><div class="ck-header" onclick="toggleCK('ft_gustos')"><div class="ck-header-left">❤️ Ideales & Gustos <span class="ck-count" id="ck-count-ft_gustos">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_gustos"><option value="valor">💎 Valor</option><option value="gusto">❤️ Gusto</option><option value="identidad">🪞 Identidad</option><option value="preferencia">✨ Preferencia</option></select><textarea class="ck-text" id="ck-text-ft_gustos" placeholder="Quién eres, lo que amas, tus valores más profundos, lo que te define…"></textarea><button class="ck-add" onclick="addKnowledge('ft_gustos')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_gustos"></div></div>
       </div>
     </div>
 
@@ -1341,7 +1350,7 @@ function render(){
 function toggleDone(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.stage=t.done?'done':'todo';cloudPatch(t);render();if(document.getElementById('panicOvl').classList.contains('on'))renderPanic();if(t.done){toast('🎉 ¡Listo! +'+t.d+' '+(t.ty.includes('Arq')?'Arquitecto':'Mecánico'));confetti();}}
 
 /* ---- confetti de celebración ---- */
-const CFCOL=['#FF7E4D','#43B584','#9B6BD6','#E0A53C','#E87EA1','#4A90D9'];
+const CFCOL=['#20C7FF','#37D67A','#B06BFF','#FF7A3D','#E87EA1','#4DA3FF'];
 function confetti(){
   const c=document.getElementById('confetti');if(!c)return;const shell=document.getElementById('shell');
   c.width=shell.clientWidth;c.height=shell.clientHeight;c.classList.add('on');
