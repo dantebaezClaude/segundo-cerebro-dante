@@ -395,6 +395,15 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .panic-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px}
 .panic-foot button{flex:1;border:1px solid var(--line);background:var(--tile);color:var(--text2);border-radius:11px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
 .panic-empty{text-align:center;color:var(--green);font-size:14px;font-weight:800;padding:20px}
+.panic-item{cursor:pointer;transition:background .15s}
+.panic-item:hover{background:color-mix(in srgb,var(--red) 8%,var(--tile))}
+.panic-item .ptxt:after{content:' ✏️';font-size:10px;opacity:0;transition:.15s}
+.panic-item:hover .ptxt:after{opacity:.5}
+.panic-quick{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px}
+.panic-quick input{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--text);font-size:12px;font-family:inherit}
+.panic-quick input::placeholder{color:var(--text3)}
+.panic-quick input:focus{outline:none;border-color:var(--red)}
+.panic-quick button{background:var(--red);border:none;color:#fff;border-radius:10px;padding:9px 14px;font-weight:800;font-size:14px;cursor:pointer;flex-shrink:0}
 
 /* ===== 🧠 CEREBRO (ported from Segundo Cerebro v2) ===== */
 .sec-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
@@ -1322,6 +1331,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <p>No están agendadas en un bloque, pero HAY que hacerlas hoy. Se quitan solas al palomearlas.</p>
       </div>
       <div class="panic-list" id="panicList"></div>
+      <div class="panic-quick"><input id="panicQuickInp" placeholder="＋ Nueva tarea ultra importante…" onkeydown="if(event.key==='Enter')addPanicQuick()"><button onclick="addPanicQuick()">＋</button></div>
       <div class="panic-foot"><button onclick="closePanic()">Ahora no (reaparece al recargar)</button></div>
     </div>
   </div>
@@ -1910,10 +1920,23 @@ function togglePanic(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.panic=!
 function panicPending(){return TASKS.filter(t=>t.panic&&!t.done&&t.stage!=='trash');}
 function renderPanic(){
   const list=panicPending(),el=document.getElementById('panicList');if(!el)return;
-  el.innerHTML=list.length?list.map(t=>`<div class="panic-item">
-      <div class="pchk" onclick="panicCheck('${t.id}')" title="Marcar realizada"></div>
-      <div><div class="ptxt">${t.t}</div><div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div></div>
+  el.innerHTML=list.length?list.map(t=>`<div class="panic-item" onclick="panicOpenEdit('${t.id}',event)">
+      <div class="pchk" onclick="panicCheck('${t.id}');event.stopPropagation()" title="Marcar realizada"></div>
+      <div style="flex:1;min-width:0"><div class="ptxt">${escapeHtml(t.t)}</div><div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div></div>
     </div>`).join(''):'<div class="panic-empty">🎉 ¡Todas hechas! Sin pendientes ultra importantes.</div>';
+}
+function panicOpenEdit(id,e){
+  if(e&&e.target.classList.contains('pchk'))return;
+  closePanic();
+  setTimeout(()=>openTaskMenu(id),180);
+}
+async function addPanicQuick(){
+  const inp=document.getElementById('panicQuickInp');
+  const txt=inp.value.trim(); if(!txt)return;
+  const t={id:crypto.randomUUID(),t:txt,e:'general',ty:'🔧 Mec',d:'30m',f:3,block:null,done:false,stage:'todo',panic:true,foco:false,creado:new Date().toISOString()};
+  const dbId=await cloudInsert(t); if(dbId)t.id=dbId;
+  TASKS.push(t); inp.value=''; render(); renderPanic();
+  toast('🚨 Tarea ultra importante creada');
 }
 function panicCheck(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=true;t.stage='done';cloudPatch(t);render();renderPanic();confetti();
   if(panicPending().length===0)setTimeout(closePanic,700);}
