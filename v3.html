@@ -497,6 +497,37 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .kc-add-form input,.kc-add-form textarea{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;color:var(--text);font-size:12px;font-family:inherit}
 .kc-add-form textarea{resize:none;height:60px}
 .kc-add-form button{background:var(--accent);border:none;color:var(--on-accent);border-radius:9px;padding:10px;font-weight:800;cursor:pointer}
+/* Conclusiones por módulo */
+.conc-wrap{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--mc,var(--accent));border-radius:4px 12px 12px 4px}
+.conc-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
+.conc-header-left{font-size:12px;font-weight:700;color:var(--mc,var(--accent));display:flex;align-items:center;gap:7px}
+.conc-count{background:color-mix(in srgb,var(--mc,var(--accent)) 18%,transparent);color:var(--mc,var(--accent));border-radius:20px;padding:1px 8px;font-size:10px;font-weight:800}
+.conc-arrow{color:var(--text3);font-size:12px;transition:transform .2s}
+.conc-wrap.open .conc-arrow{transform:rotate(180deg)}
+.conc-body{padding:0 12px 12px}
+.conc-list{display:flex;flex-direction:column;gap:7px;margin-bottom:9px}
+.conc-item{background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:8px}
+.conc-item-text{flex:1;line-height:1.5}
+.conc-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;opacity:.6;flex-shrink:0}
+.conc-del:hover{opacity:1;color:var(--red)}
+.conc-add-row{display:flex;gap:8px;align-items:flex-end}
+.conc-input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--text);font-size:12px;font-family:inherit;resize:none;height:52px}
+.conc-add-btn{background:color-mix(in srgb,var(--mc,var(--accent)) 18%,var(--surface));border:1px solid color-mix(in srgb,var(--mc,var(--accent)) 35%,transparent);color:var(--mc,var(--accent));border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer;white-space:nowrap;font-size:12px}
+/* Mis Conexiones mini en Sinergia */
+.conex-mini-wrap{background:var(--surface);border:1px solid var(--line);border-left:4px solid #4A90D9;border-radius:4px 12px 12px 4px;padding:12px 14px}
+.conex-mini-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.conex-mini-title{font-size:12px;font-weight:700;color:#4A90D9}
+.conex-mini-btn{background:none;border:1px solid rgba(74,144,217,.3);color:#4A90D9;border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer;font-weight:700}
+.conex-mini-list{display:flex;flex-direction:column;gap:7px}
+.conex-mini-item{display:flex;align-items:center;gap:9px;padding:7px 9px;background:var(--tile);border:1px solid var(--line);border-radius:9px}
+.conex-mini-av{width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,#4A90D9 18%,var(--surface));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.conex-mini-info{flex:1;min-width:0}
+.conex-mini-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conex-mini-cat{font-size:10px;color:var(--text3)}
+.conex-mini-empty{font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:8px 0}
+/* CEO del Corazón delete btn */
+.cult-del,.caja-del,.tracker-del,.kc-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;opacity:.5;flex-shrink:0}
+.cult-del:hover,.caja-del:hover,.tracker-del:hover,.kc-del:hover{opacity:1;color:var(--red)}
 .cerebro-panel{ display:none; animation:fade .3s ease; }
 .cerebro-panel.active{ display:flex; flex-direction:column; gap:16px; }
 .cerebro-mod-card{ background:var(--surface); border:1px solid var(--line);
@@ -1023,6 +1054,14 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🤝 Sinergia y Networking de Alto Nivel</div><div class="cerebro-mod-desc">Preparación de reuniones estratégicas · Preguntas de impacto · Atenciones corporativas · Alianzas de largo plazo</div></div>
         <div class="ck-wrap" id="ck-sinergia"><div class="ck-header" onclick="toggleCK('sinergia')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-sinergia">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('sinergia','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('sinergia','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('sinergia','pdf',this)">📄 PDF</button></div><div id="ckm-sinergia"><div id="ckm-texto-sinergia"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-sinergia"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-sinergia" placeholder="Idea, conclusión, frase de un libro…"></textarea><button class="ck-add" onclick="addKnowledge('sinergia')">＋ Insertar</button></div></div><div id="ckm-imagen-sinergia" style="display:none"><div id="ck-img-ui-sinergia"></div></div><div id="ckm-pdf-sinergia" style="display:none"><div id="ck-pdf-ui-sinergia"></div></div></div><div class="ck-list" id="ck-list-sinergia"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('sinergia')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-sinergia" onclick="generarFrase('sinergia')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-sinergia" style="display:none"><input id="fi-inp-sinergia" placeholder="Escribe tu frase…"><button onclick="saveFrase('sinergia','dante')">Guardar</button></div><div class="frases-list" id="frases-list-sinergia"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-sinergia">
+          <div class="conc-header" onclick="toggleConc('sinergia')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-sinergia">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-sinergia" style="display:none"><div class="conc-list" id="conc-list-sinergia"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-sinergia" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('sinergia')">＋ Agregar</button></div></div>
+        </div>
+        <div class="conex-mini-wrap">
+          <div class="conex-mini-header"><div class="conex-mini-title">🔗 Mis Conexiones</div><button class="conex-mini-btn" onclick="go('network')">Ver todas →</button></div>
+          <div class="conex-mini-list" id="conex-mini-list"><div class="conex-mini-empty">Cargando contactos…</div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-sinergia"><div class="cerebro-bubble sys">Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.</div></div><div class="cerebro-input-bar"><textarea id="inp-sinergia" placeholder="Ej: Voy con el CEO de Cemex, dame 3 preguntas que lo hagan pensar…"></textarea><button class="cerebro-clear" onclick="clearCerebro('sinergia')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-sinergia" onclick="sendCerebro('sinergia')">➤</button></div></div>
       </div>
 
@@ -1031,6 +1070,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">❤️ Conexión y Legado Personal</div><div class="cerebro-mod-desc">Inteligencia emocional · Dinámicas de pareja · Pilares de crianza · Comunicación asertiva</div></div>
         <div class="ck-wrap" id="ck-conexion"><div class="ck-header" onclick="toggleCK('conexion')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-conexion">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('conexion','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('conexion','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('conexion','pdf',this)">📄 PDF</button></div><div id="ckm-conexion"><div id="ckm-texto-conexion"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-conexion"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-conexion" placeholder="Idea, conclusión, aprendizaje…"></textarea><button class="ck-add" onclick="addKnowledge('conexion')">＋ Insertar</button></div></div><div id="ckm-imagen-conexion" style="display:none"><div id="ck-img-ui-conexion"></div></div><div id="ckm-pdf-conexion" style="display:none"><div id="ck-pdf-ui-conexion"></div></div></div><div class="ck-list" id="ck-list-conexion"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('conexion')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-conexion" onclick="generarFrase('conexion')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-conexion" style="display:none"><input id="fi-inp-conexion" placeholder="Escribe tu frase…"><button onclick="saveFrase('conexion','dante')">Guardar</button></div><div class="frases-list" id="frases-list-conexion"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-conexion">
+          <div class="conc-header" onclick="toggleConc('conexion')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-conexion">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-conexion" style="display:none"><div class="conc-list" id="conc-list-conexion"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-conexion" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('conexion')">＋ Agregar</button></div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-conexion"><div class="cerebro-bubble sys">¿Qué situación relacional quieres trabajar hoy? Pareja, familia, amigos. Aquí no hay prisa — hay profundidad.</div></div><div class="cerebro-input-bar"><textarea id="inp-conexion" placeholder="Ej: Quiero mejorar cómo comunico mis emociones en pareja…"></textarea><button class="cerebro-clear" onclick="clearCerebro('conexion')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-conexion" onclick="sendCerebro('conexion')">➤</button></div></div>
       </div>
 
@@ -1039,6 +1082,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">✝️ Servir · Liderazgo Pastoral</div><div class="cerebro-mod-desc">Decisiones con enfoque bíblico · Fe aplicada al negocio · Liderazgo ético · Servicio a la comunidad</div></div>
         <div class="ck-wrap" id="ck-servir"><div class="ck-header" onclick="toggleCK('servir')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-servir">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('servir','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('servir','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('servir','pdf',this)">📄 PDF</button></div><div id="ckm-servir"><div id="ckm-texto-servir"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-servir"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-servir" placeholder="Versículo, enseñanza pastoral, reflexión personal…"></textarea><button class="ck-add" onclick="addKnowledge('servir')">＋ Insertar</button></div></div><div id="ckm-imagen-servir" style="display:none"><div id="ck-img-ui-servir"></div></div><div id="ckm-pdf-servir" style="display:none"><div id="ck-pdf-ui-servir"></div></div></div><div class="ck-list" id="ck-list-servir"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('servir')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-servir" onclick="generarFrase('servir')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-servir" style="display:none"><input id="fi-inp-servir" placeholder="Escribe tu frase…"><button onclick="saveFrase('servir','dante')">Guardar</button></div><div class="frases-list" id="frases-list-servir"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-servir">
+          <div class="conc-header" onclick="toggleConc('servir')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-servir">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-servir" style="display:none"><div class="conc-list" id="conc-list-servir"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-servir" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('servir')">＋ Agregar</button></div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-servir"><div class="cerebro-bubble sys">"Si puedes creer, al que cree todo le es posible." — ¿Qué decisión o dilema quieres ver desde la fe hoy?</div></div><div class="cerebro-input-bar"><textarea id="inp-servir" placeholder="Ej: ¿Cómo sé si estoy tomando esta decisión desde el miedo o desde la fe?…"></textarea><button class="cerebro-clear" onclick="clearCerebro('servir')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-servir" onclick="sendCerebro('servir')">➤</button></div></div>
       </div>
 
@@ -1047,6 +1094,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🧠 Mindset · Consejo de Mentores</div><div class="cerebro-mod-desc">Gary Vee · Tony Robbins · Alex Hormozi · Perspectivas de clase mundial para tus decisiones más difíciles</div></div>
         <div class="ck-wrap" id="ck-mindset"><div class="ck-header" onclick="toggleCK('mindset')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-mindset">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('mindset','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('mindset','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('mindset','pdf',this)">📄 PDF</button></div><div id="ckm-mindset"><div id="ckm-texto-mindset"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-mindset"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-mindset" placeholder="Frase de Gary Vee, principio de Hormozi, enseñanza de Robbins…"></textarea><button class="ck-add" onclick="addKnowledge('mindset')">＋ Insertar</button></div></div><div id="ckm-imagen-mindset" style="display:none"><div id="ck-img-ui-mindset"></div></div><div id="ckm-pdf-mindset" style="display:none"><div id="ck-pdf-ui-mindset"></div></div></div><div class="ck-list" id="ck-list-mindset"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('mindset')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-mindset" onclick="generarFrase('mindset')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-mindset" style="display:none"><input id="fi-inp-mindset" placeholder="Escribe tu frase…"><button onclick="saveFrase('mindset','dante')">Guardar</button></div><div class="frases-list" id="frases-list-mindset"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-mindset">
+          <div class="conc-header" onclick="toggleConc('mindset')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-mindset">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-mindset" style="display:none"><div class="conc-list" id="conc-list-mindset"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-mindset" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('mindset')">＋ Agregar</button></div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-mindset"><div class="cerebro-bubble sys">Trae tu dilema más difícil. Tu consejo de mentores está listo para darte la perspectiva sin filtro que necesitas.</div></div><div class="cerebro-input-bar"><textarea id="inp-mindset" placeholder="Ej: No sé si escalar Vía Sana ahora o consolidar primero…"></textarea><button class="cerebro-clear" onclick="clearCerebro('mindset')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-mindset" onclick="sendCerebro('mindset')">➤</button></div></div>
       </div>
 
@@ -2061,6 +2112,10 @@ renderInbox();renderNotes();renderProj();
   try{ WS=buildWS(await cloudLoadWorkspace()); }catch(e){ console.warn('Nube de workspace offline',e); }
   try{ METAS=await cloudLoadMetas(); }catch(e){ console.warn('Nube de metas offline',e); }
   try{ META_PASOS=buildMetaPasos(await cloudLoadMetaPasos()); }catch(e){ console.warn('Nube de pasos offline',e); }
+  try{
+    const [ceoP,ceoC,ceoK,ceoT,ceoKC]=await Promise.all([cloudLoadCEOPlan(),cloudLoadCEOCultura(),cloudLoadCEOCajas(),cloudLoadCEOTracker(),cloudLoadCEOKC()]);
+    renderCEOPlan(ceoP); renderCEOCultura(ceoC); renderCEOCajas(ceoK); renderCEOTracker(ceoT); renderCEOKC(ceoKC);
+  }catch(e){ console.warn('CEO data offline',e); }
   updateClock(); // re-detectar bloque activo con bloques reales de Supabase
   render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();renderMetas();animateRing();
   setTimeout(maybeShowPanic,600);
@@ -2309,21 +2364,205 @@ function switchCerebroMod(mod){
 document.querySelectorAll('.cerebro-tab').forEach(t=>t.addEventListener('click',()=>switchCerebroMod(t.dataset.mod)));
 MODS.forEach(mod=>{ const inp=document.getElementById('inp-'+mod); if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendCerebro(mod); } }); });
 
-/* ===== 👑 CEO del Corazón — Panel táctico (demo local v4) ===== */
+/* ===== 👑 CEO del Corazón — Persistencia Supabase ===== */
+
+/* -- Cloud CRUD CEO Plan -- */
+async function cloudLoadCEOPlan(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_plan?select=*',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudUpsertCEOPlan(phase_id,step_index,hecho){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_plan',{method:'POST',headers:{...SBH,Prefer:'resolution=merge-duplicates'},body:JSON.stringify({phase_id,step_index,hecho,actualizado_en:new Date().toISOString()})});}catch(e){console.warn('ceo plan upsert',e);}}
+
+/* -- Cloud CRUD CEO Cultura -- */
+async function cloudLoadCEOCultura(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cultura?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOCultura(nombre,score,emoji){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cultura',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({nombre,score,emoji})});return (await r.json())[0];}catch(e){console.warn('cult insert',e);return null;}}
+async function cloudDeleteCEOCultura(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_cultura?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('cult del',e);}}
+
+/* -- Cloud CRUD CEO Cajas -- */
+async function cloudLoadCEOCajas(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cajas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOCaja(nombre,tipo){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cajas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({nombre,tipo})});return (await r.json())[0];}catch(e){console.warn('caja insert',e);return null;}}
+async function cloudDeleteCEOCaja(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_cajas?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('caja del',e);}}
+
+/* -- Cloud CRUD CEO Tracker -- */
+async function cloudLoadCEOTracker(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOTracker(nombre){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({nombre})});return (await r.json())[0];}catch(e){console.warn('tracker insert',e);return null;}}
+async function cloudUpdateCEOTracker(id,ts){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:SBH,body:JSON.stringify({ultimo_registro:ts})});}catch(e){console.warn('tracker update',e);}}
+async function cloudDeleteCEOTracker(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('tracker del',e);}}
+
+/* -- Cloud CRUD CEO Kind Candor -- */
+async function cloudLoadCEOKC(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_kc?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOKC(persona,texto,resultado){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_kc',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({persona,texto,resultado:resultado||null})});return (await r.json())[0];}catch(e){console.warn('kc insert',e);return null;}}
+async function cloudDeleteCEOKC(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_kc?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('kc del',e);}}
+
+/* -- Cloud CRUD Conclusiones -- */
+async function cloudLoadConclusions(modulo){const r=await fetch(SB_URL+'/rest/v1/cerebro_conclusiones?modulo=eq.'+modulo+'&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertConclusion(modulo,texto){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_conclusiones',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({modulo,texto})});return (await r.json())[0];}catch(e){console.warn('conc insert',e);return null;}}
+async function cloudDeleteConclusion(id){try{await fetch(SB_URL+'/rest/v1/cerebro_conclusiones?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('conc del',e);}}
+
+/* -- Plan 90 días -- */
 const phaseTotals={s1:4,m1:5,m2:4,m3:3};
-function toggleStep(el){ el.classList.toggle('done'); updatePlan(); }
+function renderCEOPlan(rows){
+  rows.forEach(r=>{
+    const steps=[...document.querySelectorAll(`[data-phase="${r.phase_id}"].plan-chk`)];
+    if(steps[r.step_index]&&r.hecho) steps[r.step_index].classList.add('done');
+  });
+  updatePlan();
+}
+function toggleStep(el,phase){
+  el.classList.toggle('done');
+  const steps=[...document.querySelectorAll(`[data-phase="${phase}"].plan-chk`)];
+  const idx=steps.indexOf(el);
+  cloudUpsertCEOPlan(phase,idx,el.classList.contains('done'));
+  updatePlan();
+}
 function togglePhase(id){ if(id==='all'){ document.querySelectorAll('.plan-phase').forEach(p=>p.classList.toggle('open')); return; } const el=document.getElementById('phase-'+id); if(el)el.classList.toggle('open'); }
 function updatePlan(){ let total=0,done=0; ['s1','m1','m2','m3'].forEach(ph=>{ const chks=document.querySelectorAll(`[data-phase="${ph}"].plan-chk.done`); const t=phaseTotals[ph]; const el=document.getElementById('pct-'+ph); if(el)el.textContent=chks.length+'/'+t; total+=t; done+=chks.length; }); const pct=total?Math.round(done/total*100):0; const p=document.getElementById('planPct'); if(p)p.textContent=pct+'%'; const b=document.getElementById('planBar'); if(b)b.style.width=pct+'%'; }
-function addCultPerson(){ const nombre=document.getElementById('cultNombre').value.trim(); const score=parseInt(document.getElementById('cultScore').value); if(!nombre||isNaN(score)||score<1||score>10)return; const color=score>=8?'#37D67A':score>=6?'#FF7A3D':'#FF5A4D'; const grid=document.getElementById('cultGrid'); const it=document.createElement('div'); it.className='cult-person'; const em=['👤','👩','👨','🧑'][Math.floor(Math.random()*4)]; it.innerHTML=`<div class="cult-avatar">${em}</div><div class="cult-info"><div class="cult-name">${escapeHtml(nombre)}</div><div class="cult-bar-wrap"><div class="cult-bar"><div class="cult-bar-fill" style="width:${score*10}%;background:${color}"></div></div><div class="cult-score" style="color:${color}">${score}</div></div></div>`; grid.appendChild(it); document.getElementById('cultNombre').value=''; document.getElementById('cultScore').value=''; updateAvg(); toast('Colaborador agregado ✓'); }
+
+/* -- Termómetro cultura -- */
+function _cultPersonEl(nombre,score,id){
+  const color=score>=8?'#37D67A':score>=6?'#FF7A3D':'#FF5A4D';
+  const em=['👤','👩','👨','🧑'][Math.abs(nombre.charCodeAt(0))%4];
+  const it=document.createElement('div'); it.className='cult-person'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="cult-avatar">${em}</div><div class="cult-info"><div class="cult-name">${escapeHtml(nombre)}</div><div class="cult-bar-wrap"><div class="cult-bar"><div class="cult-bar-fill" style="width:${score*10}%;background:${color}"></div></div><div class="cult-score" style="color:${color}">${score}</div></div></div><button class="cult-del" onclick="deleteCultPerson(this)" title="Eliminar">✕</button>`;
+  return it;
+}
+function renderCEOCultura(rows){ const g=document.getElementById('cultGrid'); if(!g)return; g.innerHTML=''; rows.forEach(r=>g.appendChild(_cultPersonEl(r.nombre,r.score,r.id))); updateAvg(); }
+async function addCultPerson(){
+  const nombre=document.getElementById('cultNombre').value.trim(); const score=parseInt(document.getElementById('cultScore').value);
+  if(!nombre||isNaN(score)||score<1||score>10)return;
+  const row=await cloudInsertCEOCultura(nombre,score,'👤');
+  const grid=document.getElementById('cultGrid');
+  grid.appendChild(_cultPersonEl(nombre,score,row&&row.id));
+  document.getElementById('cultNombre').value=''; document.getElementById('cultScore').value='';
+  updateAvg(); toast('Colaborador agregado ✓');
+}
+async function deleteCultPerson(btn){ const it=btn.closest('.cult-person'); const id=it.dataset.id; if(id)await cloudDeleteCEOCultura(id); it.remove(); updateAvg(); }
 function updateAvg(){ const scores=[...document.querySelectorAll('.cult-score')].map(el=>parseInt(el.textContent)).filter(n=>!isNaN(n)); const el=document.getElementById('cultAvg'); if(!el)return; if(!scores.length){el.textContent='—';return;} el.textContent=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1); }
+
+/* -- Cajas del equipo -- */
 const cajaLabels={h:'🔥 Hambriento',f:'🕐 Flexible',a:'📚 Aprendiz'};
 const cajaDescs={h:'Quiere dinero y ascensos rápidos. Se le amarran KPIs agresivos a comisiones claras.',f:'Valora tiempo y autonomía. Mismo resultado exigido, diferente recompensa.',a:'Quiere mentoría y acceso al líder. Su incentivo es tu tiempo y atención.'};
-function addCaja(){ const nombre=document.getElementById('cajaName').value.trim(); const tipo=document.getElementById('cajaTipo').value; if(!nombre)return; const it=document.createElement('div'); it.className='caja-item'; it.innerHTML=`<div class="caja-top"><div class="caja-name">${escapeHtml(nombre)}</div><div class="caja-tipo ${tipo}">${cajaLabels[tipo]}</div></div><div class="caja-palanca">${cajaDescs[tipo]}</div>`; document.getElementById('cajasList').appendChild(it); document.getElementById('cajaName').value=''; toast('Caja del equipo guardada ✓'); }
-function addTracker(){ const nombre=document.getElementById('trackerName').value.trim(); if(!nombre)return; const it=document.createElement('div'); it.className='tracker-item'; it.innerHTML=`<div class="tracker-dot pendiente"></div><div class="tracker-info"><div class="tracker-name">${escapeHtml(nombre)}</div><div class="tracker-fecha">Aún sin 1:1 registrado</div></div><button class="tracker-btn" onclick="registrar11(this)">Registrar</button>`; document.getElementById('trackerList').appendChild(it); document.getElementById('trackerName').value=''; }
-function registrar11(btn){ const it=btn.closest('.tracker-item'); it.querySelector('.tracker-dot').className='tracker-dot reciente'; it.querySelector('.tracker-fecha').textContent='Último 1:1: hoy · ¡Bien hecho!'; toast('1:1 registrado ✓'); }
-function addKC(){ const persona=document.getElementById('kcPersona').value.trim(); const texto=document.getElementById('kcTexto').value.trim(); if(!persona||!texto)return; const resultado=document.getElementById('kcResultado').value.trim(); const list=document.getElementById('kcList'); const empty=list.querySelector('[style*="dashed"]'); if(empty)empty.remove(); const today=new Date().toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'}); const it=document.createElement('div'); it.className='kc-item'; it.innerHTML=`<div class="kc-top"><div class="kc-persona">${escapeHtml(persona)}</div><div class="kc-fecha">${today}</div></div><div class="kc-texto">${escapeHtml(texto)}</div>${resultado?`<div class="kc-resultado">→ ${escapeHtml(resultado)}</div>`:''}`; list.appendChild(it); ['kcPersona','kcTexto','kcResultado'].forEach(id=>document.getElementById(id).value=''); toast('Conversación registrada ✓'); }
+function _cajaEl(nombre,tipo,id){
+  const it=document.createElement('div'); it.className='caja-item'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="caja-top"><div class="caja-name">${escapeHtml(nombre)}</div><div class="caja-tipo ${tipo}">${cajaLabels[tipo]}</div><button class="caja-del" onclick="deleteCaja(this)" title="Eliminar">✕</button></div><div class="caja-palanca">${cajaDescs[tipo]}</div>`;
+  return it;
+}
+function renderCEOCajas(rows){ const el=document.getElementById('cajasList'); if(!el)return; el.innerHTML=''; rows.forEach(r=>el.appendChild(_cajaEl(r.nombre,r.tipo,r.id))); }
+async function addCaja(){
+  const nombre=document.getElementById('cajaName').value.trim(); const tipo=document.getElementById('cajaTipo').value;
+  if(!nombre)return;
+  const row=await cloudInsertCEOCaja(nombre,tipo);
+  document.getElementById('cajasList').appendChild(_cajaEl(nombre,tipo,row&&row.id));
+  document.getElementById('cajaName').value=''; toast('Caja del equipo guardada ✓');
+}
+async function deleteCaja(btn){ const it=btn.closest('.caja-item'); const id=it.dataset.id; if(id)await cloudDeleteCEOCaja(id); it.remove(); }
+
+/* -- Tracker 1:1 -- */
+function _trackerEl(nombre,id,ultimo_registro){
+  const reciente=!!ultimo_registro;
+  const fechaTxt=reciente?('Último 1:1: '+new Date(ultimo_registro).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'})+'· ¡Bien hecho!'):'Aún sin 1:1 registrado';
+  const it=document.createElement('div'); it.className='tracker-item'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="tracker-dot ${reciente?'reciente':'pendiente'}"></div><div class="tracker-info"><div class="tracker-name">${escapeHtml(nombre)}</div><div class="tracker-fecha">${fechaTxt}</div></div><button class="tracker-btn" onclick="registrar11(this)">Registrar</button><button class="tracker-del" onclick="deleteTracker(this)" title="Eliminar">✕</button>`;
+  return it;
+}
+function renderCEOTracker(rows){ const el=document.getElementById('trackerList'); if(!el)return; el.innerHTML=''; rows.forEach(r=>el.appendChild(_trackerEl(r.nombre,r.id,r.ultimo_registro))); }
+async function addTracker(){
+  const nombre=document.getElementById('trackerName').value.trim(); if(!nombre)return;
+  const row=await cloudInsertCEOTracker(nombre);
+  document.getElementById('trackerList').appendChild(_trackerEl(nombre,row&&row.id,null));
+  document.getElementById('trackerName').value='';
+}
+async function registrar11(btn){
+  const it=btn.closest('.tracker-item'); const id=it.dataset.id;
+  const ts=new Date().toISOString();
+  it.querySelector('.tracker-dot').className='tracker-dot reciente';
+  it.querySelector('.tracker-fecha').textContent='Último 1:1: hoy · ¡Bien hecho!';
+  if(id)await cloudUpdateCEOTracker(id,ts);
+  toast('1:1 registrado ✓');
+}
+async function deleteTracker(btn){ const it=btn.closest('.tracker-item'); const id=it.dataset.id; if(id)await cloudDeleteCEOTracker(id); it.remove(); }
+
+/* -- Kind Candor Log -- */
+function _kcEl(persona,texto,resultado,creado_en,id){
+  const today=new Date(creado_en||Date.now()).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'});
+  const it=document.createElement('div'); it.className='kc-item'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="kc-top"><div class="kc-persona">${escapeHtml(persona)}</div><div style="display:flex;align-items:center;gap:6px"><div class="kc-fecha">${today}</div><button class="kc-del" onclick="deleteKC(this)" title="Eliminar">✕</button></div></div><div class="kc-texto">${escapeHtml(texto)}</div>${resultado?`<div class="kc-resultado">→ ${escapeHtml(resultado)}</div>`:''}`;
+  return it;
+}
+function renderCEOKC(rows){
+  const list=document.getElementById('kcList'); if(!list)return;
+  list.innerHTML='';
+  if(!rows.length){ list.innerHTML='<div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div>'; return; }
+  rows.forEach(r=>list.appendChild(_kcEl(r.persona,r.texto,r.resultado,r.creado_en,r.id)));
+}
+async function addKC(){
+  const persona=document.getElementById('kcPersona').value.trim(); const texto=document.getElementById('kcTexto').value.trim();
+  if(!persona||!texto)return;
+  const resultado=document.getElementById('kcResultado').value.trim();
+  const row=await cloudInsertCEOKC(persona,texto,resultado);
+  const list=document.getElementById('kcList'); const empty=list.querySelector('[style*="dashed"]'); if(empty)empty.remove();
+  list.insertBefore(_kcEl(persona,texto,resultado,null,row&&row.id),list.firstChild);
+  ['kcPersona','kcTexto','kcResultado'].forEach(id=>document.getElementById(id).value='');
+  toast('Conversación registrada ✓');
+}
+async function deleteKC(btn){ const it=btn.closest('.kc-item'); const id=it.dataset.id; if(id)await cloudDeleteCEOKC(id); it.remove(); }
+
+/* -- Conclusiones por módulo -- */
+async function loadConclusions(mod){
+  try{
+    const rows=await cloudLoadConclusions(mod);
+    renderConclusions(mod,rows);
+  }catch(e){ console.warn('conc load',mod,e); }
+}
+function renderConclusions(mod,rows){
+  const list=document.getElementById('conc-list-'+mod); if(!list)return;
+  list.innerHTML='';
+  rows.forEach(r=>{
+    const it=document.createElement('div'); it.className='conc-item'; it.dataset.id=r.id;
+    it.innerHTML=`<div class="conc-item-text">${escapeHtml(r.texto)}</div><button class="conc-del" onclick="deleteConclusion('${mod}',this)" title="Eliminar">✕</button>`;
+    list.appendChild(it);
+  });
+  const cnt=document.getElementById('conc-count-'+mod); if(cnt)cnt.textContent=rows.length;
+}
+function toggleConc(mod){
+  const wrap=document.getElementById('conc-wrap-'+mod); if(!wrap)return;
+  const body=document.getElementById('conc-body-'+mod); if(!body)return;
+  const open=wrap.classList.toggle('open');
+  body.style.display=open?'block':'none';
+}
+async function addConclusion(mod){
+  const inp=document.getElementById('conc-inp-'+mod); if(!inp)return;
+  const texto=inp.value.trim(); if(!texto)return;
+  const row=await cloudInsertConclusion(mod,texto);
+  const list=document.getElementById('conc-list-'+mod);
+  const it=document.createElement('div'); it.className='conc-item'; if(row)it.dataset.id=row.id;
+  it.innerHTML=`<div class="conc-item-text">${escapeHtml(texto)}</div><button class="conc-del" onclick="deleteConclusion('${mod}',this)" title="Eliminar">✕</button>`;
+  list.appendChild(it);
+  inp.value='';
+  const cnt=document.getElementById('conc-count-'+mod); if(cnt)cnt.textContent=list.children.length;
+  toast('Conclusión guardada ✓');
+}
+async function deleteConclusion(mod,btn){
+  const it=btn.closest('.conc-item'); const id=it.dataset.id;
+  if(id)await cloudDeleteConclusion(id); it.remove();
+  const cnt=document.getElementById('conc-count-'+mod); const list=document.getElementById('conc-list-'+mod);
+  if(cnt&&list)cnt.textContent=list.children.length;
+}
+
+/* -- Mis Conexiones mini (Sinergia) -- */
+function renderConexMini(){
+  const el=document.getElementById('conex-mini-list'); if(!el)return;
+  if(!NET_CONTACTS.length){ el.innerHTML='<div class="conex-mini-empty">Aún no tienes contactos. <button style="background:none;border:none;color:#4A90D9;cursor:pointer;font-size:11px;font-weight:700" onclick="go(\'network\')">Agregar →</button></div>'; return; }
+  el.innerHTML='';
+  const top=NET_CONTACTS.slice(0,5);
+  top.forEach(c=>{
+    const it=document.createElement('div'); it.className='conex-mini-item';
+    it.innerHTML=`<div class="conex-mini-av">${c.emoji||'👤'}</div><div class="conex-mini-info"><div class="conex-mini-name">${escapeHtml(c.nombre)}</div><div class="conex-mini-cat">${escapeHtml(c.categoria||'')}</div></div>`;
+    it.style.cursor='pointer';
+    it.onclick=()=>{ go('network'); setTimeout(()=>openContact(c.id),300); };
+    el.appendChild(it);
+  });
+  if(NET_CONTACTS.length>5){ const more=document.createElement('div'); more.style.cssText='font-size:10px;color:var(--text3);text-align:center;padding:4px 0'; more.textContent=`+${NET_CONTACTS.length-5} más`; el.appendChild(more); }
+}
 const _cerebroNav=document.querySelector('[data-s="cerebro"]');
-if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); },{ once:false }); }
+if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); loadConclusions(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); renderConexMini(); },{ once:false }); }
 
 /* ===================================================================
    🤝  NETWORKING — Panel de Relaciones CEO
@@ -2367,6 +2606,7 @@ async function loadContacts(){
     await loadAllFechas();
     renderContacts();
     checkUpcomingDates();
+    renderConexMini();
   }catch(e){ console.warn('net load err',e); renderContacts(); }
 }
 
