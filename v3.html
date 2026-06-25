@@ -356,10 +356,21 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .btask-menu{margin-left:auto;background:transparent;border:none;color:var(--text3);font-size:17px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 
 /* ---- focus timer ---- */
-.focus-overlay{position:absolute;inset:0;background:var(--bg2);z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.focus-overlay{position:fixed;inset:0;background:var(--bg2);z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
 .focus-overlay.on{display:flex;animation:fade .3s}
 .focus-overlay .lbl{font-size:13px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:1px}
 .focus-overlay h2{font-size:24px;font-weight:800;margin:8px 0 26px;color:var(--text)}
+/* Mini timer flotante */
+.fo-mini{position:fixed;bottom:72px;right:14px;z-index:54;display:none;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--accent);border-radius:50px;padding:7px 14px 7px 10px;box-shadow:var(--sh);cursor:pointer;animation:rise .3s cubic-bezier(.22,1,.36,1)}
+.fo-mini.on{display:flex}
+.fo-mini-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.fo-mini-time{font-size:15px;font-weight:900;color:var(--accent);font-family:'Space Mono',monospace;min-width:42px}
+.fo-mini-name{font-size:11px;color:var(--text2);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fo-mini-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 0 0 4px;opacity:.6}
+.fo-mini-x:hover{opacity:1;color:var(--red)}
+/* Minimizar btn */
+.fo-min-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:700;margin-bottom:10px}
 .timer{font-size:58px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
 .focus-overlay .hint{font-size:12px;color:var(--text3);margin:8px 0 30px;max-width:240px;line-height:1.5}
 .fo-btn{background:var(--accent);color:var(--on-accent);border:none;border-radius:14px;padding:14px 34px;font-weight:800;font-size:15px;cursor:pointer}
@@ -1510,7 +1521,15 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
     <div class="lbl">🔒 Bloque en foco</div><h2 id="foName">Lanzamiento</h2>
     <div class="timer" id="foTimer">25:00</div>
     <div class="hint">Notificaciones apagadas. Respira. Solo esta cosa importa ahora.</div>
+    <button class="fo-min-btn" onclick="minimizeFocus()">— Minimizar (sigue corriendo)</button>
     <button class="fo-btn" onclick="stopFocus(true)">Terminar bloque ✓</button>
+  </div>
+  <!-- Mini timer flotante -->
+  <div class="fo-mini" id="foMini" onclick="maximizeFocus()">
+    <div class="fo-mini-dot"></div>
+    <div class="fo-mini-time" id="foMiniTime">25:00</div>
+    <div class="fo-mini-name" id="foMiniName"></div>
+    <button class="fo-mini-x" onclick="stopFocus();event.stopPropagation()" title="Terminar">✕</button>
   </div>
 </div>
 
@@ -2074,12 +2093,60 @@ wireP('periodKpi',p=>renderKpis(p));wireP('periodCfg');
 
 /* ---- focus timer ---- */
 let foInt,foSec=1500,foTaskId=null,foName='';
-function startFocus(name,taskId){foName=name;foTaskId=taskId||null;document.getElementById('foName').textContent=name;foSec=1500;
-  document.getElementById('focusOverlay').classList.add('on');document.getElementById('foTimer').textContent='25:00';clearInterval(foInt);
-  foInt=setInterval(()=>{foSec--;document.getElementById('foTimer').textContent=String(Math.floor(foSec/60)).padStart(2,'0')+':'+String(foSec%60).padStart(2,'0');if(foSec<=0){clearInterval(foInt);stopFocus(true);}},1000);}
-function stopFocus(done){clearInterval(foInt);document.getElementById('focusOverlay').classList.remove('on');
-  if(done){logFocoSesion();toast('💪 Bloque de 25 min registrado. ¡Avanzaste!');}
-  foTaskId=null;}
+
+/* ---- Timbre Web Audio ---- */
+function playBell(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    function ring(delay){
+      const osc=ctx.createOscillator(); const gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type='sine'; osc.frequency.setValueAtTime(1047,ctx.currentTime+delay);
+      osc.frequency.exponentialRampToValueAtTime(523,ctx.currentTime+delay+1.2);
+      gain.gain.setValueAtTime(0.6,ctx.currentTime+delay);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+1.5);
+      osc.start(ctx.currentTime+delay); osc.stop(ctx.currentTime+delay+1.6);
+    }
+    ring(0); ring(0.7); ring(1.4);
+  }catch(e){ console.warn('bell',e); }
+}
+
+function _foTimerStr(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function _foTick(){
+  foSec--;
+  const str=_foTimerStr(foSec);
+  document.getElementById('foTimer').textContent=str;
+  document.getElementById('foMiniTime').textContent=str;
+  if(foSec<=0){ clearInterval(foInt); stopFocus(true); }
+}
+
+function startFocus(name,taskId){
+  foName=name; foTaskId=taskId||null; foSec=1500;
+  document.getElementById('foName').textContent=name;
+  document.getElementById('foMiniName').textContent=name;
+  document.getElementById('foTimer').textContent='25:00';
+  document.getElementById('foMiniTime').textContent='25:00';
+  document.getElementById('focusOverlay').classList.add('on');
+  document.getElementById('foMini').classList.remove('on');
+  clearInterval(foInt); foInt=setInterval(_foTick,1000);
+}
+
+function minimizeFocus(){
+  document.getElementById('focusOverlay').classList.remove('on');
+  document.getElementById('foMini').classList.add('on');
+}
+function maximizeFocus(){
+  document.getElementById('foMini').classList.remove('on');
+  document.getElementById('focusOverlay').classList.add('on');
+}
+
+function stopFocus(done){
+  clearInterval(foInt);
+  document.getElementById('focusOverlay').classList.remove('on');
+  document.getElementById('foMini').classList.remove('on');
+  if(done){ playBell(); logFocoSesion(); toast('💪 ¡25 min completados! Bloque registrado.'); }
+  foTaskId=null;
+}
 function logFocoSesion(){
   const t=foTaskId?TASKS.find(x=>x.id===foTaskId):null;
   const s={id:'tmp'+Date.now(),task_id:foTaskId,task_title:t?t.t:(foName||'Foco'),minutos:25,completada:t?!!t.done:false,creado_en:new Date().toISOString()};
