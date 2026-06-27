@@ -29,40 +29,6 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   --green:#2E9E63; --red:#E0492C; --amber:#E07A2D; --purple:#9B5BD6; --blue:#3A86D9; --pink:#D86E91;
   --on-accent:#FFFFFF; --line:rgba(0,160,235,0.18); --accent-soft:rgba(0,148,230,0.12); --sh:0 8px 28px rgba(14,34,51,.12)}
 @media(min-width:480px){ body{padding:22px 0} .shell{min-height:auto;height:900px;border-radius:34px;border:9px solid #1A2430} }
-
-/* ===== DESKTOP RESPONSIVE (1024px+) ===== */
-@media(min-width:1024px){
-  body{padding:0;align-items:stretch}
-  .shell{
-    max-width:100%;width:100%;
-    height:100vh;height:100dvh;
-    border-radius:0;border:none;
-    flex-direction:row;min-height:auto}
-  /* --- sidebar nav izquierdo --- */
-  .nav{
-    position:relative;bottom:auto;left:auto;right:auto;top:auto;
-    flex-direction:column;align-items:stretch;
-    width:90px;height:100%;
-    border-top:none;border-right:1px solid var(--line);
-    padding:20px 8px 20px;
-    justify-content:flex-start;gap:6px;
-    order:-1;flex-shrink:0}
-  .nav button{
-    flex:none;width:100%;
-    padding:12px 4px;border-radius:14px;
-    font-size:9px;font-weight:800;letter-spacing:.3px}
-  .nav button.on{background:var(--accent-soft);border-radius:14px}
-  .nav button .ic{font-size:22px}
-  /* --- scroll area se expande --- */
-  .scroll{padding-bottom:24px;flex:1}
-  /* content cap para que no se estire raro */
-  .screen{max-width:820px;margin:0 auto}
-  /* aurora cubre el ancho total */
-  .shell::before{inset:-30% -10% auto}
-  /* toast reposicionado (no tiene ref de bottom nav) */
-  .toast{bottom:24px}
-  /* sheets siguen siendo absolutos al shell — OK */
-}
 /* === Blueprint typography: serif en títulos/cifras · mono en etiquetas === */
 .hero-h,.hi-name,.ws-title,.sec-title,.cerebro-mod-title,.mc-title,.mh-title,.bt,.num,.v,.big,.pct,.hval,.meta-why{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:.2px}
 .sect,.btime,.hi-date,.cnt,.tag,.age-badge,.ptag{font-family:'Space Mono','SF Mono',ui-monospace,monospace}
@@ -390,10 +356,21 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .btask-menu{margin-left:auto;background:transparent;border:none;color:var(--text3);font-size:17px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 
 /* ---- focus timer ---- */
-.focus-overlay{position:absolute;inset:0;background:var(--bg2);z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.focus-overlay{position:fixed;inset:0;background:var(--bg2);z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
 .focus-overlay.on{display:flex;animation:fade .3s}
 .focus-overlay .lbl{font-size:13px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:1px}
 .focus-overlay h2{font-size:24px;font-weight:800;margin:8px 0 26px;color:var(--text)}
+/* Mini timer flotante */
+.fo-mini{position:fixed;bottom:72px;right:14px;z-index:54;display:none;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--accent);border-radius:50px;padding:7px 14px 7px 10px;box-shadow:var(--sh);cursor:pointer;animation:rise .3s cubic-bezier(.22,1,.36,1)}
+.fo-mini.on{display:flex}
+.fo-mini-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.fo-mini-time{font-size:15px;font-weight:900;color:var(--accent);font-family:'Space Mono',monospace;min-width:42px}
+.fo-mini-name{font-size:11px;color:var(--text2);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fo-mini-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 0 0 4px;opacity:.6}
+.fo-mini-x:hover{opacity:1;color:var(--red)}
+/* Minimizar btn */
+.fo-min-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:700;margin-bottom:10px}
 .timer{font-size:58px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
 .focus-overlay .hint{font-size:12px;color:var(--text3);margin:8px 0 30px;max-width:240px;line-height:1.5}
 .fo-btn{background:var(--accent);color:var(--on-accent);border:none;border-radius:14px;padding:14px 34px;font-weight:800;font-size:15px;cursor:pointer}
@@ -429,17 +406,32 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .panic-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px}
 .panic-foot button{flex:1;border:1px solid var(--line);background:var(--tile);color:var(--text2);border-radius:11px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
 .panic-empty{text-align:center;color:var(--green);font-size:14px;font-weight:800;padding:20px}
+.panic-item{cursor:pointer;transition:background .15s}
+.panic-item:hover{background:color-mix(in srgb,var(--red) 8%,var(--tile))}
+.panic-item .ptxt:after{content:' ✏️';font-size:10px;opacity:0;transition:.15s}
+.panic-item:hover .ptxt:after{opacity:.5}
+.panic-quick{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px}
+.panic-quick input{flex:1;background:var(--tile);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--text);font-size:12px;font-family:inherit}
+.panic-quick input::placeholder{color:var(--text3)}
+.panic-quick input:focus{outline:none;border-color:var(--red)}
+.panic-quick button{background:var(--red);border:none;color:#fff;border-radius:10px;padding:9px 14px;font-weight:800;font-size:14px;cursor:pointer;flex-shrink:0}
 
 /* ===== 🧠 CEREBRO (ported from Segundo Cerebro v2) ===== */
 .sec-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
 .sec-sub{font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.5}
-.cerebro-tabs{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
-.cerebro-tab{ padding:12px 8px; border:2px solid transparent;
+/* hoy-col: columna flex siempre — en mobile apila, en desktop es item del grid */
+.hoy-col{display:flex;flex-direction:column;gap:0}
+
+/* mobile: tabs cerebro = fila horizontal con scroll */
+.cerebro-tabs{ display:flex; flex-direction:row; gap:8px; margin-bottom:14px;
+  overflow-x:auto; overflow-y:hidden; scrollbar-width:none; padding-bottom:4px; }
+.cerebro-tabs::-webkit-scrollbar{display:none}
+.cerebro-tab{ flex-shrink:0; min-width:110px; padding:12px 8px; border:2px solid transparent;
   background:var(--tile); color:var(--text3); border-radius:13px; cursor:pointer;
   font-weight:800; font-size:13px; transition:.2s ease; text-align:center; }
 .cerebro-tab:hover{ border-color:var(--mc,var(--accent)); color:var(--text2); }
 .cerebro-tab.active{ background:color-mix(in srgb,var(--mc,var(--accent)) 15%,var(--surface)); color:var(--mc,var(--accent)); border-color:var(--mc,var(--accent)); }
-.cerebro-tab.ceo-tab{ grid-column:1/-1; background:color-mix(in srgb,var(--accent) 12%,var(--surface)); border:2px solid color-mix(in srgb,var(--accent) 27%,transparent); color:var(--accent); font-size:14px; letter-spacing:.3px; }
+.cerebro-tab.ceo-tab{ min-width:160px; background:color-mix(in srgb,var(--accent) 12%,var(--surface)); border:2px solid color-mix(in srgb,var(--accent) 27%,transparent); color:var(--accent); font-size:14px; letter-spacing:.3px; }
 .cerebro-tab.ceo-tab.active{ background:color-mix(in srgb,var(--accent) 22%,var(--surface)); border-color:var(--accent); color:var(--accent); }
 /* === CEO del Corazón (panel táctico v4) === */
 .ceo-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--surface)) 0%,var(--bg2) 100%);border:1px solid color-mix(in srgb,var(--accent) 27%,transparent);border-radius:16px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden}
@@ -525,6 +517,37 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .kc-add-form input,.kc-add-form textarea{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;color:var(--text);font-size:12px;font-family:inherit}
 .kc-add-form textarea{resize:none;height:60px}
 .kc-add-form button{background:var(--accent);border:none;color:var(--on-accent);border-radius:9px;padding:10px;font-weight:800;cursor:pointer}
+/* Conclusiones por módulo */
+.conc-wrap{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--mc,var(--accent));border-radius:4px 12px 12px 4px}
+.conc-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
+.conc-header-left{font-size:12px;font-weight:700;color:var(--mc,var(--accent));display:flex;align-items:center;gap:7px}
+.conc-count{background:color-mix(in srgb,var(--mc,var(--accent)) 18%,transparent);color:var(--mc,var(--accent));border-radius:20px;padding:1px 8px;font-size:10px;font-weight:800}
+.conc-arrow{color:var(--text3);font-size:12px;transition:transform .2s}
+.conc-wrap.open .conc-arrow{transform:rotate(180deg)}
+.conc-body{padding:0 12px 12px}
+.conc-list{display:flex;flex-direction:column;gap:7px;margin-bottom:9px}
+.conc-item{background:var(--tile);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:8px}
+.conc-item-text{flex:1;line-height:1.5}
+.conc-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;opacity:.6;flex-shrink:0}
+.conc-del:hover{opacity:1;color:var(--red)}
+.conc-add-row{display:flex;gap:8px;align-items:flex-end}
+.conc-input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--text);font-size:12px;font-family:inherit;resize:none;height:52px}
+.conc-add-btn{background:color-mix(in srgb,var(--mc,var(--accent)) 18%,var(--surface));border:1px solid color-mix(in srgb,var(--mc,var(--accent)) 35%,transparent);color:var(--mc,var(--accent));border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer;white-space:nowrap;font-size:12px}
+/* Mis Conexiones mini en Sinergia */
+.conex-mini-wrap{background:var(--surface);border:1px solid var(--line);border-left:4px solid #4A90D9;border-radius:4px 12px 12px 4px;padding:12px 14px}
+.conex-mini-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.conex-mini-title{font-size:12px;font-weight:700;color:#4A90D9}
+.conex-mini-btn{background:none;border:1px solid rgba(74,144,217,.3);color:#4A90D9;border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer;font-weight:700}
+.conex-mini-list{display:flex;flex-direction:column;gap:7px}
+.conex-mini-item{display:flex;align-items:center;gap:9px;padding:7px 9px;background:var(--tile);border:1px solid var(--line);border-radius:9px}
+.conex-mini-av{width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,#4A90D9 18%,var(--surface));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.conex-mini-info{flex:1;min-width:0}
+.conex-mini-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conex-mini-cat{font-size:10px;color:var(--text3)}
+.conex-mini-empty{font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:8px 0}
+/* CEO del Corazón delete btn */
+.cult-del,.caja-del,.tracker-del,.kc-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;opacity:.5;flex-shrink:0}
+.cult-del:hover,.caja-del:hover,.tracker-del:hover,.kc-del:hover{opacity:1;color:var(--red)}
 .cerebro-panel{ display:none; animation:fade .3s ease; }
 .cerebro-panel.active{ display:flex; flex-direction:column; gap:16px; }
 .cerebro-mod-card{ background:var(--surface); border:1px solid var(--line);
@@ -762,6 +785,28 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .cerebro-hero-wrap{width:100%;overflow:hidden;border-radius:14px;margin-bottom:18px;}
 .cerebro-hero-img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);filter:hue-rotate(168deg) saturate(1.25) brightness(1.04);}
 .shell.light .cerebro-hero-img{filter:hue-rotate(168deg) saturate(1.05) brightness(.96);}
+
+/* ===== DESKTOP RESPONSIVE (1024px+) — AL FINAL PARA GANAR CASCADA ===== */
+@media(min-width:1024px){
+  body{padding:0;align-items:stretch}
+  .shell{max-width:100%;width:100%;height:100vh;height:100dvh;border-radius:0;border:none}
+  /* nav bottom más espaciado */
+  .nav{padding:8px 24px;gap:0}
+  .nav button{font-size:11px;padding:6px 0}
+  /* scroll: más padding lateral */
+  .scroll{padding:20px 32px 80px}
+  /* ── HOY: grid 2 columnas via .hoy-grid ── */
+  .hoy-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:start;margin-top:0}
+  /* cerebro tabs: columna vertical en desktop */
+  .cerebro-tabs{flex-direction:column !important;overflow-x:unset !important;overflow-y:unset !important;padding-bottom:0}
+  .cerebro-tab{flex-shrink:unset !important;min-width:unset !important}
+  .cerebro-tab.ceo-tab{min-width:unset !important}
+  /* ── DESK-GRID: 2 columnas genérico para todas las pantallas ── */
+  .desk-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .desk-col{display:flex;flex-direction:column;min-width:0}
+  /* Cerebro: sidebar angosto (tabs) | contenido amplio */
+  .desk-grid.cerebro-layout{grid-template-columns:210px 1fr;gap:24px}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -785,16 +830,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         </div>
       </div>
 
-      <div class="hero">
-        <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="El Arquitecto">
-        <div class="veil"></div>
-        <div class="hero-txt"><div class="hero-k">Modo Arquitecto</div><div class="hero-h">Construye sistemas, no apagues fuegos.</div></div>
-      </div>
-
-      <div class="seg" id="periodHoy">
-        <button class="on" data-p="dia">Día</button><button data-p="sem">Semana</button><button data-p="mes">Mes</button>
-      </div>
-
+      <!-- ANCHO COMPLETO: foco activo + progreso -->
       <div id="focusWrap"></div>
       <div id="focoSesiones"></div>
 
@@ -813,28 +849,51 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         </div>
       </div>
 
-      <div class="sect">📥 Por acomodar en tu día <span class="cnt" id="loose-cnt"></span></div>
-      <div id="looseList"></div>
+      <!-- GRID 2 COLUMNAS (mobile: apila; desktop: lado a lado) -->
+      <div class="hoy-grid">
 
-      <div class="sect">⏰ Tu día por bloques</div>
-      <div id="blocksList"></div>
+        <!-- COL IZQUIERDA: portada + TODO list -->
+        <div class="hoy-col">
+          <div class="hero">
+            <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3Ejx1msDUJgaDVfV1kN7e1V7p0C/hf_20260618_111025_ed8c98d0-acd2-46c9-864e-06a1033a78d2.png" alt="El Arquitecto">
+            <div class="veil"></div>
+            <div class="hero-txt"><div class="hero-k">Modo Arquitecto</div><div class="hero-h">Construye sistemas, no apagues fuegos.</div></div>
+          </div>
+          <div class="seg" id="periodHoy">
+            <button class="on" data-p="dia">Dia</button><button data-p="sem">Semana</button><button data-p="mes">Mes</button>
+          </div>
+          <div class="sect">📥 Por acomodar en tu día <span class="cnt" id="loose-cnt"></span></div>
+          <div id="looseList"></div>
+        </div>
 
-      <div class="sect">🏢 Hoy por empresa</div>
-      <div class="minis" id="hoyMinis"></div>
+        <!-- COL DERECHA: empresas + bloques del día -->
+        <div class="hoy-col">
+          <div class="sect">🏢 Hoy por empresa</div>
+          <div class="minis" id="hoyMinis"></div>
+          <div class="sect">⏰ Tu día por bloques</div>
+          <div id="blocksList"></div>
+        </div>
+
+      </div>
 
       <div class="mantra">"Eres el <b>Arquitecto</b>, no el albañil. El miedo es gasolina, la fe el volante."</div>
-      <div class="verse">“Si puedes creer, al que cree todo le es posible.”</div>
+      <div class="verse">"Si puedes creer, al que cree todo le es posible."</div>
     </div>
 
     <!-- ================= PROYECTOS ================= -->
     <div class="screen" id="s-proyectos">
       <div class="top"><div><div class="hi-date">Cada empresa abre su propio espacio editable</div><div class="hi-name">📋 Proyectos</div></div></div>
-      <div class="minis" id="projGrid"></div>
-      <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
-
-      <div class="sect" style="margin-top:24px">🌠 Mis proyectos <span class="cnt">sueños y metas de vida</span></div>
-      <button class="meta-add-btn" onclick="openMetaForm()">＋ Nuevo sueño / meta a largo plazo</button>
-      <div id="metasGrid"></div>
+      <div class="desk-grid">
+        <div class="desk-col">
+          <div class="minis" id="projGrid"></div>
+          <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
+        </div>
+        <div class="desk-col">
+          <div class="sect" style="margin-top:0">🌠 Mis proyectos <span class="cnt">sueños y metas de vida</span></div>
+          <button class="meta-add-btn" onclick="openMetaForm()">＋ Nuevo sueño / meta a largo plazo</button>
+          <div id="metasGrid"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ================= ESPACIO DE META / SUEÑO ================= -->
@@ -909,15 +968,16 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- Panel KPIs -->
       <div id="kpiPanel-kpis">
       <div class="seg" id="periodKpi"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
-
-      <div class="sect">🏢 Por empresa</div>
-      <div id="kpiEmp"></div>
-
-      <div class="sect">⚖️ Arquitecto vs Mecánico <span class="cnt" id="kpiPerLabel">esta semana</span></div>
-      <div id="kpiArqMec"></div>
-
-      <div class="sect">🎯 Foco — últimos 7 días</div>
-      <div class="card" style="padding:14px"><div id="focoHistorial"></div></div>
+      <div class="desk-grid">
+        <div class="desk-col">
+          <div class="sect">🏢 Por empresa</div>
+          <div id="kpiEmp"></div>
+          <div class="sect">⚖️ Arquitecto vs Mecánico <span class="cnt" id="kpiPerLabel">esta semana</span></div>
+          <div id="kpiArqMec"></div>
+        </div>
+        <div class="desk-col">
+          <div class="sect">🎯 Foco — últimos 7 días</div>
+          <div class="card" style="padding:14px"><div id="focoHistorial"></div></div>
 
       <div class="sect">📊 Historial — últimas 5 semanas</div>
       <div class="card" style="padding:14px">
@@ -927,7 +987,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="hrow"><div class="hl">25–31 may<small>semana</small></div><div class="htrack"><i style="width:20%;background:var(--accent)"></i><i style="width:22%;background:#9a8278"></i></div><div class="hval">2.7h <small>·3✓</small></div></div>
         <div class="hrow"><div class="hl">18–24 may<small>semana</small></div><div class="htrack"><i style="width:35%;background:var(--accent)"></i><i style="width:30%;background:#9a8278"></i></div><div class="hval">4.2h <small>·5✓</small></div></div>
         <div style="display:flex;gap:14px;font-size:11px;color:var(--text3);margin-top:10px"><span>🟧 Arquitecto</span><span>⬜ Mecánico</span></div>
-      </div>
+      </div><!-- card historial -->
+        </div><!-- desk-col der -->
+      </div><!-- desk-grid kpis -->
       </div><!-- /kpiPanel-kpis -->
 
       <!-- Panel Semana (contenido de s-semana movido aquí) -->
@@ -951,6 +1013,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="top-actions"><button class="iconbtn" id="themeBtn2" onclick="toggleTheme()">🌙</button></div></div>
       <div class="seg" id="periodCfg"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
 
+      <div class="desk-grid">
+        <div class="desk-col"><!-- izq: metas + principios -->
       <div class="sect">⏱️ Metas de horas (día · semana · mes)</div>
       <div class="card">
         <div class="goalrow"><div class="lab">🏛️ Arquitecto (visión)</div>
@@ -961,6 +1025,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="bar"><i style="width:82%;background:#9a8278"></i></div><div class="goal">4.1 h esta semana · 82% de la meta (5 h)</div></div>
       </div>
 
+        </div><!-- desk-col izq -->
+        <div class="desk-col"><!-- der: bloques + diario + papelera -->
       <div class="sect">⏰ Tus bloques del día <span class="cnt">edítalos</span></div>
       <div class="hi-date" style="margin:-4px 2px 10px">Cambia nombre, horario y color. Reordénalos o agrega los tuyos — se sincroniza en tus dispositivos.</div>
       <div id="blocksEditor"></div>
@@ -978,7 +1044,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="sect">🗑️ Papelera <span class="cnt" id="trash-cnt"></span></div>
       <div class="hi-date" style="margin:-4px 2px 10px">Las tareas que eliminas caen aquí. Puedes restaurarlas.</div>
       <div id="trashList"></div>
-    </div>
+        </div><!-- desk-col der -->
+      </div><!-- desk-grid config -->
+    </div><!-- /s-config -->
 
     <!-- ================= 🧠 CEREBRO ================= -->
     <div class="screen" id="s-cerebro">
@@ -988,6 +1056,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="sec-title">🧠 Segundo Cerebro</div>
       <div class="sec-sub">Tu consejo privado. Sin datos genéricos — responde solo desde tu conocimiento, tus mentores y tus principios.</div>
 
+      <div class="desk-grid cerebro-layout">
+      <div class="desk-col"><!-- sidebar tabs -->
       <div class="cerebro-tabs" id="cerebroTabs">
         <button class="cerebro-tab active" data-mod="sinergia" style="--mc:#4A90D9">🤝 Sinergia</button>
         <button class="cerebro-tab" data-mod="conexion" style="--mc:#E87EA1">❤️ Conexión</button>
@@ -995,13 +1065,23 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <button class="cerebro-tab" data-mod="mindset" style="--mc:#9B6BD6">🧠 Mindset</button>
         <button class="cerebro-tab" data-mod="ftverdad" style="--mc:#43B584">🗂️ Fuente de Verdad</button>
         <button class="cerebro-tab ceo-tab" data-mod="ceo">👑 CEO del Corazón</button>
-      </div>
+      </div><!-- /cerebro-tabs -->
+      </div><!-- desk-col sidebar -->
+      <div class="desk-col"><!-- panels content -->
 
       <!-- SINERGIA -->
       <div class="cerebro-panel active" id="mod-sinergia" style="--mc:#4A90D9">
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🤝 Sinergia y Networking de Alto Nivel</div><div class="cerebro-mod-desc">Preparación de reuniones estratégicas · Preguntas de impacto · Atenciones corporativas · Alianzas de largo plazo</div></div>
         <div class="ck-wrap" id="ck-sinergia"><div class="ck-header" onclick="toggleCK('sinergia')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-sinergia">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('sinergia','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('sinergia','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('sinergia','pdf',this)">📄 PDF</button></div><div id="ckm-sinergia"><div id="ckm-texto-sinergia"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-sinergia"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-sinergia" placeholder="Idea, conclusión, frase de un libro…"></textarea><button class="ck-add" onclick="addKnowledge('sinergia')">＋ Insertar</button></div></div><div id="ckm-imagen-sinergia" style="display:none"><div id="ck-img-ui-sinergia"></div></div><div id="ckm-pdf-sinergia" style="display:none"><div id="ck-pdf-ui-sinergia"></div></div></div><div class="ck-list" id="ck-list-sinergia"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('sinergia')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-sinergia" onclick="generarFrase('sinergia')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-sinergia" style="display:none"><input id="fi-inp-sinergia" placeholder="Escribe tu frase…"><button onclick="saveFrase('sinergia','dante')">Guardar</button></div><div class="frases-list" id="frases-list-sinergia"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-sinergia">
+          <div class="conc-header" onclick="toggleConc('sinergia')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-sinergia">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-sinergia" style="display:none"><div class="conc-list" id="conc-list-sinergia"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-sinergia" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('sinergia')">＋ Agregar</button></div></div>
+        </div>
+        <div class="conex-mini-wrap">
+          <div class="conex-mini-header"><div class="conex-mini-title">🔗 Mis Conexiones</div><button class="conex-mini-btn" onclick="go('network')">Ver todas →</button></div>
+          <div class="conex-mini-list" id="conex-mini-list"><div class="conex-mini-empty">Cargando contactos…</div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-sinergia"><div class="cerebro-bubble sys">Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.</div></div><div class="cerebro-input-bar"><textarea id="inp-sinergia" placeholder="Ej: Voy con el CEO de Cemex, dame 3 preguntas que lo hagan pensar…"></textarea><button class="cerebro-clear" onclick="clearCerebro('sinergia')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-sinergia" onclick="sendCerebro('sinergia')">➤</button></div></div>
       </div>
 
@@ -1010,6 +1090,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">❤️ Conexión y Legado Personal</div><div class="cerebro-mod-desc">Inteligencia emocional · Dinámicas de pareja · Pilares de crianza · Comunicación asertiva</div></div>
         <div class="ck-wrap" id="ck-conexion"><div class="ck-header" onclick="toggleCK('conexion')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-conexion">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('conexion','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('conexion','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('conexion','pdf',this)">📄 PDF</button></div><div id="ckm-conexion"><div id="ckm-texto-conexion"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-conexion"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-conexion" placeholder="Idea, conclusión, aprendizaje…"></textarea><button class="ck-add" onclick="addKnowledge('conexion')">＋ Insertar</button></div></div><div id="ckm-imagen-conexion" style="display:none"><div id="ck-img-ui-conexion"></div></div><div id="ckm-pdf-conexion" style="display:none"><div id="ck-pdf-ui-conexion"></div></div></div><div class="ck-list" id="ck-list-conexion"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('conexion')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-conexion" onclick="generarFrase('conexion')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-conexion" style="display:none"><input id="fi-inp-conexion" placeholder="Escribe tu frase…"><button onclick="saveFrase('conexion','dante')">Guardar</button></div><div class="frases-list" id="frases-list-conexion"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-conexion">
+          <div class="conc-header" onclick="toggleConc('conexion')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-conexion">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-conexion" style="display:none"><div class="conc-list" id="conc-list-conexion"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-conexion" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('conexion')">＋ Agregar</button></div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-conexion"><div class="cerebro-bubble sys">¿Qué situación relacional quieres trabajar hoy? Pareja, familia, amigos. Aquí no hay prisa — hay profundidad.</div></div><div class="cerebro-input-bar"><textarea id="inp-conexion" placeholder="Ej: Quiero mejorar cómo comunico mis emociones en pareja…"></textarea><button class="cerebro-clear" onclick="clearCerebro('conexion')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-conexion" onclick="sendCerebro('conexion')">➤</button></div></div>
       </div>
 
@@ -1018,6 +1102,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">✝️ Servir · Liderazgo Pastoral</div><div class="cerebro-mod-desc">Decisiones con enfoque bíblico · Fe aplicada al negocio · Liderazgo ético · Servicio a la comunidad</div></div>
         <div class="ck-wrap" id="ck-servir"><div class="ck-header" onclick="toggleCK('servir')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-servir">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('servir','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('servir','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('servir','pdf',this)">📄 PDF</button></div><div id="ckm-servir"><div id="ckm-texto-servir"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-servir"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-servir" placeholder="Versículo, enseñanza pastoral, reflexión personal…"></textarea><button class="ck-add" onclick="addKnowledge('servir')">＋ Insertar</button></div></div><div id="ckm-imagen-servir" style="display:none"><div id="ck-img-ui-servir"></div></div><div id="ckm-pdf-servir" style="display:none"><div id="ck-pdf-ui-servir"></div></div></div><div class="ck-list" id="ck-list-servir"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('servir')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-servir" onclick="generarFrase('servir')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-servir" style="display:none"><input id="fi-inp-servir" placeholder="Escribe tu frase…"><button onclick="saveFrase('servir','dante')">Guardar</button></div><div class="frases-list" id="frases-list-servir"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-servir">
+          <div class="conc-header" onclick="toggleConc('servir')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-servir">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-servir" style="display:none"><div class="conc-list" id="conc-list-servir"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-servir" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('servir')">＋ Agregar</button></div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-servir"><div class="cerebro-bubble sys">"Si puedes creer, al que cree todo le es posible." — ¿Qué decisión o dilema quieres ver desde la fe hoy?</div></div><div class="cerebro-input-bar"><textarea id="inp-servir" placeholder="Ej: ¿Cómo sé si estoy tomando esta decisión desde el miedo o desde la fe?…"></textarea><button class="cerebro-clear" onclick="clearCerebro('servir')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-servir" onclick="sendCerebro('servir')">➤</button></div></div>
       </div>
 
@@ -1026,6 +1114,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🧠 Mindset · Consejo de Mentores</div><div class="cerebro-mod-desc">Gary Vee · Tony Robbins · Alex Hormozi · Perspectivas de clase mundial para tus decisiones más difíciles</div></div>
         <div class="ck-wrap" id="ck-mindset"><div class="ck-header" onclick="toggleCK('mindset')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-mindset">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('mindset','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('mindset','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('mindset','pdf',this)">📄 PDF</button></div><div id="ckm-mindset"><div id="ckm-texto-mindset"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-mindset"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-mindset" placeholder="Frase de Gary Vee, principio de Hormozi, enseñanza de Robbins…"></textarea><button class="ck-add" onclick="addKnowledge('mindset')">＋ Insertar</button></div></div><div id="ckm-imagen-mindset" style="display:none"><div id="ck-img-ui-mindset"></div></div><div id="ckm-pdf-mindset" style="display:none"><div id="ck-pdf-ui-mindset"></div></div></div><div class="ck-list" id="ck-list-mindset"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('mindset')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-mindset" onclick="generarFrase('mindset')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-mindset" style="display:none"><input id="fi-inp-mindset" placeholder="Escribe tu frase…"><button onclick="saveFrase('mindset','dante')">Guardar</button></div><div class="frases-list" id="frases-list-mindset"></div></div></div>
+        <div class="conc-wrap" id="conc-wrap-mindset">
+          <div class="conc-header" onclick="toggleConc('mindset')"><div class="conc-header-left">🏆 Conclusiones <span class="conc-count" id="conc-count-mindset">0</span></div><span class="conc-arrow">▾</span></div>
+          <div class="conc-body" id="conc-body-mindset" style="display:none"><div class="conc-list" id="conc-list-mindset"></div><div class="conc-add-row"><textarea class="conc-input" id="conc-inp-mindset" placeholder="Escribe tu conclusión clave de este módulo…"></textarea><button class="conc-add-btn" onclick="addConclusion('mindset')">＋ Agregar</button></div></div>
+        </div>
         <div class="cerebro-chat-wrap"><div class="cerebro-log" id="log-mindset"><div class="cerebro-bubble sys">Trae tu dilema más difícil. Tu consejo de mentores está listo para darte la perspectiva sin filtro que necesitas.</div></div><div class="cerebro-input-bar"><textarea id="inp-mindset" placeholder="Ej: No sé si escalar Vía Sana ahora o consolidar primero…"></textarea><button class="cerebro-clear" onclick="clearCerebro('mindset')" title="Limpiar">🗑️</button><button class="cerebro-send" id="send-mindset" onclick="sendCerebro('mindset')">➤</button></div></div>
       </div>
 
@@ -1118,8 +1210,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="kc-list" id="kcList"><div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div></div>
           <div class="kc-add-form"><input id="kcPersona" placeholder="¿Con quién fue la conversación?"><textarea id="kcTexto" placeholder="¿Qué le dijiste? ¿Cómo reaccionó?"></textarea><input id="kcResultado" placeholder="Resultado o seguimiento (opcional)…"><button onclick="addKC()">Registrar conversación Kind Candor</button></div>
         </div>
-      </div>
-    </div>
+      </div><!-- last ceo-section -->
+      </div><!-- /desk-col panels -->
+      </div><!-- /desk-grid cerebro -->
+    </div><!-- /s-cerebro -->
 
     <!-- ===== 🤝 NETWORKING ===== -->
     <div class="screen" id="s-network">
@@ -1153,6 +1247,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       </div>
 
       <!-- Grid de contactos -->
+      <div class="desk-grid">
+        <div class="desk-col"><!-- izq: contactos -->
       <div class="net-grid" id="netGrid">
         <div class="net-empty" style="grid-column:1/-1">
           <div class="ne-ico">🤝</div>
@@ -1160,9 +1256,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="ne-sub">Un momento</div>
         </div>
       </div>
-
+        </div><!-- /desk-col contactos -->
+        <div class="desk-col"><!-- der: tips -->
       <!-- Tips de liderazgo y amistad -->
-      <div class="sect" style="margin-top:22px">🌟 Ser un amigo y líder inolvidable</div>
+      <div class="sect" style="margin-top:0">🌟 Ser un amigo y líder inolvidable</div>
 
       <div class="net-tip"><div class="net-tip-n">1 · Sé específico</div><div class="net-tip-t">Menciona algo concreto de lo que te contó la última vez. "¿Cómo te fue con el proyecto X?" vale mil veces más que "¿Cómo estás?"</div></div>
       <div class="net-tip"><div class="net-tip-n">2 · Arrivals matter</div><div class="net-tip-t">Llega antes, no después. Un mensaje 3 días antes del cumpleaños es memorable. El día exacto ya lo hacen todos.</div></div>
@@ -1171,6 +1268,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="net-tip"><div class="net-tip-n">5 · Da sin cuenta</div><div class="net-tip-t">Conecta personas, comparte recursos, recomienda sin que te pidan. El líder que da sin llevar la cuenta nunca lleva las manos vacías.</div></div>
       <div class="net-tip"><div class="net-tip-n">6 · Escucha con intención de recordar</div><div class="net-tip-t">La mayoría escucha para responder. Los líderes excepcionales escuchan para guardar. Si lo anotas aquí, nunca olvidarás.</div></div>
       <div class="net-tip"><div class="net-tip-n">7 · Toca base sin motivo</div><div class="net-tip-t">"Vi esto y pensé en ti" es la frase más poderosa de relaciones. No necesitas razón para conectar.</div></div>
+
+        </div><!-- /desk-col tips -->
+      </div><!-- /desk-grid network -->
 
     </div><!-- /s-network -->
 
@@ -1242,6 +1342,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <p>No están agendadas en un bloque, pero HAY que hacerlas hoy. Se quitan solas al palomearlas.</p>
       </div>
       <div class="panic-list" id="panicList"></div>
+      <div class="panic-quick"><input id="panicQuickInp" placeholder="＋ Nueva tarea ultra importante…" onkeydown="if(event.key==='Enter')addPanicQuick()"><button onclick="addPanicQuick()">＋</button></div>
       <div class="panic-foot"><button onclick="closePanic()">Ahora no (reaparece al recargar)</button></div>
     </div>
   </div>
@@ -1420,7 +1521,15 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
     <div class="lbl">🔒 Bloque en foco</div><h2 id="foName">Lanzamiento</h2>
     <div class="timer" id="foTimer">25:00</div>
     <div class="hint">Notificaciones apagadas. Respira. Solo esta cosa importa ahora.</div>
+    <button class="fo-min-btn" onclick="minimizeFocus()">— Minimizar (sigue corriendo)</button>
     <button class="fo-btn" onclick="stopFocus(true)">Terminar bloque ✓</button>
+  </div>
+  <!-- Mini timer flotante -->
+  <div class="fo-mini" id="foMini" onclick="maximizeFocus()">
+    <div class="fo-mini-dot"></div>
+    <div class="fo-mini-time" id="foMiniTime">25:00</div>
+    <div class="fo-mini-name" id="foMiniName"></div>
+    <button class="fo-mini-x" onclick="stopFocus();event.stopPropagation()" title="Terminar">✕</button>
   </div>
 </div>
 
@@ -1682,7 +1791,7 @@ function openWS(k){wsKey=k;const c=COMPANIES[k];const w=ensureWS(k);
   document.getElementById('wsTemas').innerHTML=w.temas.length?w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${escapeHtml(t.contenido)}</span><button class="ws-del" onclick="wsDel('${t.id}','temas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin temas aún.</div>';
   document.getElementById('wsIdeas').innerHTML=w.ideas.length?w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${escapeHtml(i.contenido)}</span><button class="conv" onclick="wsConvertIdea('${i.id}')">Convertir</button></div>`).join(''):'<div class="art-note">Sin ideas aún.</div>';
   const todos=TASKS.filter(t=>t.e===k&&t.stage!=='trash').sort(byPriority);
-  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${escapeHtml(t.t)}</span><span style="display:flex;gap:5px;align-items:center;flex-shrink:0">${ageBadge(t)}<span class="tag">${t.d}</span></span></div>`).join(''):'<div class="art-note">Sin tareas aún. Agrega una arriba ↑</div>';
+  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color};${t.done?'opacity:.62':''}"><div class="chk" style="flex-shrink:0;margin-right:8px;width:22px;height:22px;border-radius:50%;border:2px solid var(--wc,var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;background:${t.done?'var(--wc,var(--accent))':'transparent'};color:${t.done?'#fff':'transparent'}" onclick="toggleDone('${t.id}');setTimeout(()=>openWS(wsKey),40)">${t.done?'✓':''}</div><span style="flex:1;text-decoration:${t.done?'line-through':'none'}">${escapeHtml(t.t)}</span><span style="display:flex;gap:5px;align-items:center;flex-shrink:0">${ageBadge(t)}<span class="tag">${t.d}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')" style="font-size:16px;padding:2px 7px">⋯</button></span></div>`).join(''):'<div class="art-note">Sin tareas aún. Agrega una arriba ↑</div>';
   document.getElementById('wsChat').innerHTML='<div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso para '+c.name+'.</div>';
   go('workspace');
 }
@@ -1830,10 +1939,23 @@ function togglePanic(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.panic=!
 function panicPending(){return TASKS.filter(t=>t.panic&&!t.done&&t.stage!=='trash');}
 function renderPanic(){
   const list=panicPending(),el=document.getElementById('panicList');if(!el)return;
-  el.innerHTML=list.length?list.map(t=>`<div class="panic-item">
-      <div class="pchk" onclick="panicCheck('${t.id}')" title="Marcar realizada"></div>
-      <div><div class="ptxt">${t.t}</div><div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div></div>
+  el.innerHTML=list.length?list.map(t=>`<div class="panic-item" onclick="panicOpenEdit('${t.id}',event)">
+      <div class="pchk" onclick="panicCheck('${t.id}');event.stopPropagation()" title="Marcar realizada"></div>
+      <div style="flex:1;min-width:0"><div class="ptxt">${escapeHtml(t.t)}</div><div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div></div>
     </div>`).join(''):'<div class="panic-empty">🎉 ¡Todas hechas! Sin pendientes ultra importantes.</div>';
+}
+function panicOpenEdit(id,e){
+  if(e&&e.target.classList.contains('pchk'))return;
+  closePanic();
+  setTimeout(()=>openTaskMenu(id),180);
+}
+async function addPanicQuick(){
+  const inp=document.getElementById('panicQuickInp');
+  const txt=inp.value.trim(); if(!txt)return;
+  const t={id:crypto.randomUUID(),t:txt,e:'general',ty:'🔧 Mec',d:'30m',f:3,block:null,done:false,stage:'todo',panic:true,foco:false,creado:new Date().toISOString()};
+  const dbId=await cloudInsert(t); if(dbId)t.id=dbId;
+  TASKS.push(t); inp.value=''; render(); renderPanic();
+  toast('🚨 Tarea ultra importante creada');
 }
 function panicCheck(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.done=true;t.stage='done';cloudPatch(t);render();renderPanic();confetti();
   if(panicPending().length===0)setTimeout(closePanic,700);}
@@ -1920,6 +2042,7 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
     h+=`<button onclick="setFocus('${id}');closeSheets()">${t.foco?'⭐ Es tu foco de hoy':'⭐ Hacer foco de hoy'}</button>`;
   } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
   h+=`<button onclick="togglePanic('${id}');closeSheets()">${t.panic?'✅ Quitar de ultra importante':'🚨 Botón de pánico (ultra importante)'}</button>`;
+  h+=`<button onclick="editTaskTitleUI('${id}')">✏️ Editar nombre</button>`;
   h+=`<button onclick="pickEmpresa('${id}')">🏢 Cambiar empresa (ahora: ${etag(t.e)})</button>`;
   h+=`<button onclick="flipTipo('${id}')">⚙️ Cambiar tipo (ahora: ${t.ty})</button>`;
   h+=`<button onclick="pickBlock('${id}')">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
@@ -1928,6 +2051,11 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   document.getElementById('taskActions').innerHTML=h;
   openSheet('taskSheet');
 }
+function editTaskTitleUI(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
+  document.getElementById('taskActions').innerHTML=`<div class="mt">✏️ Editar nombre</div><div style="display:flex;gap:8px;padding:4px 0"><input id="editTitleIn" style="flex:1;background:var(--tile);border:1px solid var(--accent);border-radius:11px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:14px;outline:none" value="${t.t.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}"><button onclick="saveTaskTitle('${id}')" style="background:var(--accent);border:none;color:var(--on-accent);border-radius:11px;padding:0 16px;font-weight:800;font-size:18px;cursor:pointer;font-family:inherit">✓</button></div><button onclick="openTaskMenu('${id}')">← Cancelar</button>`;
+  setTimeout(()=>{const inp=document.getElementById('editTitleIn');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}},60);
+}
+function saveTaskTitle(id){const t=TASKS.find(x=>x.id===id);if(!t)return;const v=(document.getElementById('editTitleIn')?.value||'').trim();if(!v||v===t.t){closeSheets();return;}t.t=v;cloudPatch(t);render();if(wsKey&&document.getElementById('s-workspace').classList.contains('on'))openWS(wsKey);closeSheets();toast('✏️ Nombre actualizado');}
 function unassign(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.block=null;cloudPatch(t);closeSheets();render();toast('⬆️ De vuelta a "Por acomodar"');}
 function flipTipo(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.ty=t.ty.includes('Mec')?'🏛️ Arq':'🔧 Mec';cloudPatch(t);closeSheets();render();toast('⚙️ Tipo → '+t.ty);}
 function pickEmpresa(id){
@@ -1971,12 +2099,60 @@ wireP('periodKpi',p=>renderKpis(p));wireP('periodCfg');
 
 /* ---- focus timer ---- */
 let foInt,foSec=1500,foTaskId=null,foName='';
-function startFocus(name,taskId){foName=name;foTaskId=taskId||null;document.getElementById('foName').textContent=name;foSec=1500;
-  document.getElementById('focusOverlay').classList.add('on');document.getElementById('foTimer').textContent='25:00';clearInterval(foInt);
-  foInt=setInterval(()=>{foSec--;document.getElementById('foTimer').textContent=String(Math.floor(foSec/60)).padStart(2,'0')+':'+String(foSec%60).padStart(2,'0');if(foSec<=0){clearInterval(foInt);stopFocus(true);}},1000);}
-function stopFocus(done){clearInterval(foInt);document.getElementById('focusOverlay').classList.remove('on');
-  if(done){logFocoSesion();toast('💪 Bloque de 25 min registrado. ¡Avanzaste!');}
-  foTaskId=null;}
+
+/* ---- Timbre Web Audio ---- */
+function playBell(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    function ring(delay){
+      const osc=ctx.createOscillator(); const gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type='sine'; osc.frequency.setValueAtTime(1047,ctx.currentTime+delay);
+      osc.frequency.exponentialRampToValueAtTime(523,ctx.currentTime+delay+1.2);
+      gain.gain.setValueAtTime(0.6,ctx.currentTime+delay);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+1.5);
+      osc.start(ctx.currentTime+delay); osc.stop(ctx.currentTime+delay+1.6);
+    }
+    ring(0); ring(0.7); ring(1.4);
+  }catch(e){ console.warn('bell',e); }
+}
+
+function _foTimerStr(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function _foTick(){
+  foSec--;
+  const str=_foTimerStr(foSec);
+  document.getElementById('foTimer').textContent=str;
+  document.getElementById('foMiniTime').textContent=str;
+  if(foSec<=0){ clearInterval(foInt); stopFocus(true); }
+}
+
+function startFocus(name,taskId){
+  foName=name; foTaskId=taskId||null; foSec=1500;
+  document.getElementById('foName').textContent=name;
+  document.getElementById('foMiniName').textContent=name;
+  document.getElementById('foTimer').textContent='25:00';
+  document.getElementById('foMiniTime').textContent='25:00';
+  document.getElementById('focusOverlay').classList.add('on');
+  document.getElementById('foMini').classList.remove('on');
+  clearInterval(foInt); foInt=setInterval(_foTick,1000);
+}
+
+function minimizeFocus(){
+  document.getElementById('focusOverlay').classList.remove('on');
+  document.getElementById('foMini').classList.add('on');
+}
+function maximizeFocus(){
+  document.getElementById('foMini').classList.remove('on');
+  document.getElementById('focusOverlay').classList.add('on');
+}
+
+function stopFocus(done){
+  clearInterval(foInt);
+  document.getElementById('focusOverlay').classList.remove('on');
+  document.getElementById('foMini').classList.remove('on');
+  if(done){ playBell(); logFocoSesion(); toast('💪 ¡25 min completados! Bloque registrado.'); }
+  foTaskId=null;
+}
 function logFocoSesion(){
   const t=foTaskId?TASKS.find(x=>x.id===foTaskId):null;
   const s={id:'tmp'+Date.now(),task_id:foTaskId,task_title:t?t.t:(foName||'Foco'),minutos:25,completada:t?!!t.done:false,creado_en:new Date().toISOString()};
@@ -2032,6 +2208,10 @@ renderInbox();renderNotes();renderProj();
   try{ WS=buildWS(await cloudLoadWorkspace()); }catch(e){ console.warn('Nube de workspace offline',e); }
   try{ METAS=await cloudLoadMetas(); }catch(e){ console.warn('Nube de metas offline',e); }
   try{ META_PASOS=buildMetaPasos(await cloudLoadMetaPasos()); }catch(e){ console.warn('Nube de pasos offline',e); }
+  try{
+    const [ceoP,ceoC,ceoK,ceoT,ceoKC]=await Promise.all([cloudLoadCEOPlan(),cloudLoadCEOCultura(),cloudLoadCEOCajas(),cloudLoadCEOTracker(),cloudLoadCEOKC()]);
+    renderCEOPlan(ceoP); renderCEOCultura(ceoC); renderCEOCajas(ceoK); renderCEOTracker(ceoT); renderCEOKC(ceoKC);
+  }catch(e){ console.warn('CEO data offline',e); }
   updateClock(); // re-detectar bloque activo con bloques reales de Supabase
   render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();renderMetas();animateRing();
   setTimeout(maybeShowPanic,600);
@@ -2280,21 +2460,205 @@ function switchCerebroMod(mod){
 document.querySelectorAll('.cerebro-tab').forEach(t=>t.addEventListener('click',()=>switchCerebroMod(t.dataset.mod)));
 MODS.forEach(mod=>{ const inp=document.getElementById('inp-'+mod); if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendCerebro(mod); } }); });
 
-/* ===== 👑 CEO del Corazón — Panel táctico (demo local v4) ===== */
+/* ===== 👑 CEO del Corazón — Persistencia Supabase ===== */
+
+/* -- Cloud CRUD CEO Plan -- */
+async function cloudLoadCEOPlan(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_plan?select=*',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudUpsertCEOPlan(phase_id,step_index,hecho){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_plan',{method:'POST',headers:{...SBH,Prefer:'resolution=merge-duplicates'},body:JSON.stringify({phase_id,step_index,hecho,actualizado_en:new Date().toISOString()})});}catch(e){console.warn('ceo plan upsert',e);}}
+
+/* -- Cloud CRUD CEO Cultura -- */
+async function cloudLoadCEOCultura(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cultura?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOCultura(nombre,score,emoji){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cultura',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({nombre,score,emoji})});return (await r.json())[0];}catch(e){console.warn('cult insert',e);return null;}}
+async function cloudDeleteCEOCultura(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_cultura?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('cult del',e);}}
+
+/* -- Cloud CRUD CEO Cajas -- */
+async function cloudLoadCEOCajas(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cajas?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOCaja(nombre,tipo){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_cajas',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({nombre,tipo})});return (await r.json())[0];}catch(e){console.warn('caja insert',e);return null;}}
+async function cloudDeleteCEOCaja(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_cajas?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('caja del',e);}}
+
+/* -- Cloud CRUD CEO Tracker -- */
+async function cloudLoadCEOTracker(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker?select=*&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOTracker(nombre){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({nombre})});return (await r.json())[0];}catch(e){console.warn('tracker insert',e);return null;}}
+async function cloudUpdateCEOTracker(id,ts){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:SBH,body:JSON.stringify({ultimo_registro:ts})});}catch(e){console.warn('tracker update',e);}}
+async function cloudDeleteCEOTracker(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_tracker?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('tracker del',e);}}
+
+/* -- Cloud CRUD CEO Kind Candor -- */
+async function cloudLoadCEOKC(){const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_kc?select=*&order=creado_en.desc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertCEOKC(persona,texto,resultado){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_ceo_kc',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({persona,texto,resultado:resultado||null})});return (await r.json())[0];}catch(e){console.warn('kc insert',e);return null;}}
+async function cloudDeleteCEOKC(id){try{await fetch(SB_URL+'/rest/v1/cerebro_ceo_kc?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('kc del',e);}}
+
+/* -- Cloud CRUD Conclusiones -- */
+async function cloudLoadConclusions(modulo){const r=await fetch(SB_URL+'/rest/v1/cerebro_conclusiones?modulo=eq.'+modulo+'&order=creado_en.asc',{headers:SBH});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+async function cloudInsertConclusion(modulo,texto){try{const r=await fetch(SB_URL+'/rest/v1/cerebro_conclusiones',{method:'POST',headers:{...SBH,Prefer:'return=representation'},body:JSON.stringify({modulo,texto})});return (await r.json())[0];}catch(e){console.warn('conc insert',e);return null;}}
+async function cloudDeleteConclusion(id){try{await fetch(SB_URL+'/rest/v1/cerebro_conclusiones?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SBH});}catch(e){console.warn('conc del',e);}}
+
+/* -- Plan 90 días -- */
 const phaseTotals={s1:4,m1:5,m2:4,m3:3};
-function toggleStep(el){ el.classList.toggle('done'); updatePlan(); }
+function renderCEOPlan(rows){
+  rows.forEach(r=>{
+    const steps=[...document.querySelectorAll(`[data-phase="${r.phase_id}"].plan-chk`)];
+    if(steps[r.step_index]&&r.hecho) steps[r.step_index].classList.add('done');
+  });
+  updatePlan();
+}
+function toggleStep(el,phase){
+  el.classList.toggle('done');
+  const steps=[...document.querySelectorAll(`[data-phase="${phase}"].plan-chk`)];
+  const idx=steps.indexOf(el);
+  cloudUpsertCEOPlan(phase,idx,el.classList.contains('done'));
+  updatePlan();
+}
 function togglePhase(id){ if(id==='all'){ document.querySelectorAll('.plan-phase').forEach(p=>p.classList.toggle('open')); return; } const el=document.getElementById('phase-'+id); if(el)el.classList.toggle('open'); }
 function updatePlan(){ let total=0,done=0; ['s1','m1','m2','m3'].forEach(ph=>{ const chks=document.querySelectorAll(`[data-phase="${ph}"].plan-chk.done`); const t=phaseTotals[ph]; const el=document.getElementById('pct-'+ph); if(el)el.textContent=chks.length+'/'+t; total+=t; done+=chks.length; }); const pct=total?Math.round(done/total*100):0; const p=document.getElementById('planPct'); if(p)p.textContent=pct+'%'; const b=document.getElementById('planBar'); if(b)b.style.width=pct+'%'; }
-function addCultPerson(){ const nombre=document.getElementById('cultNombre').value.trim(); const score=parseInt(document.getElementById('cultScore').value); if(!nombre||isNaN(score)||score<1||score>10)return; const color=score>=8?'#37D67A':score>=6?'#FF7A3D':'#FF5A4D'; const grid=document.getElementById('cultGrid'); const it=document.createElement('div'); it.className='cult-person'; const em=['👤','👩','👨','🧑'][Math.floor(Math.random()*4)]; it.innerHTML=`<div class="cult-avatar">${em}</div><div class="cult-info"><div class="cult-name">${escapeHtml(nombre)}</div><div class="cult-bar-wrap"><div class="cult-bar"><div class="cult-bar-fill" style="width:${score*10}%;background:${color}"></div></div><div class="cult-score" style="color:${color}">${score}</div></div></div>`; grid.appendChild(it); document.getElementById('cultNombre').value=''; document.getElementById('cultScore').value=''; updateAvg(); toast('Colaborador agregado ✓'); }
+
+/* -- Termómetro cultura -- */
+function _cultPersonEl(nombre,score,id){
+  const color=score>=8?'#37D67A':score>=6?'#FF7A3D':'#FF5A4D';
+  const em=['👤','👩','👨','🧑'][Math.abs(nombre.charCodeAt(0))%4];
+  const it=document.createElement('div'); it.className='cult-person'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="cult-avatar">${em}</div><div class="cult-info"><div class="cult-name">${escapeHtml(nombre)}</div><div class="cult-bar-wrap"><div class="cult-bar"><div class="cult-bar-fill" style="width:${score*10}%;background:${color}"></div></div><div class="cult-score" style="color:${color}">${score}</div></div></div><button class="cult-del" onclick="deleteCultPerson(this)" title="Eliminar">✕</button>`;
+  return it;
+}
+function renderCEOCultura(rows){ const g=document.getElementById('cultGrid'); if(!g)return; g.innerHTML=''; rows.forEach(r=>g.appendChild(_cultPersonEl(r.nombre,r.score,r.id))); updateAvg(); }
+async function addCultPerson(){
+  const nombre=document.getElementById('cultNombre').value.trim(); const score=parseInt(document.getElementById('cultScore').value);
+  if(!nombre||isNaN(score)||score<1||score>10)return;
+  const row=await cloudInsertCEOCultura(nombre,score,'👤');
+  const grid=document.getElementById('cultGrid');
+  grid.appendChild(_cultPersonEl(nombre,score,row&&row.id));
+  document.getElementById('cultNombre').value=''; document.getElementById('cultScore').value='';
+  updateAvg(); toast('Colaborador agregado ✓');
+}
+async function deleteCultPerson(btn){ const it=btn.closest('.cult-person'); const id=it.dataset.id; if(id)await cloudDeleteCEOCultura(id); it.remove(); updateAvg(); }
 function updateAvg(){ const scores=[...document.querySelectorAll('.cult-score')].map(el=>parseInt(el.textContent)).filter(n=>!isNaN(n)); const el=document.getElementById('cultAvg'); if(!el)return; if(!scores.length){el.textContent='—';return;} el.textContent=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1); }
+
+/* -- Cajas del equipo -- */
 const cajaLabels={h:'🔥 Hambriento',f:'🕐 Flexible',a:'📚 Aprendiz'};
 const cajaDescs={h:'Quiere dinero y ascensos rápidos. Se le amarran KPIs agresivos a comisiones claras.',f:'Valora tiempo y autonomía. Mismo resultado exigido, diferente recompensa.',a:'Quiere mentoría y acceso al líder. Su incentivo es tu tiempo y atención.'};
-function addCaja(){ const nombre=document.getElementById('cajaName').value.trim(); const tipo=document.getElementById('cajaTipo').value; if(!nombre)return; const it=document.createElement('div'); it.className='caja-item'; it.innerHTML=`<div class="caja-top"><div class="caja-name">${escapeHtml(nombre)}</div><div class="caja-tipo ${tipo}">${cajaLabels[tipo]}</div></div><div class="caja-palanca">${cajaDescs[tipo]}</div>`; document.getElementById('cajasList').appendChild(it); document.getElementById('cajaName').value=''; toast('Caja del equipo guardada ✓'); }
-function addTracker(){ const nombre=document.getElementById('trackerName').value.trim(); if(!nombre)return; const it=document.createElement('div'); it.className='tracker-item'; it.innerHTML=`<div class="tracker-dot pendiente"></div><div class="tracker-info"><div class="tracker-name">${escapeHtml(nombre)}</div><div class="tracker-fecha">Aún sin 1:1 registrado</div></div><button class="tracker-btn" onclick="registrar11(this)">Registrar</button>`; document.getElementById('trackerList').appendChild(it); document.getElementById('trackerName').value=''; }
-function registrar11(btn){ const it=btn.closest('.tracker-item'); it.querySelector('.tracker-dot').className='tracker-dot reciente'; it.querySelector('.tracker-fecha').textContent='Último 1:1: hoy · ¡Bien hecho!'; toast('1:1 registrado ✓'); }
-function addKC(){ const persona=document.getElementById('kcPersona').value.trim(); const texto=document.getElementById('kcTexto').value.trim(); if(!persona||!texto)return; const resultado=document.getElementById('kcResultado').value.trim(); const list=document.getElementById('kcList'); const empty=list.querySelector('[style*="dashed"]'); if(empty)empty.remove(); const today=new Date().toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'}); const it=document.createElement('div'); it.className='kc-item'; it.innerHTML=`<div class="kc-top"><div class="kc-persona">${escapeHtml(persona)}</div><div class="kc-fecha">${today}</div></div><div class="kc-texto">${escapeHtml(texto)}</div>${resultado?`<div class="kc-resultado">→ ${escapeHtml(resultado)}</div>`:''}`; list.appendChild(it); ['kcPersona','kcTexto','kcResultado'].forEach(id=>document.getElementById(id).value=''); toast('Conversación registrada ✓'); }
+function _cajaEl(nombre,tipo,id){
+  const it=document.createElement('div'); it.className='caja-item'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="caja-top"><div class="caja-name">${escapeHtml(nombre)}</div><div class="caja-tipo ${tipo}">${cajaLabels[tipo]}</div><button class="caja-del" onclick="deleteCaja(this)" title="Eliminar">✕</button></div><div class="caja-palanca">${cajaDescs[tipo]}</div>`;
+  return it;
+}
+function renderCEOCajas(rows){ const el=document.getElementById('cajasList'); if(!el)return; el.innerHTML=''; rows.forEach(r=>el.appendChild(_cajaEl(r.nombre,r.tipo,r.id))); }
+async function addCaja(){
+  const nombre=document.getElementById('cajaName').value.trim(); const tipo=document.getElementById('cajaTipo').value;
+  if(!nombre)return;
+  const row=await cloudInsertCEOCaja(nombre,tipo);
+  document.getElementById('cajasList').appendChild(_cajaEl(nombre,tipo,row&&row.id));
+  document.getElementById('cajaName').value=''; toast('Caja del equipo guardada ✓');
+}
+async function deleteCaja(btn){ const it=btn.closest('.caja-item'); const id=it.dataset.id; if(id)await cloudDeleteCEOCaja(id); it.remove(); }
+
+/* -- Tracker 1:1 -- */
+function _trackerEl(nombre,id,ultimo_registro){
+  const reciente=!!ultimo_registro;
+  const fechaTxt=reciente?('Último 1:1: '+new Date(ultimo_registro).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'})+'· ¡Bien hecho!'):'Aún sin 1:1 registrado';
+  const it=document.createElement('div'); it.className='tracker-item'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="tracker-dot ${reciente?'reciente':'pendiente'}"></div><div class="tracker-info"><div class="tracker-name">${escapeHtml(nombre)}</div><div class="tracker-fecha">${fechaTxt}</div></div><button class="tracker-btn" onclick="registrar11(this)">Registrar</button><button class="tracker-del" onclick="deleteTracker(this)" title="Eliminar">✕</button>`;
+  return it;
+}
+function renderCEOTracker(rows){ const el=document.getElementById('trackerList'); if(!el)return; el.innerHTML=''; rows.forEach(r=>el.appendChild(_trackerEl(r.nombre,r.id,r.ultimo_registro))); }
+async function addTracker(){
+  const nombre=document.getElementById('trackerName').value.trim(); if(!nombre)return;
+  const row=await cloudInsertCEOTracker(nombre);
+  document.getElementById('trackerList').appendChild(_trackerEl(nombre,row&&row.id,null));
+  document.getElementById('trackerName').value='';
+}
+async function registrar11(btn){
+  const it=btn.closest('.tracker-item'); const id=it.dataset.id;
+  const ts=new Date().toISOString();
+  it.querySelector('.tracker-dot').className='tracker-dot reciente';
+  it.querySelector('.tracker-fecha').textContent='Último 1:1: hoy · ¡Bien hecho!';
+  if(id)await cloudUpdateCEOTracker(id,ts);
+  toast('1:1 registrado ✓');
+}
+async function deleteTracker(btn){ const it=btn.closest('.tracker-item'); const id=it.dataset.id; if(id)await cloudDeleteCEOTracker(id); it.remove(); }
+
+/* -- Kind Candor Log -- */
+function _kcEl(persona,texto,resultado,creado_en,id){
+  const today=new Date(creado_en||Date.now()).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'});
+  const it=document.createElement('div'); it.className='kc-item'; if(id)it.dataset.id=id;
+  it.innerHTML=`<div class="kc-top"><div class="kc-persona">${escapeHtml(persona)}</div><div style="display:flex;align-items:center;gap:6px"><div class="kc-fecha">${today}</div><button class="kc-del" onclick="deleteKC(this)" title="Eliminar">✕</button></div></div><div class="kc-texto">${escapeHtml(texto)}</div>${resultado?`<div class="kc-resultado">→ ${escapeHtml(resultado)}</div>`:''}`;
+  return it;
+}
+function renderCEOKC(rows){
+  const list=document.getElementById('kcList'); if(!list)return;
+  list.innerHTML='';
+  if(!rows.length){ list.innerHTML='<div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div>'; return; }
+  rows.forEach(r=>list.appendChild(_kcEl(r.persona,r.texto,r.resultado,r.creado_en,r.id)));
+}
+async function addKC(){
+  const persona=document.getElementById('kcPersona').value.trim(); const texto=document.getElementById('kcTexto').value.trim();
+  if(!persona||!texto)return;
+  const resultado=document.getElementById('kcResultado').value.trim();
+  const row=await cloudInsertCEOKC(persona,texto,resultado);
+  const list=document.getElementById('kcList'); const empty=list.querySelector('[style*="dashed"]'); if(empty)empty.remove();
+  list.insertBefore(_kcEl(persona,texto,resultado,null,row&&row.id),list.firstChild);
+  ['kcPersona','kcTexto','kcResultado'].forEach(id=>document.getElementById(id).value='');
+  toast('Conversación registrada ✓');
+}
+async function deleteKC(btn){ const it=btn.closest('.kc-item'); const id=it.dataset.id; if(id)await cloudDeleteCEOKC(id); it.remove(); }
+
+/* -- Conclusiones por módulo -- */
+async function loadConclusions(mod){
+  try{
+    const rows=await cloudLoadConclusions(mod);
+    renderConclusions(mod,rows);
+  }catch(e){ console.warn('conc load',mod,e); }
+}
+function renderConclusions(mod,rows){
+  const list=document.getElementById('conc-list-'+mod); if(!list)return;
+  list.innerHTML='';
+  rows.forEach(r=>{
+    const it=document.createElement('div'); it.className='conc-item'; it.dataset.id=r.id;
+    it.innerHTML=`<div class="conc-item-text">${escapeHtml(r.texto)}</div><button class="conc-del" onclick="deleteConclusion('${mod}',this)" title="Eliminar">✕</button>`;
+    list.appendChild(it);
+  });
+  const cnt=document.getElementById('conc-count-'+mod); if(cnt)cnt.textContent=rows.length;
+}
+function toggleConc(mod){
+  const wrap=document.getElementById('conc-wrap-'+mod); if(!wrap)return;
+  const body=document.getElementById('conc-body-'+mod); if(!body)return;
+  const open=wrap.classList.toggle('open');
+  body.style.display=open?'block':'none';
+}
+async function addConclusion(mod){
+  const inp=document.getElementById('conc-inp-'+mod); if(!inp)return;
+  const texto=inp.value.trim(); if(!texto)return;
+  const row=await cloudInsertConclusion(mod,texto);
+  const list=document.getElementById('conc-list-'+mod);
+  const it=document.createElement('div'); it.className='conc-item'; if(row)it.dataset.id=row.id;
+  it.innerHTML=`<div class="conc-item-text">${escapeHtml(texto)}</div><button class="conc-del" onclick="deleteConclusion('${mod}',this)" title="Eliminar">✕</button>`;
+  list.appendChild(it);
+  inp.value='';
+  const cnt=document.getElementById('conc-count-'+mod); if(cnt)cnt.textContent=list.children.length;
+  toast('Conclusión guardada ✓');
+}
+async function deleteConclusion(mod,btn){
+  const it=btn.closest('.conc-item'); const id=it.dataset.id;
+  if(id)await cloudDeleteConclusion(id); it.remove();
+  const cnt=document.getElementById('conc-count-'+mod); const list=document.getElementById('conc-list-'+mod);
+  if(cnt&&list)cnt.textContent=list.children.length;
+}
+
+/* -- Mis Conexiones mini (Sinergia) -- */
+function renderConexMini(){
+  const el=document.getElementById('conex-mini-list'); if(!el)return;
+  if(!NET_CONTACTS.length){ el.innerHTML='<div class="conex-mini-empty">Aún no tienes contactos. <button style="background:none;border:none;color:#4A90D9;cursor:pointer;font-size:11px;font-weight:700" onclick="go(\'network\')">Agregar →</button></div>'; return; }
+  el.innerHTML='';
+  const top=NET_CONTACTS.slice(0,5);
+  top.forEach(c=>{
+    const it=document.createElement('div'); it.className='conex-mini-item';
+    it.innerHTML=`<div class="conex-mini-av">${c.emoji||'👤'}</div><div class="conex-mini-info"><div class="conex-mini-name">${escapeHtml(c.nombre)}</div><div class="conex-mini-cat">${escapeHtml(c.categoria||'')}</div></div>`;
+    it.style.cursor='pointer';
+    it.onclick=()=>{ go('network'); setTimeout(()=>openContact(c.id),300); };
+    el.appendChild(it);
+  });
+  if(NET_CONTACTS.length>5){ const more=document.createElement('div'); more.style.cssText='font-size:10px;color:var(--text3);text-align:center;padding:4px 0'; more.textContent=`+${NET_CONTACTS.length-5} más`; el.appendChild(more); }
+}
 const _cerebroNav=document.querySelector('[data-s="cerebro"]');
-if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); },{ once:false }); }
+if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); loadConclusions(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); renderConexMini(); },{ once:false }); }
 
 /* ===================================================================
    🤝  NETWORKING — Panel de Relaciones CEO
@@ -2338,6 +2702,7 @@ async function loadContacts(){
     await loadAllFechas();
     renderContacts();
     checkUpcomingDates();
+    renderConexMini();
   }catch(e){ console.warn('net load err',e); renderContacts(); }
 }
 
