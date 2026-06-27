@@ -1791,7 +1791,7 @@ function openWS(k){wsKey=k;const c=COMPANIES[k];const w=ensureWS(k);
   document.getElementById('wsTemas').innerHTML=w.temas.length?w.temas.map(t=>`<div class="li" style="--wc:${c.color}"><span>🔮 ${escapeHtml(t.contenido)}</span><button class="ws-del" onclick="wsDel('${t.id}','temas')" title="Borrar">✕</button></div>`).join(''):'<div class="art-note">Sin temas aún.</div>';
   document.getElementById('wsIdeas').innerHTML=w.ideas.length?w.ideas.map(i=>`<div class="li" style="--wc:${c.color}"><span>💡 ${escapeHtml(i.contenido)}</span><button class="conv" onclick="wsConvertIdea('${i.id}')">Convertir</button></div>`).join(''):'<div class="art-note">Sin ideas aún.</div>';
   const todos=TASKS.filter(t=>t.e===k&&t.stage!=='trash').sort(byPriority);
-  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color}"><span>${t.done?'✅':'📋'} ${escapeHtml(t.t)}</span><span style="display:flex;gap:5px;align-items:center;flex-shrink:0">${ageBadge(t)}<span class="tag">${t.d}</span></span></div>`).join(''):'<div class="art-note">Sin tareas aún. Agrega una arriba ↑</div>';
+  document.getElementById('wsTodos').innerHTML=todos.length?todos.map(t=>`<div class="li" style="--wc:${c.color};${t.done?'opacity:.62':''}"><div class="chk" style="flex-shrink:0;margin-right:8px;width:22px;height:22px;border-radius:50%;border:2px solid var(--wc,var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;background:${t.done?'var(--wc,var(--accent))':'transparent'};color:${t.done?'#fff':'transparent'}" onclick="toggleDone('${t.id}');setTimeout(()=>openWS(wsKey),40)">${t.done?'✓':''}</div><span style="flex:1;text-decoration:${t.done?'line-through':'none'}">${escapeHtml(t.t)}</span><span style="display:flex;gap:5px;align-items:center;flex-shrink:0">${ageBadge(t)}<span class="tag">${t.d}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')" style="font-size:16px;padding:2px 7px">⋯</button></span></div>`).join(''):'<div class="art-note">Sin tareas aún. Agrega una arriba ↑</div>';
   document.getElementById('wsChat').innerHTML='<div class="bub a">Suéltame un problema o varios temas y te ayudo a ordenarlos y definir el siguiente paso para '+c.name+'.</div>';
   go('workspace');
 }
@@ -2042,6 +2042,7 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
     h+=`<button onclick="setFocus('${id}');closeSheets()">${t.foco?'⭐ Es tu foco de hoy':'⭐ Hacer foco de hoy'}</button>`;
   } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
   h+=`<button onclick="togglePanic('${id}');closeSheets()">${t.panic?'✅ Quitar de ultra importante':'🚨 Botón de pánico (ultra importante)'}</button>`;
+  h+=`<button onclick="editTaskTitleUI('${id}')">✏️ Editar nombre</button>`;
   h+=`<button onclick="pickEmpresa('${id}')">🏢 Cambiar empresa (ahora: ${etag(t.e)})</button>`;
   h+=`<button onclick="flipTipo('${id}')">⚙️ Cambiar tipo (ahora: ${t.ty})</button>`;
   h+=`<button onclick="pickBlock('${id}')">${t.block?'🔁 Mover a otro bloque':'📌 Asignar a bloque'}</button>`;
@@ -2050,6 +2051,11 @@ function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   document.getElementById('taskActions').innerHTML=h;
   openSheet('taskSheet');
 }
+function editTaskTitleUI(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
+  document.getElementById('taskActions').innerHTML=`<div class="mt">✏️ Editar nombre</div><div style="display:flex;gap:8px;padding:4px 0"><input id="editTitleIn" style="flex:1;background:var(--tile);border:1px solid var(--accent);border-radius:11px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:14px;outline:none" value="${t.t.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}"><button onclick="saveTaskTitle('${id}')" style="background:var(--accent);border:none;color:var(--on-accent);border-radius:11px;padding:0 16px;font-weight:800;font-size:18px;cursor:pointer;font-family:inherit">✓</button></div><button onclick="openTaskMenu('${id}')">← Cancelar</button>`;
+  setTimeout(()=>{const inp=document.getElementById('editTitleIn');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}},60);
+}
+function saveTaskTitle(id){const t=TASKS.find(x=>x.id===id);if(!t)return;const v=(document.getElementById('editTitleIn')?.value||'').trim();if(!v||v===t.t){closeSheets();return;}t.t=v;cloudPatch(t);render();if(wsKey&&document.getElementById('s-workspace').classList.contains('on'))openWS(wsKey);closeSheets();toast('✏️ Nombre actualizado');}
 function unassign(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.block=null;cloudPatch(t);closeSheets();render();toast('⬆️ De vuelta a "Por acomodar"');}
 function flipTipo(id){const t=TASKS.find(x=>x.id===id);if(!t)return;t.ty=t.ty.includes('Mec')?'🏛️ Arq':'🔧 Mec';cloudPatch(t);closeSheets();render();toast('⚙️ Tipo → '+t.ty);}
 function pickEmpresa(id){
