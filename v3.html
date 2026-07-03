@@ -790,11 +790,19 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 @media(min-width:1024px){
   body{padding:0;align-items:stretch}
   .shell{max-width:100%;width:100%;height:100vh;height:100dvh;border-radius:0;border:none}
-  /* nav bottom más espaciado */
-  .nav{padding:8px 24px;gap:0}
-  .nav button{font-size:11px;padding:6px 0}
-  /* scroll: más padding lateral */
-  .scroll{padding:20px 32px 80px}
+  /* nav: sidebar izquierdo fijo en vez de barra inferior tipo mobile */
+  .nav{top:0;left:0;right:auto;bottom:0;width:216px;flex-direction:column;align-items:stretch;
+    justify-content:flex-start;gap:3px;padding:26px 12px;border-top:none;border-right:1px solid var(--line)}
+  .nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;font-size:13px;
+    font-weight:700;padding:11px 13px;border-radius:12px;color:var(--text2)}
+  .nav button .ic{font-size:19px}
+  .nav button.on{background:var(--accent-soft);color:var(--accent)}
+  .nav button:hover{background:var(--tile)}
+  /* scroll: deja espacio a la izquierda para el sidebar, ya no necesita respiro abajo */
+  .scroll{padding:26px 36px 32px 252px}
+  /* toast y mini-timer ya no tienen que esquivar una barra inferior */
+  .toast{bottom:28px}
+  .fo-mini{bottom:24px}
   /* ── HOY: grid 2 columnas via .hoy-grid ── */
   .hoy-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:start;margin-top:0}
   /* cerebro tabs: columna vertical en desktop */
@@ -806,6 +814,22 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   .desk-col{display:flex;flex-direction:column;min-width:0}
   /* Cerebro: sidebar angosto (tabs) | contenido amplio */
   .desk-grid.cerebro-layout{grid-template-columns:210px 1fr;gap:24px}
+  /* columnas con scroll propio: evita que una lista larga deje a su vecina corta
+     flotando sobre un pozo de espacio negro vacío */
+  .hoy-col,.desk-col{max-height:calc(100vh - 200px);min-height:220px;overflow-y:auto;
+    overflow-x:hidden;padding-right:6px;scrollbar-width:thin}
+  .hoy-col::-webkit-scrollbar,.desk-col::-webkit-scrollbar{width:6px}
+  .hoy-col::-webkit-scrollbar-thumb,.desk-col::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+  /* la grilla de Hoy arranca bien abajo (foco+balance van arriba) — columnas más cortas y parejas */
+  #s-hoy .hoy-col{max-height:440px}
+  /* hero decorativo del módulo Cerebro: en mobile es un banner chico, en desktop
+     no debe volverse una pantalla completa antes de llegar al contenido */
+  .cerebro-hero-wrap{max-height:230px}
+  .cerebro-hero-img{height:230px;object-fit:cover}
+  /* drag & drop de tarea suelta → bloque del día (con mouse, no con "toca") */
+  .task[draggable]{cursor:grab}
+  .task[draggable]:active{cursor:grabbing}
+  .block.drag-over{outline:2px dashed var(--bc,var(--accent));outline-offset:2px}
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -886,7 +910,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="desk-grid">
         <div class="desk-col">
           <div class="minis" id="projGrid"></div>
-          <div class="art-note" style="margin-top:13px">Toca una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
+          <div class="art-note" style="margin-top:13px">Elige una empresa para abrir su pestaña: notas, temas, ideas, su To-Do y tu copiloto Claude.</div>
         </div>
         <div class="desk-col">
           <div class="sect" style="margin-top:0">🌠 Mis proyectos <span class="cnt">sueños y metas de vida</span></div>
@@ -1627,7 +1651,7 @@ function render(){
   const rez=TASKS.filter(t=>t.stage==='todo'&&!t.done&&taskAgeDays(t)>=4).length;
   document.getElementById('loose-cnt').innerHTML=loose.length+' sin bloque'+(rez?` · <span style="color:var(--amber)">⏳ ${rez} rezagada${rez>1?'s':''}</span>`:'');
   document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
-    <div class="task${t.panic?' ultra':''}" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
+    <div class="task${t.panic?' ultra':''}" draggable="true" ondragstart="onTaskDragStart(event,'${t.id}')" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
       <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span></div>
       <div class="meta"><span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>${ageBadge(t)}
         <div class="fire"><button onclick="bumpPrio('${t.id}',-1)">−</button><div class="fl">${fire(t.f)}</div><button onclick="bumpPrio('${t.id}',1)">+</button></div>
@@ -1639,10 +1663,12 @@ function render(){
 
   document.getElementById('blocksList').innerHTML=BLOCKS.map(b=>{
     const ts=TASKS.filter(t=>t.block===b.id&&t.stage!=='trash').sort(byPriority);
-    return `<div class="block ${b.active?'active':''}" style="--bc:${b.c}">
+    return `<div class="block ${b.active?'active':''}" style="--bc:${b.c}"
+      ondragover="event.preventDefault()" ondragenter="this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')" ondrop="this.classList.remove('drag-over');onBlockDrop(event,'${b.id}')">
       <div class="bh"><span class="btime">${b.time}</span>${b.active?'<span class="nowtag">ahora</span>':''}</div>
       <div class="bt">${b.label}</div>
-      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}${t.panic?' ultra':''}" style="--bc:${t.panic?'var(--red)':b.c}"><div class="chk" onclick="toggleDone('${t.id}')">${t.done?'✓':''}</div><span style="flex:1">${t.panic?'🚨 ':''}${t.t}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asigna una desde arriba ↑</div>'}
+      ${ts.length?ts.map(t=>`<div class="btask ${t.done?'done':''}${t.panic?' ultra':''}" style="--bc:${t.panic?'var(--red)':b.c}"><div class="chk" onclick="toggleDone('${t.id}')">${t.done?'✓':''}</div><span style="flex:1">${t.panic?'🚨 ':''}${t.t}</span><button class="btask-menu" onclick="openTaskMenu('${t.id}')">⋯</button></div>`).join(''):'<div class="bempty">Sin tareas — asígnala desde tu lista de pendientes</div>'}
     </div>`;
   }).join('');
 
@@ -1682,8 +1708,12 @@ function pickBlock(id){pickId=id;
   document.getElementById('blockPick').innerHTML=BLOCKS.map(b=>`<button style="--bc:${b.c}" onclick="assign('${b.id}')"><span>${b.label}</span><small>${b.time}</small></button>`).join('');
   openSheet('blockSheet');
 }
-function assign(bid){const t=TASKS.find(x=>x.id===pickId);if(!t)return;t.block=bid;if(t.stage==='trash')t.stage='todo';cloudPatch(t);closeSheets();render();
+function assign(bid){assignTaskToBlock(pickId,bid);closeSheets();}
+function assignTaskToBlock(taskId,bid){const t=TASKS.find(x=>x.id===taskId);if(!t)return;t.block=bid;if(t.stage==='trash')t.stage='todo';cloudPatch(t);render();
   const b=BLOCKS.find(x=>x.id===bid);toast('📌 Acomodada en '+b.label.replace(/^[^ ]+ /,''));}
+/* ---- drag & drop de escritorio: arrastra una tarea suelta directo a un bloque ---- */
+function onTaskDragStart(e,id){e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move';}
+function onBlockDrop(e,bid){e.preventDefault();const id=e.dataTransfer.getData('text/plain');if(id)assignTaskToBlock(id,bid);}
 
 /* ---- EDITOR de bloques del día (Configurador) ---- */
 const BCOLORS=[['Acento','var(--accent)'],['Ámbar','var(--amber)'],['Morado','var(--purple)'],['Rojo','var(--red)'],['Azul','var(--blue)'],['Verde','var(--green)'],['Teal','#3FB8B0'],['Rosa','var(--pink)']];
@@ -1714,7 +1744,7 @@ function removeBlock(id){if(BLOCKS.length<=1){toast('Deja al menos un bloque');r
 function renderProj(){document.getElementById('projGrid').innerHTML=Object.keys(COMPANIES).map(k=>{const c=COMPANIES[k];
   const act=TASKS.filter(t=>t.e===k&&t.stage==='todo').length;
   const done=TASKS.filter(t=>t.e===k&&t.stage==='done').length;
-  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${done} ✓ · toca para editar</div></div>`;}).join('');renderMetas();}
+  return `<div class="mini" style="--mc:${c.color}" onclick="openWS('${k}')"><div class="n"><span>${c.emoji} ${c.name}</span><span class="open">abrir →</span></div><div class="big">${act} activas</div><div class="sub">${done} ✓ · abrir para editar</div></div>`;}).join('');renderMetas();}
 
 /* ===== Mis proyectos / metas de vida ===== */
 let METAS=[],META_PASOS={},metaActual=null,metaEmojiSel='🌠';
@@ -1739,7 +1769,7 @@ function renderMetas(){
       ${m.porque?`<div class="mc-why">"${escapeHtml(m.porque)}"</div>`:''}
       <div class="mc-foot">${cd?`<span class="mc-date">🎯 ${cd}</span>`:'<span></span>'}<div class="mc-bar"><i style="width:${pct}%"></i></div><span class="mc-open">${pct}%</span></div>
     </div>`;
-  }).join(''):'<div class="art-note">Aún no tienes proyectos de vida. Toca "＋ Nuevo sueño" y suéltalo aquí.</div>';
+  }).join(''):'<div class="art-note">Aún no tienes proyectos de vida. Usa "＋ Nuevo sueño" para agregar el primero.</div>';
 }
 function openMetaForm(editId){
   document.getElementById('mfEditId').value=editId||'';
@@ -2770,7 +2800,7 @@ function renderContacts(){
     grid.innerHTML=`<div class="net-empty" style="grid-column:1/-1">
       <div class="ne-ico">🤝</div>
       <div class="ne-txt">${NET_CONTACTS.length?'Sin resultados':'Aún no tienes contactos'}</div>
-      <div class="ne-sub">${NET_CONTACTS.length?'Prueba con otra búsqueda':'Presiona ＋ para agregar a tu primer contacto'}</div>
+      <div class="ne-sub">${NET_CONTACTS.length?'Prueba con otra búsqueda':'Usa el botón ＋ para agregar a tu primer contacto'}</div>
     </div>`;
     return;
   }
