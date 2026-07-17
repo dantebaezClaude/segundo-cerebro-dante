@@ -831,6 +831,68 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   .task[draggable]:active{cursor:grabbing}
   .block.drag-over{outline:2px dashed var(--bc,var(--accent));outline-offset:2px}
 }
+
+/* === VOZZ: bóvedas de voz por módulo === */
+.vozzb{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.vozzb-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;gap:10px}
+.vozzb-l{font-weight:700;font-size:14px;color:var(--text);display:flex;align-items:center;gap:8px}
+.vozzb-n{font-size:11.5px;font-weight:700;color:var(--mc,var(--accent));background:color-mix(in srgb,var(--mc,var(--accent)) 14%,transparent);border:1px solid color-mix(in srgb,var(--mc,var(--accent)) 30%,transparent);border-radius:20px;padding:1px 9px}
+.vozzb-r{display:flex;align-items:center;gap:10px}
+.vozzb-dictar{border:none;border-radius:10px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer;background:var(--mc,var(--accent));color:#fff}
+#mod-ceo .vozzb-dictar{color:var(--on-accent)}
+.vozzb-arrow{color:var(--text3);transition:transform .25s}
+.vozzb.open .vozzb-arrow{transform:rotate(180deg)}
+.vozzb-body{display:none;border-top:1px solid var(--line);padding:12px 14px}
+.vozzb.open .vozzb-body{display:block}
+.vozzb-vacio{color:var(--text3);font-size:13px;text-align:center;padding:8px 0}
+.vozzb-item{background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.vozzb-item-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;align-items:center}
+.vozzb-fecha{font-size:11px;color:var(--text3)}
+.vozzb-chip{font-size:10.5px;font-weight:700;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 40%,transparent);border-radius:20px;padding:0 8px}
+.vozzb-texto{font-size:13.5px;line-height:1.5;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.vozzb-texto.vacia{color:var(--text3);font-style:italic}
+.vozzb-item audio{width:100%;height:32px;margin-top:8px}
+.vozzb-acts{display:flex;gap:14px;margin-top:8px}
+.vozzb-acts button{background:none;border:none;padding:0;font-size:12px;font-weight:700;cursor:pointer;color:var(--mc,var(--accent))}
+.vozzb-acts .del{color:var(--red)}
+/* hoja de dictado (colores con respaldo: la hoja vive fuera de .shell) */
+.vozz-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:9000;display:none;align-items:flex-end;justify-content:center}
+.vozz-ov.on{display:flex}
+.vozz-sheet{background:var(--panel,#20120D);border:1px solid var(--line,#3C261E);border-radius:22px 22px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding:18px 18px 26px;box-shadow:var(--sh,0 8px 28px rgba(0,0,0,.42))}
+@media(min-width:700px){.vozz-ov{align-items:center}.vozz-sheet{border-radius:22px}}
+.vozz-top{display:flex;justify-content:space-between;align-items:center}
+.vozz-tit{font-weight:800;font-size:16px;color:var(--text,#FFEEE2)}
+.vozz-x{background:var(--tile,#30201A);border:1px solid var(--line,#3C261E);color:var(--text2,#FFB591);border-radius:10px;width:34px;height:34px;font-size:15px;cursor:pointer}
+.vozz-est{text-align:center;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3,#CBA796);margin-top:8px}
+.vozz-est.rec{color:var(--red,#D2452C)}
+.vozz-est.pau{color:var(--amber,#E0A53C)}
+.vozz-crono{text-align:center;font-size:14px;color:var(--text2,#FFB591);font-variant-numeric:tabular-nums;height:18px;margin-top:2px}
+.vozz-ctr{height:118px;display:flex;align-items:center;justify-content:center}
+.vozz-mic{width:86px;height:86px;border-radius:50%;border:none;cursor:pointer;background:var(--mc,var(--accent,#FF7E4D));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.vozz-mic svg{width:36px;height:36px;fill:#fff}
+.vozz-c{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer}
+.vozz-c .cir{width:62px;height:62px;border-radius:50%;border:1.5px solid var(--line,#3C261E);background:var(--tile,#30201A);display:flex;align-items:center;justify-content:center}
+.vozz-c svg{width:22px;height:22px;fill:var(--text,#FFEEE2)}
+.vozz-c span{font-size:12px;font-weight:700;color:var(--text3,#CBA796)}
+.vozz-c.stop .cir{border-color:var(--red,#D2452C);background:rgba(210,69,44,.14)}
+.vozz-c.stop svg{fill:var(--red,#D2452C)}
+.vozz-c.stop span{color:var(--red,#D2452C)}
+.vozz-c.rea .cir{border-color:var(--amber,#E0A53C);background:rgba(224,165,60,.12)}
+.vozz-c.rea svg{fill:var(--amber,#E0A53C)}
+.vozz-c.rea span{color:var(--amber,#E0A53C)}
+.vozz-txt-label{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3,#CBA796);margin:4px 2px 6px}
+.vozz-txt{background:var(--tile,#30201A);border:1px solid var(--line,#3C261E);border-radius:14px;min-height:110px;max-height:220px;overflow-y:auto;padding:12px 14px;font-size:16px;line-height:1.6;color:var(--text,#FFEEE2);text-align:left}
+.vozz-txt.rec{border-color:var(--red,#D2452C)}
+.vozz-txt .ph{color:var(--text3,#CBA796);font-size:13.5px}
+.vozz-txt .int{color:var(--text3,#CBA796);font-style:italic}
+.vozz-audio{display:none;margin-top:10px;background:var(--tile,#30201A);border:1px solid var(--line,#3C261E);border-radius:14px;padding:10px 12px}
+.vozz-audio.on{display:block}
+.vozz-audio audio{width:100%;height:36px}
+.vozz-btns{display:none;gap:8px;margin-top:12px;flex-wrap:wrap}
+.vozz-btns.on{display:flex}
+.vozz-btns button{flex:1;min-width:130px;padding:12px 8px;border-radius:12px;border:1px solid var(--line,#3C261E);background:var(--tile,#30201A);color:var(--text,#FFEEE2);font-size:13px;font-weight:700;cursor:pointer}
+.vozz-btns .g1{background:var(--mc,var(--accent,#FF7E4D));border-color:var(--mc,var(--accent,#FF7E4D));color:#fff}
+.vozz-btns .g2{background:rgba(67,181,132,.18);border-color:var(--green,#43B584);color:var(--green,#43B584)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -848,6 +910,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
             <div class="hi-name">Hola, Dante 👋 <span class="streak">🔥 4 días</span></div>
           </div>
         </div>
+        <div class="vozzb" id="vozzb-ceo"><div class="vozzb-head" onclick="vozzToggleBov('ceo')"><div class="vozzb-l">🎙️ Bóveda de voz <span class="vozzb-n" id="vozzb-n-ceo">0</span></div><div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('ceo')">🎙️ Dictar</button><span class="vozzb-arrow">▾</span></div></div><div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-ceo"></div></div></div>
         <div class="top-actions">
           <button class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Tema">🌙</button>
           <button class="iconbtn" onclick="openNotes()" title="Notas">📝<span class="badge" id="noteBadge" style="display:none">0</span></button>
@@ -1096,6 +1159,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- SINERGIA -->
       <div class="cerebro-panel active" id="mod-sinergia" style="--mc:#4A90D9">
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🤝 Sinergia y Networking de Alto Nivel</div><div class="cerebro-mod-desc">Preparación de reuniones estratégicas · Preguntas de impacto · Atenciones corporativas · Alianzas de largo plazo</div></div>
+        <div class="vozzb" id="vozzb-sinergia"><div class="vozzb-head" onclick="vozzToggleBov('sinergia')"><div class="vozzb-l">🎙️ Bóveda de voz <span class="vozzb-n" id="vozzb-n-sinergia">0</span></div><div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('sinergia')">🎙️ Dictar</button><span class="vozzb-arrow">▾</span></div></div><div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-sinergia"></div></div></div>
         <div class="ck-wrap" id="ck-sinergia"><div class="ck-header" onclick="toggleCK('sinergia')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-sinergia">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('sinergia','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('sinergia','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('sinergia','pdf',this)">📄 PDF</button></div><div id="ckm-sinergia"><div id="ckm-texto-sinergia"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-sinergia"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-sinergia" placeholder="Idea, conclusión, frase de un libro…"></textarea><button class="ck-add" onclick="addKnowledge('sinergia')">＋ Insertar</button></div></div><div id="ckm-imagen-sinergia" style="display:none"><div id="ck-img-ui-sinergia"></div></div><div id="ckm-pdf-sinergia" style="display:none"><div id="ck-pdf-ui-sinergia"></div></div></div><div class="ck-list" id="ck-list-sinergia"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('sinergia')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-sinergia" onclick="generarFrase('sinergia')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-sinergia" style="display:none"><input id="fi-inp-sinergia" placeholder="Escribe tu frase…"><button onclick="saveFrase('sinergia','dante')">Guardar</button></div><div class="frases-list" id="frases-list-sinergia"></div></div></div>
         <div class="conc-wrap" id="conc-wrap-sinergia">
@@ -1112,6 +1176,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- CONEXIÓN -->
       <div class="cerebro-panel" id="mod-conexion" style="--mc:#E87EA1">
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">❤️ Conexión y Legado Personal</div><div class="cerebro-mod-desc">Inteligencia emocional · Dinámicas de pareja · Pilares de crianza · Comunicación asertiva</div></div>
+        <div class="vozzb" id="vozzb-conexion"><div class="vozzb-head" onclick="vozzToggleBov('conexion')"><div class="vozzb-l">🎙️ Bóveda de voz <span class="vozzb-n" id="vozzb-n-conexion">0</span></div><div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('conexion')">🎙️ Dictar</button><span class="vozzb-arrow">▾</span></div></div><div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-conexion"></div></div></div>
         <div class="ck-wrap" id="ck-conexion"><div class="ck-header" onclick="toggleCK('conexion')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-conexion">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('conexion','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('conexion','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('conexion','pdf',this)">📄 PDF</button></div><div id="ckm-conexion"><div id="ckm-texto-conexion"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-conexion"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-conexion" placeholder="Idea, conclusión, aprendizaje…"></textarea><button class="ck-add" onclick="addKnowledge('conexion')">＋ Insertar</button></div></div><div id="ckm-imagen-conexion" style="display:none"><div id="ck-img-ui-conexion"></div></div><div id="ckm-pdf-conexion" style="display:none"><div id="ck-pdf-ui-conexion"></div></div></div><div class="ck-list" id="ck-list-conexion"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('conexion')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-conexion" onclick="generarFrase('conexion')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-conexion" style="display:none"><input id="fi-inp-conexion" placeholder="Escribe tu frase…"><button onclick="saveFrase('conexion','dante')">Guardar</button></div><div class="frases-list" id="frases-list-conexion"></div></div></div>
         <div class="conc-wrap" id="conc-wrap-conexion">
@@ -1124,6 +1189,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- SERVIR -->
       <div class="cerebro-panel" id="mod-servir" style="--mc:#E0A53C">
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">✝️ Servir · Liderazgo Pastoral</div><div class="cerebro-mod-desc">Decisiones con enfoque bíblico · Fe aplicada al negocio · Liderazgo ético · Servicio a la comunidad</div></div>
+        <div class="vozzb" id="vozzb-servir"><div class="vozzb-head" onclick="vozzToggleBov('servir')"><div class="vozzb-l">🎙️ Bóveda de voz <span class="vozzb-n" id="vozzb-n-servir">0</span></div><div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('servir')">🎙️ Dictar</button><span class="vozzb-arrow">▾</span></div></div><div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-servir"></div></div></div>
         <div class="ck-wrap" id="ck-servir"><div class="ck-header" onclick="toggleCK('servir')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-servir">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('servir','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('servir','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('servir','pdf',this)">📄 PDF</button></div><div id="ckm-servir"><div id="ckm-texto-servir"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-servir"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-servir" placeholder="Versículo, enseñanza pastoral, reflexión personal…"></textarea><button class="ck-add" onclick="addKnowledge('servir')">＋ Insertar</button></div></div><div id="ckm-imagen-servir" style="display:none"><div id="ck-img-ui-servir"></div></div><div id="ckm-pdf-servir" style="display:none"><div id="ck-pdf-ui-servir"></div></div></div><div class="ck-list" id="ck-list-servir"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('servir')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-servir" onclick="generarFrase('servir')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-servir" style="display:none"><input id="fi-inp-servir" placeholder="Escribe tu frase…"><button onclick="saveFrase('servir','dante')">Guardar</button></div><div class="frases-list" id="frases-list-servir"></div></div></div>
         <div class="conc-wrap" id="conc-wrap-servir">
@@ -1136,6 +1202,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- MINDSET -->
       <div class="cerebro-panel" id="mod-mindset" style="--mc:#9B6BD6">
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🧠 Mindset · Consejo de Mentores</div><div class="cerebro-mod-desc">Gary Vee · Tony Robbins · Alex Hormozi · Perspectivas de clase mundial para tus decisiones más difíciles</div></div>
+        <div class="vozzb" id="vozzb-mindset"><div class="vozzb-head" onclick="vozzToggleBov('mindset')"><div class="vozzb-l">🎙️ Bóveda de voz <span class="vozzb-n" id="vozzb-n-mindset">0</span></div><div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('mindset')">🎙️ Dictar</button><span class="vozzb-arrow">▾</span></div></div><div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-mindset"></div></div></div>
         <div class="ck-wrap" id="ck-mindset"><div class="ck-header" onclick="toggleCK('mindset')"><div class="ck-header-left">📚 Mi conocimiento <span class="ck-count" id="ck-count-mindset">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-mode-tabs"><button class="ck-mode-btn active" onclick="setCKMode('mindset','texto',this)">✏️ Texto</button><button class="ck-mode-btn" onclick="setCKMode('mindset','imagen',this)">📸 Imagen</button><button class="ck-mode-btn" onclick="setCKMode('mindset','pdf',this)">📄 PDF</button></div><div id="ckm-mindset"><div id="ckm-texto-mindset"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-mindset"><option value="idea">💡 Idea</option><option value="libro">📖 Libro/Podcast</option><option value="conclusion">🏆 Conclusión</option><option value="mentor">🎯 Mentor</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-mindset" placeholder="Frase de Gary Vee, principio de Hormozi, enseñanza de Robbins…"></textarea><button class="ck-add" onclick="addKnowledge('mindset')">＋ Insertar</button></div></div><div id="ckm-imagen-mindset" style="display:none"><div id="ck-img-ui-mindset"></div></div><div id="ckm-pdf-mindset" style="display:none"><div id="ck-pdf-ui-mindset"></div></div></div><div class="ck-list" id="ck-list-mindset"></div></div></div>
         <div class="frases-wrap"><div class="frases-header"><div class="frases-title">✨ Frases de tu cerebro</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('mindset')">✏️ Escribir frase</button><button class="frase-gen-btn" id="fgen-mindset" onclick="generarFrase('mindset')">⚡ Generar con IA</button></div></div><div class="frases-body"><div class="frase-input-row" id="fi-row-mindset" style="display:none"><input id="fi-inp-mindset" placeholder="Escribe tu frase…"><button onclick="saveFrase('mindset','dante')">Guardar</button></div><div class="frases-list" id="frases-list-mindset"></div></div></div>
         <div class="conc-wrap" id="conc-wrap-mindset">
@@ -1148,6 +1215,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <!-- FUENTE DE VERDAD -->
       <div class="cerebro-panel" id="mod-ftverdad" style="--mc:#43B584">
         <div class="cerebro-mod-card"><div class="cerebro-mod-title">🗂️ Fuente de Verdad</div><div class="cerebro-mod-desc">Tu contexto personal completo. Todo lo que ingresas aquí alimenta automáticamente tu Cerebro IA en todos los módulos — sin que tengas que repetirte nunca.</div></div>
+        <div class="vozzb" id="vozzb-ftverdad"><div class="vozzb-head" onclick="vozzToggleBov('ftverdad')"><div class="vozzb-l">🎙️ Bóveda de voz <span class="vozzb-n" id="vozzb-n-ftverdad">0</span></div><div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('ftverdad')">🎙️ Dictar</button><span class="vozzb-arrow">▾</span></div></div><div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-ftverdad"></div></div></div>
 
         <div class="ck-wrap" id="ck-ft_esposo" style="--mc:#E87EA1"><div class="ck-header" onclick="toggleCK('ft_esposo')"><div class="ck-header-left">💍 Como Esposo <span class="ck-count" id="ck-count-ft_esposo">0 entradas</span></div><span class="ck-arrow">▾</span></div><div class="ck-body"><div class="ck-input-row"><select class="ck-tipo" id="ck-tipo-ft_esposo"><option value="aprendizaje">🌱 Aprendizaje</option><option value="acuerdo">🤝 Acuerdo/Pacto</option><option value="conclusion">🏆 Conclusión</option><option value="reflexion">🙏 Reflexión</option></select><textarea class="ck-text" id="ck-text-ft_esposo" placeholder="Algo que aprendiste como esposo, un acuerdo con tu esposa, una reflexión de pareja…"></textarea><button class="ck-add" onclick="addKnowledge('ft_esposo')">＋ Insertar</button></div></div><div class="ck-list" id="ck-list-ft_esposo"></div></div>
 
@@ -3153,5 +3221,248 @@ function renderWeekmap2(){
 });
 
 </script>
+
+<!-- ============ VOZZ: hoja de dictado (bóvedas por módulo) ============ -->
+<div class="vozz-ov" id="vozzOv">
+  <div class="vozz-sheet" id="vozzSheet">
+    <div class="vozz-top"><div class="vozz-tit" id="vozzTit">🎙️ Vozz</div><button class="vozz-x" onclick="vozzCerrar()">✕</button></div>
+    <div class="vozz-est" id="vozzEst">Listo para escuchar</div>
+    <div class="vozz-crono" id="vozzCrono">00:00</div>
+    <div class="vozz-ctr">
+      <button class="vozz-mic" id="vozzMicBtn" onclick="vozzEmpezar()"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></button>
+      <div id="vozzCtr2" style="display:none;gap:30px;align-items:center">
+        <button class="vozz-c" id="vozzPausaC" onclick="vozzPausaClick()"><div class="cir"><svg viewBox="0 0 24 24" id="vozzPausaIco"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></div><span id="vozzPausaTxt">Pausa</span></button>
+        <button class="vozz-c stop" onclick="vozzDetener()"><div class="cir"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg></div><span>Stop</span></button>
+      </div>
+    </div>
+    <div class="vozz-txt-label">📝 Tu dictado</div>
+    <div class="vozz-txt" id="vozzTxt"></div>
+    <div class="vozz-audio" id="vozzAudioCard"><audio id="vozzPlayer" controls preload="metadata"></audio></div>
+    <div class="vozz-btns" id="vozzBtns">
+      <button class="g1" onclick="vozzGuardar(false)">💾 Guardar en bóveda</button>
+      <button class="g2" id="vozzBtnAudio" onclick="vozzGuardar(true)">🎙️ Guardar + audio</button>
+      <button onclick="vozzDescartar()">🗑️ Descartar</button>
+    </div>
+  </div>
+</div>
+<script>
+/* === VOZZ: dictado por voz con bóveda independiente por módulo ===
+   Motor: reconocimiento de voz del navegador (gratis) + MediaRecorder
+   para el audio original. Guarda en vozz_notas con origen='ceo-<módulo>'. */
+const VOZZ_MODS={sinergia:{n:'🤝 Sinergia',c:'#4A90D9'},conexion:{n:'❤️ Conexión',c:'#E87EA1'},servir:{n:'✝️ Servir',c:'#E0A53C'},mindset:{n:'🧠 Mindset',c:'#9B6BD6'},ftverdad:{n:'🗂️ Fuente de Verdad',c:'#43B584'},ceo:{n:'👑 CEO del Corazón',c:'#FF7E4D'}};
+const vozzOrigen=(m)=> m==='ceo' ? 'ceo-corazon' : 'ceo-'+m;
+const VozzRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+let vozzMod=null,vozzEstado='inactivo',vozzTexto='',vozzRecon=null,vozzMotorOn=false;
+let vozzGrab=null,vozzStream=null,vozzChunks=[],vozzAudio=null;
+let vozzMs=0,vozzIni=null,vozzTimer=null,vozzCacheB={};
+
+function vozzEsc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function vozzPunt(t){return t.replace(/\s*punto y aparte\s*/gi,'.\n').replace(/\s*punto y coma\s*/gi,'; ').replace(/\s*signo de interrogación\s*/gi,'? ').replace(/\s*signo de exclamación\s*/gi,'! ').replace(/\s*dos puntos\s*/gi,': ').replace(/\s*nueva línea\s*/gi,'\n').replace(/\s*punto\s*/gi,'. ').replace(/\s*coma\s*/gi,', ');}
+function vozzFmtSeg(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function vozzFmtFecha(iso){const f=new Date(iso);return f.toLocaleDateString('es-MX',{day:'numeric',month:'short'})+' · '+f.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
+function vozzMsTot(){return vozzMs+(vozzIni?Date.now()-vozzIni:0);}
+
+/* ---- motor de dictado ---- */
+function vozzArrancarMotor(){
+  if(!VozzRec) return false;
+  vozzRecon=new VozzRec();
+  vozzRecon.lang='es-MX'; vozzRecon.continuous=true; vozzRecon.interimResults=true;
+  vozzRecon.onresult=(ev)=>{let inter='';for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)vozzTexto+=vozzPunt(r[0].transcript);else inter+=r[0].transcript;}vozzPintarTxt(inter);};
+  vozzRecon.onend=()=>{if(vozzMotorOn){try{vozzRecon.start();}catch(e){}}};
+  vozzRecon.onerror=(e)=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){vozzPararTodo();toast('🎤 Permite el acceso al micrófono');}};
+  try{vozzRecon.start();}catch(e){return false;}
+  vozzMotorOn=true; return true;
+}
+function vozzApagarMotor(){vozzMotorOn=false;if(vozzRecon){try{vozzRecon.stop();}catch(e){}vozzRecon=null;}}
+
+/* ---- grabadora del audio original ---- */
+async function vozzArrancarGrab(){
+  try{
+    vozzStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mimes=['audio/webm;codecs=opus','audio/webm','audio/mp4'];
+    const mime=(window.MediaRecorder&&mimes.find(m=>MediaRecorder.isTypeSupported(m)))||'';
+    vozzGrab=mime?new MediaRecorder(vozzStream,{mimeType:mime}):new MediaRecorder(vozzStream);
+    vozzChunks=[];
+    vozzGrab.ondataavailable=(e)=>{if(e.data&&e.data.size)vozzChunks.push(e.data);};
+    vozzGrab.start(1000); return true;
+  }catch(e){vozzGrab=null;vozzStream=null;return false;}
+}
+function vozzDetenerGrab(seg){
+  return new Promise((res)=>{
+    if(!vozzGrab){res(null);return;}
+    const g=vozzGrab; vozzGrab=null;
+    g.onstop=()=>{const mime=(g.mimeType||'audio/webm').split(';')[0];const blob=new Blob(vozzChunks,{type:mime});
+      if(vozzStream){vozzStream.getTracks().forEach(t=>t.stop());vozzStream=null;}
+      res(blob.size>0?{blob,mime,seg}:null);};
+    try{g.stop();}catch(e){res(null);}
+  });
+}
+function vozzDescartarAudio(){if(vozzAudio&&vozzAudio.url)URL.revokeObjectURL(vozzAudio.url);vozzAudio=null;document.getElementById('vozzPlayer').removeAttribute('src');}
+
+/* ---- estados de la hoja ---- */
+function vozzPintarTxt(inter){
+  const el=document.getElementById('vozzTxt');
+  if(!vozzTexto&&!inter){el.innerHTML='<span class="ph">Habla y aquí aparece tu dictado… di "punto", "coma" o "punto y aparte" para puntuar.</span>';return;}
+  el.innerHTML=vozzEsc(vozzTexto).replace(/\n/g,'<br>')+(inter?'<span class="int"> '+vozzEsc(inter)+'</span>':'');
+  el.scrollTop=el.scrollHeight;
+}
+function vozzPintarCrono(){document.getElementById('vozzCrono').textContent=vozzFmtSeg(Math.floor(vozzMsTot()/1000));}
+function vozzPintarEstado(){
+  const est=document.getElementById('vozzEst'), hayTexto=vozzTexto.trim().length>0, inactivo=vozzEstado==='inactivo';
+  document.getElementById('vozzMicBtn').style.display=inactivo?'flex':'none';
+  document.getElementById('vozzCtr2').style.display=inactivo?'none':'flex';
+  document.getElementById('vozzAudioCard').classList.toggle('on',inactivo&&!!vozzAudio);
+  document.getElementById('vozzBtns').classList.toggle('on',inactivo&&(hayTexto||!!vozzAudio));
+  document.getElementById('vozzBtnAudio').style.display=vozzAudio?'block':'none';
+  est.classList.remove('rec','pau');
+  const pTxt=document.getElementById('vozzPausaTxt'),pIco=document.getElementById('vozzPausaIco'),pC=document.getElementById('vozzPausaC');
+  document.getElementById('vozzTxt').classList.toggle('rec',vozzEstado==='grabando');
+  if(vozzEstado==='grabando'){est.classList.add('rec');est.textContent='● Grabando…';pTxt.textContent='Pausa';pIco.innerHTML='<path d="M8 5h3v14H8zM13 5h3v14h-3z"/>';pC.classList.remove('rea');}
+  else if(vozzEstado==='pausado'){est.classList.add('pau');est.textContent='⏸ En pausa';pTxt.textContent='Reanudar';pIco.innerHTML='<path d="M8 5.5v13a.7.7 0 0 0 1.07.6l10.2-6.5a.7.7 0 0 0 0-1.2L9.07 4.9A.7.7 0 0 0 8 5.5z"/>';pC.classList.add('rea');}
+  else est.textContent=hayTexto?'Dictado listo · guárdalo en tu bóveda':'Listo para escuchar';
+}
+
+/* ---- abrir / cerrar ---- */
+function vozzAbrir(mod){
+  if(!VozzRec){toast('⚠️ Dictado no disponible · usa Chrome o Safari');return;}
+  vozzMod=mod;
+  document.getElementById('vozzSheet').style.setProperty('--mc',VOZZ_MODS[mod].c);
+  document.getElementById('vozzTit').textContent='🎙️ Vozz · '+VOZZ_MODS[mod].n;
+  vozzTexto='';vozzDescartarAudio();vozzMs=0;vozzIni=null;
+  document.getElementById('vozzCrono').textContent='00:00';
+  document.getElementById('vozzOv').classList.add('on');
+  vozzPintarTxt('');vozzPintarEstado();
+  vozzEmpezar();
+}
+async function vozzCerrar(){await vozzPararTodo();document.getElementById('vozzOv').classList.remove('on');}
+document.getElementById('vozzOv').addEventListener('click',(e)=>{if(e.target.id==='vozzOv')vozzCerrar();});
+
+/* ---- controles ---- */
+async function vozzEmpezar(){
+  if(vozzEstado!=='inactivo')return;
+  vozzDescartarAudio();
+  if(!vozzArrancarMotor())return;
+  vozzArrancarGrab();
+  vozzEstado='grabando';vozzMs=0;vozzIni=Date.now();
+  vozzTimer=setInterval(vozzPintarCrono,500);vozzPintarCrono();vozzPintarEstado();
+}
+function vozzPausaClick(){
+  if(vozzEstado==='grabando'){
+    vozzApagarMotor();try{if(vozzGrab&&vozzGrab.state==='recording')vozzGrab.pause();}catch(e){}
+    vozzMs+=Date.now()-vozzIni;vozzIni=null;clearInterval(vozzTimer);
+    vozzEstado='pausado';vozzPintarTxt('');vozzPintarEstado();
+  }else if(vozzEstado==='pausado'){
+    if(!vozzArrancarMotor())return;
+    try{if(vozzGrab&&vozzGrab.state==='paused')vozzGrab.resume();}catch(e){}
+    vozzEstado='grabando';vozzIni=Date.now();vozzTimer=setInterval(vozzPintarCrono,500);vozzPintarEstado();
+  }
+}
+async function vozzDetener(){
+  if(vozzEstado==='inactivo')return;
+  vozzApagarMotor();
+  if(vozzIni){vozzMs+=Date.now()-vozzIni;vozzIni=null;}
+  clearInterval(vozzTimer);
+  const seg=Math.max(1,Math.round(vozzMs/1000));
+  const audio=await vozzDetenerGrab(seg);
+  if(audio){audio.url=URL.createObjectURL(audio.blob);vozzAudio=audio;
+    document.getElementById('vozzPlayer').src=audio.url;}
+  vozzEstado='inactivo';vozzPintarTxt('');vozzPintarEstado();
+}
+async function vozzPararTodo(){
+  vozzApagarMotor();await vozzDetenerGrab(0);
+  if(vozzIni){vozzMs+=Date.now()-vozzIni;vozzIni=null;}
+  clearInterval(vozzTimer);vozzEstado='inactivo';
+}
+function vozzDescartar(){vozzTexto='';vozzDescartarAudio();vozzMs=0;
+  document.getElementById('vozzCrono').textContent='00:00';vozzPintarTxt('');vozzPintarEstado();}
+
+/* ---- guardar en la bóveda ---- */
+async function vozzGuardar(conAudio){
+  const texto=vozzTexto.trim();
+  if(!texto&&!(conAudio&&vozzAudio)){toast('Dicta algo primero 🎤');return;}
+  const mod=vozzMod;
+  try{
+    let audioUrl=null,seg=null;
+    if(conAudio&&vozzAudio){
+      const ext=vozzAudio.mime.includes('mp4')?'m4a':'webm';
+      const nombre='vozz-'+vozzOrigen(mod)+'-'+Date.now()+'.'+ext;
+      const rs=await fetch(SB_URL+'/storage/v1/object/vozz-audios/'+nombre,{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':vozzAudio.mime},body:vozzAudio.blob});
+      if(!rs.ok)throw new Error('storage');
+      audioUrl=SB_URL+'/storage/v1/object/public/vozz-audios/'+nombre;seg=vozzAudio.seg;
+    }
+    const r=await fetch(SB_URL+'/rest/v1/vozz_notas',{method:'POST',headers:{...SBH,Prefer:'return=minimal'},body:JSON.stringify({texto:texto,audio_url:audioUrl,duracion_seg:seg,palabras:texto?texto.split(/\s+/).length:null,origen:vozzOrigen(mod)})});
+    if(!r.ok)throw new Error('rest');
+    await vozzCerrar();
+    toast('💾 Guardado en la bóveda de '+VOZZ_MODS[mod].n);
+    vozzCargarBov(mod);
+    const bov=document.getElementById('vozzb-'+mod);if(bov)bov.classList.add('open');
+  }catch(e){toast('⚠️ No se pudo guardar · revisa tu internet');}
+}
+
+/* ---- bóvedas ---- */
+function vozzToggleBov(mod){
+  const el=document.getElementById('vozzb-'+mod);
+  el.classList.toggle('open');
+  if(el.classList.contains('open')&&!vozzCacheB[mod])vozzCargarBov(mod);
+}
+async function vozzCargarBov(mod){
+  const lista=document.getElementById('vozzb-list-'+mod);
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/vozz_notas?origen=eq.'+vozzOrigen(mod)+'&order=creado_en.desc&limit=50',{headers:SBH});
+    if(!r.ok)throw new Error();
+    const notas=await r.json();vozzCacheB[mod]=notas;
+    document.getElementById('vozzb-n-'+mod).textContent=notas.length;
+    if(!notas.length){lista.innerHTML='<div class="vozzb-vacio">Tu bóveda está vacía — toca 🎙️ Dictar para guardar tu primera nota.</div>';return;}
+    lista.innerHTML=notas.map(n=>'<div class="vozzb-item">'
+      +'<div class="vozzb-item-top"><span class="vozzb-fecha">🕐 '+vozzFmtFecha(n.creado_en)+(n.duracion_seg?' · '+vozzFmtSeg(n.duracion_seg):'')+'</span>'
+      +(n.audio_url?'<span class="vozzb-chip">🎙️ con audio</span>':'')+'</div>'
+      +'<div class="vozzb-texto'+(n.texto?'':' vacia')+'">'+(n.texto?vozzEsc(n.texto):'Nota de voz sin transcripción')+'</div>'
+      +(n.audio_url?'<audio controls preload="none" src="'+n.audio_url+'"></audio>':'')
+      +'<div class="vozzb-acts">'+(n.texto?'<button onclick="vozzCopiar(\''+mod+'\','+n.id+')">📋 Copiar</button>':'')
+      +(n.audio_url?'<button onclick="vozzDescargarNota(\''+mod+'\','+n.id+')">⬇️ Descargar</button>':'')
+      +'<button class="del" onclick="vozzBorrar(\''+mod+'\','+n.id+')">Borrar</button></div></div>').join('');
+  }catch(e){lista.innerHTML='<div class="vozzb-vacio">⚠️ No se pudo cargar la bóveda.</div>';}
+}
+async function vozzCopiar(mod,id){
+  const n=(vozzCacheB[mod]||[]).find(x=>x.id===id);if(!n)return;
+  try{await navigator.clipboard.writeText(n.texto);toast('✅ Copiado');}catch(e){toast('No se pudo copiar');}
+}
+/* Descarga el audio original como archivo de nota de voz
+   (?download= le pide al almacén que fuerce la descarga con nombre bonito) */
+function vozzDescargarNota(mod,id){
+  const n=(vozzCacheB[mod]||[]).find(x=>x.id===id);if(!n||!n.audio_url)return;
+  const f=new Date(n.creado_en),p=x=>String(x).padStart(2,'0');
+  const ext=n.audio_url.split('.').pop();
+  const nombre='nota-voz-'+vozzOrigen(mod)+'-'+f.getFullYear()+p(f.getMonth()+1)+p(f.getDate())+'-'+p(f.getHours())+p(f.getMinutes())+'.'+ext;
+  const a=document.createElement('a');
+  a.href=n.audio_url+'?download='+encodeURIComponent(nombre);
+  a.download=nombre;document.body.appendChild(a);a.click();a.remove();
+  toast('⬇️ Descargando nota de voz…');
+}
+async function vozzBorrar(mod,id){
+  const n=(vozzCacheB[mod]||[]).find(x=>x.id===id);if(!n)return;
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/vozz_notas?id=eq.'+id,{method:'DELETE',headers:SBH});
+    if(!r.ok)throw new Error();
+    if(n.audio_url){const nom=n.audio_url.split('/vozz-audios/')[1];
+      if(nom)fetch(SB_URL+'/storage/v1/object/vozz-audios/'+nom,{method:'DELETE',headers:SBH});}
+    toast('🗑️ Nota borrada');vozzCargarBov(mod);
+  }catch(e){toast('No se pudo borrar');}
+}
+/* contadores al arrancar */
+(async function(){
+  // La hoja debe vivir dentro de .shell para heredar los colores y el modo claro
+  const sh=document.querySelector('.shell');
+  if(sh)sh.appendChild(document.getElementById('vozzOv'));
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/vozz_notas?select=id,origen&origen=like.ceo-*',{headers:SBH});
+    if(!r.ok)return;
+    const filas=await r.json(),tally={};
+    filas.forEach(f=>{tally[f.origen]=(tally[f.origen]||0)+1;});
+    Object.keys(VOZZ_MODS).forEach(m=>{const el=document.getElementById('vozzb-n-'+m);if(el)el.textContent=tally[vozzOrigen(m)]||0;});
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>

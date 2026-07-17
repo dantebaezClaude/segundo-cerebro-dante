@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Vozz Kit — copia y pega el micrófono en cualquier app</title>
+<style>
+  /* Página demo del Vozz Kit — muestra cómo se ve y da el código para copiar */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0D0E14; color: #F2F3F7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding-bottom: 60px; }
+  .cont { max-width: 560px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font-size: 26px; letter-spacing: -0.5px; text-align: center; padding-top: 12px; }
+  h1 span { color: #7C5CFF; }
+  .sub { color: #9AA0B4; font-size: 14px; text-align: center; margin: 8px 0 26px; line-height: 1.5; }
+  h2 { font-size: 17px; margin: 30px 0 6px; }
+  .nota-sub { font-size: 13.5px; color: #9AA0B4; margin-bottom: 12px; line-height: 1.5; }
+  .codigo { position: relative; background: #171923; border: 1px solid #2A2E40; border-radius: 14px;
+    padding: 14px; margin: 10px 0 18px; overflow-x: auto; }
+  .codigo pre { font-family: "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.7; color: #C9D1E9; white-space: pre; }
+  .codigo .copiar { position: absolute; top: 10px; right: 10px; border: none; background: #7C5CFF; color: #fff;
+    font-size: 12px; font-weight: 700; padding: 7px 12px; border-radius: 9px; cursor: pointer; }
+  .demo-zona { margin-bottom: 14px; }
+  .ok { color: #34D399; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="cont">
+  <h1>🎙️ Vozz Kit<span>.</span></h1>
+  <div class="sub">El micrófono público del ecosistema — pégalo en cualquier área de cualquier app
+    y esa área tiene su propia bóveda de notas de voz.</div>
+
+  <h2>1️⃣ Pega estas 2 líneas donde quieras el micrófono</h2>
+  <div class="nota-sub">La primera línea va UNA vez por página. La segunda, una por cada área
+    (cambia el nombre y cada área tendrá su bóveda separada).</div>
+  <div class="codigo">
+    <button class="copiar" onclick="copiarCodigo(this,'snip1')">📋 Copiar</button>
+    <pre id="snip1">&lt;script src="https://ceo.dantebaez.com/vozz.js" defer&gt;&lt;/script&gt;
+&lt;div data-vozz="mi-area"&gt;&lt;/div&gt;</pre>
+  </div>
+
+  <h2>2️⃣ Opciones (si quieres personalizar)</h2>
+  <div class="codigo">
+    <button class="copiar" onclick="copiarCodigo(this,'snip2')">📋 Copiar</button>
+    <pre id="snip2">&lt;div data-vozz="chill-cocina"
+     data-titulo="Notas de cocina"
+     data-color="#43B584"
+     data-tema="claro"&gt;&lt;/div&gt;</pre>
+  </div>
+  <div class="nota-sub">
+    <b>data-vozz</b> → nombre único de la bóveda (usa formato app-area: chill-cocina, vs-pedidos…)<br>
+    <b>data-titulo</b> → texto de la tarjeta · <b>data-color</b> → color del botón ·
+    <b>data-tema="claro"</b> → para apps de fondo blanco
+  </div>
+
+  <h2>3️⃣ Así se ve funcionando <span class="ok">(pruébalos, son reales)</span></h2>
+  <div class="nota-sub">Tres áreas de ejemplo, cada una con su bóveda independiente:</div>
+
+  <div class="demo-zona" data-vozz="demo-cocina" data-titulo="Chilaquiles · Notas de cocina" data-color="#E0A53C"></div>
+  <div class="demo-zona" data-vozz="demo-pedidos" data-titulo="Vía Sana · Pedidos por voz" data-color="#43B584"></div>
+  <div class="demo-zona" data-vozz="demo-ideas" data-titulo="Ideas rápidas" data-color="#7C5CFF"></div>
+
+  <div class="nota-sub" style="margin-top:26px">
+    💡 Todas las notas también aparecen juntas en tu archivo maestro:
+    <a href="https://ceo.dantebaez.com/Vozz" style="color:#7C5CFF">ceo.dantebaez.com/Vozz</a>
+  </div>
+</div>
+
+<script>
+function copiarCodigo(boton, id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(function () {
+    boton.textContent = '✅ Copiado';
+    setTimeout(function () { boton.textContent = '📋 Copiar'; }, 1800);
+  });
+}
+</script>
+<!-- El kit en acción — exactamente las líneas del paso 1 -->
+<script src="/vozz.js" defer></script>
+</body>
+</html>

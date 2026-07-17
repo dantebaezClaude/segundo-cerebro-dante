@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0D0E14">
+<meta name="robots" content="noindex">
+<title>Vozz — Tu micrófono público</title>
+<style>
+  /* ============================================================
+     VOZZ — ceo.dantebaez.com/Vozz
+     El micrófono público de Dante: dicta, guarda la nota en texto
+     y (si quieres) el audio original de tu voz. Las notas se
+     sincronizan en Supabase (mismo proyecto del Cerebro CEO).
+     Página "en OFF": no aparece en el nav del Cerebro, solo por link.
+     ============================================================ */
+  :root {
+    --fondo: #0D0E14;
+    --tarjeta: #171923;
+    --tarjeta-2: #1F2230;
+    --borde: #2A2E40;
+    --texto: #F2F3F7;
+    --texto-suave: #9AA0B4;
+    --acento: #7C5CFF;
+    --acento-suave: rgba(124, 92, 255, 0.15);
+    --grabando: #FF4D5E;
+    --grabando-suave: rgba(255, 77, 94, 0.15);
+    --pausa: #FFC93C;
+    --ok: #34D399;
+    --radio: 18px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--fondo); color: var(--texto);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { min-height: 100vh; padding-bottom: 60px; }
+
+  .contenedor { max-width: 520px; margin: 0 auto; padding: 20px 16px; }
+
+  /* ---------- Encabezado ---------- */
+  header { text-align: center; padding: 18px 0 6px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo .punto { color: var(--acento); }
+  .tagline { color: var(--texto-suave); font-size: 14px; margin-top: 6px; }
+
+  /* ---------- Aviso de compatibilidad ---------- */
+  .aviso { display: none; background: #3A2A12; border: 1px solid #7A5A20; color: #FFD98A;
+    border-radius: var(--radio); padding: 14px 16px; font-size: 14px; line-height: 1.5; margin: 16px 0; }
+  .aviso.visible { display: block; }
+
+  /* ---------- Tarjeta principal del micrófono ---------- */
+  .tarjeta-mic { background: var(--tarjeta); border: 1px solid var(--borde);
+    border-radius: 24px; padding: 24px 20px 20px; margin-top: 18px; text-align: center; }
+
+  .estado { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--texto-suave); transition: color .3s; }
+  .estado.grabando { color: var(--grabando); }
+  .estado.pausado { color: var(--pausa); }
+
+  .cronometro { font-variant-numeric: tabular-nums; font-size: 15px; color: var(--texto-suave); margin-top: 4px; height: 20px; }
+  .cronometro.activo { color: var(--texto); }
+
+  /* Zona de controles: misma altura en todos los estados */
+  .zona-controles { height: 148px; display: flex; align-items: center; justify-content: center; margin: 8px 0 2px; }
+
+  .boton-mic { position: relative; width: 104px; height: 104px; border-radius: 50%;
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, #8B6DFF, #6A48F0);
+    box-shadow: 0 10px 30px rgba(124, 92, 255, 0.35);
+    transition: transform .15s; }
+  .boton-mic:active { transform: scale(0.94); }
+  .boton-mic svg { width: 42px; height: 42px; fill: #fff; }
+
+  .controles-sesion { display: none; align-items: flex-start; justify-content: center; gap: 34px; }
+  .controles-sesion.visible { display: flex; }
+  .ctrl { display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: none; border: none; cursor: pointer; }
+  .ctrl .circulo { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; border: 1.5px solid var(--borde); background: var(--tarjeta-2);
+    transition: transform .15s, background .25s, border-color .25s; position: relative; }
+  .ctrl:active .circulo { transform: scale(0.92); }
+  .ctrl svg { width: 26px; height: 26px; fill: var(--texto); }
+  .ctrl .etiqueta { font-size: 13px; font-weight: 600; color: var(--texto-suave); }
+
+  .ctrl.reanudar .circulo { background: rgba(255, 201, 60, 0.12); border-color: var(--pausa); }
+  .ctrl.reanudar svg { fill: var(--pausa); }
+  .ctrl.reanudar .etiqueta { color: var(--pausa); }
+
+  .ctrl.detener .circulo { background: var(--grabando-suave); border-color: var(--grabando); }
+  .ctrl.detener svg { fill: var(--grabando); }
+  .ctrl.detener .etiqueta { color: var(--grabando); }
+
+  .ctrl.pulsando .circulo::before { content: ""; position: absolute; inset: -1.5px; border-radius: 50%;
+    border: 2px solid rgba(255, 77, 94, 0.45); animation: pulso 1.8s ease-out infinite; }
+  @keyframes pulso { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.55); opacity: 0; } }
+
+  .instruccion { font-size: 14px; color: var(--texto-suave); min-height: 20px; }
+
+  .ondas { display: flex; align-items: center; justify-content: center; gap: 4px; height: 30px; margin-top: 10px; visibility: hidden; }
+  .ondas.activo { visibility: visible; }
+  .ondas span { width: 5px; border-radius: 3px; background: var(--grabando); animation: onda 1s ease-in-out infinite; }
+  .ondas.pausado span { background: var(--pausa); animation-play-state: paused; }
+  .ondas span:nth-child(1) { height: 10px; animation-delay: 0s; }
+  .ondas span:nth-child(2) { height: 22px; animation-delay: .15s; }
+  .ondas span:nth-child(3) { height: 30px; animation-delay: .3s; }
+  .ondas span:nth-child(4) { height: 18px; animation-delay: .45s; }
+  .ondas span:nth-child(5) { height: 26px; animation-delay: .6s; }
+  .ondas span:nth-child(6) { height: 12px; animation-delay: .75s; }
+  .ondas span:nth-child(7) { height: 20px; animation-delay: .9s; }
+  @keyframes onda { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1.4); } }
+
+  /* ---------- Área del texto dictado ---------- */
+  .transcripcion-encabezado { display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 14px; padding: 0 2px 6px; }
+  .transcripcion-titulo { font-size: 12.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--texto-suave); }
+  .contador-palabras { font-size: 12.5px; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+  .transcripcion { background: var(--tarjeta-2); border: 1px solid var(--borde); border-radius: var(--radio);
+    min-height: 110px; padding: 16px; text-align: left; font-size: 17px; line-height: 1.6;
+    word-wrap: break-word; transition: border-color .3s; }
+  .transcripcion.dictando { border-color: rgba(255, 77, 94, 0.4); }
+  .transcripcion .placeholder { color: var(--texto-suave); font-size: 15px; }
+  .transcripcion .interino { color: var(--texto-suave); font-style: italic; }
+
+  /* ---------- Tarjeta del audio original ---------- */
+  .tarjeta-audio { display: none; margin-top: 14px; background: var(--tarjeta-2); border: 1px solid var(--borde);
+    border-radius: var(--radio); padding: 14px 16px; text-align: left; }
+  .tarjeta-audio.visible { display: block; }
+  .audio-encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .audio-titulo { font-size: 13px; font-weight: 700; letter-spacing: .5px; color: var(--texto); }
+  .audio-dur { font-size: 12.5px; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+  .tarjeta-audio audio { width: 100%; height: 40px; margin-bottom: 12px; }
+  .audio-acciones { display: flex; gap: 10px; }
+  .audio-acciones .guardar-audio { flex: 1; padding: 13px 10px; border: none; border-radius: 14px;
+    background: linear-gradient(145deg, #45E0A8, #23B37E); color: #06251A; font-size: 14.5px; font-weight: 800;
+    cursor: pointer; transition: transform .15s; }
+  .audio-acciones .guardar-audio:active { transform: scale(0.97); }
+  .audio-acciones .guardar-audio:disabled { opacity: .6; }
+  .audio-acciones .descargar { padding: 13px 14px; border: 1px solid var(--borde); border-radius: 14px;
+    background: var(--tarjeta); color: var(--texto); font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  /* Botón principal: Agregar nota */
+  .btn-agregar { display: none; width: 100%; margin-top: 12px; padding: 16px; border: none;
+    border-radius: 16px; background: linear-gradient(145deg, #8B6DFF, #6A48F0); color: #fff;
+    font-size: 16px; font-weight: 700; cursor: pointer; align-items: center; justify-content: center;
+    gap: 8px; box-shadow: 0 6px 20px rgba(124, 92, 255, 0.3); transition: transform .15s; }
+  .btn-agregar:active { transform: scale(0.98); }
+  .btn-agregar.visible { display: flex; }
+  .btn-agregar small { font-weight: 500; opacity: .8; }
+
+  .acciones { display: none; gap: 10px; margin-top: 10px; }
+  .acciones.visible { display: flex; }
+  .acciones button { flex: 1; padding: 12px 8px; border-radius: 14px; border: 1px solid var(--borde);
+    background: var(--tarjeta-2); color: var(--texto); font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .2s; }
+  .acciones button:active { background: var(--borde); }
+
+  .tip { margin-top: 14px; font-size: 12.5px; color: var(--texto-suave); line-height: 1.6; text-align: left;
+    background: var(--acento-suave); border-radius: 12px; padding: 10px 14px; }
+  .tip b { color: var(--texto); }
+
+  /* ---------- Notas guardadas ---------- */
+  .seccion-titulo { font-size: 17px; font-weight: 700; margin: 30px 0 4px; display: flex; align-items: center; gap: 8px; }
+  .seccion-sub { font-size: 13.5px; color: var(--texto-suave); margin-bottom: 14px; line-height: 1.5; }
+
+  .nota { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: var(--radio);
+    padding: 14px 16px; margin-bottom: 10px; }
+  .nota-encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .nota-fecha { font-size: 12px; color: var(--texto-suave); }
+  .nota-chip { font-size: 11px; font-weight: 700; color: var(--ok); background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.35); border-radius: 20px; padding: 2px 9px; }
+  .nota-chip.origen { color: var(--acento); background: var(--acento-suave); border-color: rgba(124, 92, 255, 0.4); }
+  .nota-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .nota-texto { font-size: 15px; line-height: 1.55; }
+  .nota-texto.vacia { color: var(--texto-suave); font-style: italic; }
+  .nota audio { width: 100%; height: 36px; margin-top: 10px; }
+  .nota-acciones { display: flex; gap: 14px; margin-top: 10px; }
+  .nota-acciones button { background: none; border: none; color: var(--acento); font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; }
+  .nota-acciones button.peligro { color: var(--grabando); }
+  .sin-notas { color: var(--texto-suave); font-size: 14px; text-align: center; padding: 18px 0; }
+
+  /* ---------- Toast ---------- */
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--tarjeta-2); border: 1px solid var(--borde); color: var(--texto);
+    padding: 12px 22px; border-radius: 30px; font-size: 14px; font-weight: 600;
+    transition: transform .3s ease; z-index: 99; box-shadow: 0 8px 24px rgba(0,0,0,.4); white-space: nowrap; }
+  #toast.visible { transform: translateX(-50%) translateY(0); }
+
+  footer { text-align: center; margin-top: 36px; font-size: 12px; color: var(--texto-suave); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="contenedor">
+
+  <!-- ============ ENCABEZADO ============ -->
+  <header>
+    <div class="logo">🎙️ Vozz<span class="punto">.</span></div>
+    <div class="tagline">Tu micrófono público — dicta, guarda y llévalo a todas tus apps</div>
+  </header>
+
+  <div class="aviso" id="avisoCompat">
+    ⚠️ Este navegador no soporta dictado por voz. Ábrelo en <b>Chrome</b> (Android/Mac/PC)
+    o <b>Safari</b> (iPhone) para usar el micrófono.
+  </div>
+
+  <!-- ============ MICRÓFONO PRINCIPAL ============ -->
+  <div class="tarjeta-mic">
+    <div class="estado" id="estado">Listo para escuchar</div>
+    <div class="cronometro" id="cronometro">00:00</div>
+
+    <div class="zona-controles">
+      <button class="boton-mic" id="botonMic" aria-label="Empezar a dictar">
+        <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+      </button>
+
+      <div class="controles-sesion" id="controlesSesion">
+        <button class="ctrl" id="btnPausa" aria-label="Pausar dictado">
+          <div class="circulo">
+            <svg id="iconoPausa" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg>
+          </div>
+          <span class="etiqueta" id="etiquetaPausa">Pausa</span>
+        </button>
+        <button class="ctrl detener" id="btnStop" aria-label="Detener dictado">
+          <div class="circulo">
+            <svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+          </div>
+          <span class="etiqueta">Stop</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="instruccion" id="instruccion">Toca el micrófono y empieza a hablar</div>
+
+    <div class="ondas" id="ondas">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="transcripcion-encabezado">
+      <span class="transcripcion-titulo">Tu dictado</span>
+      <span class="contador-palabras" id="contadorPalabras"></span>
+    </div>
+    <div class="transcripcion" id="transcripcion">
+      <span class="placeholder">Aquí aparece lo que dictes… tu voz también se graba por si quieres guardar el audio original.</span>
+    </div>
+
+    <!-- Audio original: aparece al detener el dictado -->
+    <div class="tarjeta-audio" id="tarjetaAudio">
+      <div class="audio-encabezado">
+        <span class="audio-titulo">🎙️ Tu voz original</span>
+        <span class="audio-dur" id="audioDur"></span>
+      </div>
+      <audio id="reproductor" controls preload="metadata"></audio>
+      <div class="audio-acciones">
+        <button class="guardar-audio" id="btnGuardarAudio">💾 Guardar nota + audio original</button>
+        <button class="descargar" id="btnDescargarAudio" aria-label="Descargar audio">⬇️</button>
+      </div>
+    </div>
+
+    <!-- Agregar nota: guarda el texto y arranca un dictado nuevo -->
+    <button class="btn-agregar" id="btnAgregar">
+      ➕ Agregar nota <small>· guarda esta y dicta otra</small>
+    </button>
+
+    <div class="acciones" id="acciones">
+      <button id="btnCopiar">📋 Copiar</button>
+      <button id="btnLimpiar">🗑️ Limpiar</button>
+      <button id="btnGuardar">💾 Guardar</button>
+    </div>
+
+    <div class="tip">
+      💡 <b>Comandos de voz:</b> di <b>"punto"</b>, <b>"coma"</b>, <b>"signo de interrogación"</b> o
+      <b>"punto y aparte"</b> y Vozz los convierte en puntuación automáticamente.
+    </div>
+  </div>
+
+  <!-- ============ NOTAS GUARDADAS ============ -->
+  <div class="seccion-titulo">📒 Mis notas de voz</div>
+  <div class="seccion-sub">Sincronizadas en tu nube — las ves igual en tu teléfono y tu compu.</div>
+  <div id="listaNotas"><div class="sin-notas">Cargando tus notas…</div></div>
+
+  <footer>
+    Vozz · Cerebro CEO de Dante Báez<br>
+    El dictado corre gratis en tu navegador · el audio original se guarda solo si tú lo pides.
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   VOZZ — motor de dictado + grabadora de audio + nube
+   - Dictado: reconocimiento de voz del navegador (gratis).
+   - Audio original: MediaRecorder en paralelo; solo se sube a la
+     nube si Dante toca "Guardar nota + audio original".
+   - Nube: Supabase mkt-hq-dante (17-jul-2026: Vozz ya vive en su propio espacio, fuera de la base del CEO/Via Sana), tabla vozz_notas
+     y bucket vozz-audios.
+   ============================================================ */
+const SB_URL = 'https://lwoeqegztghkexumhige.supabase.co';
+const SB_KEY = 'sb_publishable_EAvbpsNabCKYEPhUan_aQQ_GX3hAaPG';
+const SBH = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
+const Reconocimiento = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+// ---------- Referencias a la interfaz ----------
+const botonMic        = document.getElementById('botonMic');
+const controlesSesion = document.getElementById('controlesSesion');
+const btnPausa        = document.getElementById('btnPausa');
+const iconoPausa      = document.getElementById('iconoPausa');
+const etiquetaPausa   = document.getElementById('etiquetaPausa');
+const btnStop         = document.getElementById('btnStop');
+const estado          = document.getElementById('estado');
+const instruccion     = document.getElementById('instruccion');
+const ondas           = document.getElementById('ondas');
+const cronometro      = document.getElementById('cronometro');
+const transcripcion   = document.getElementById('transcripcion');
+const contadorPalabras= document.getElementById('contadorPalabras');
+const tarjetaAudio    = document.getElementById('tarjetaAudio');
+const reproductor     = document.getElementById('reproductor');
+const audioDur        = document.getElementById('audioDur');
+const btnGuardarAudio = document.getElementById('btnGuardarAudio');
+const btnDescargar    = document.getElementById('btnDescargarAudio');
+const btnAgregar      = document.getElementById('btnAgregar');
+const acciones        = document.getElementById('acciones');
+const listaNotas      = document.getElementById('listaNotas');
+const toast           = document.getElementById('toast');
+
+const ICONO_PAUSA    = '<path d="M8 5h3v14H8zM13 5h3v14h-3z"/>';
+const ICONO_REANUDAR = '<path d="M8 5.5v13a.7.7 0 0 0 1.07.6l10.2-6.5a.7.7 0 0 0 0-1.2L9.07 4.9A.7.7 0 0 0 8 5.5z"/>';
+
+// ---------- Estado global ----------
+let estadoApp     = 'inactivo';  // inactivo | grabando | pausado
+let textoFinal    = '';
+let recon         = null;
+let motorActivo   = false;
+// Grabadora del audio original
+let grabadora     = null;
+let streamAudio   = null;
+let chunksAudio   = [];
+let audioActual   = null;        // { blob, mime, url, seg }
+// Cronómetro
+let msAcumulados  = 0;
+let inicioTramo   = null;
+let timerCrono    = null;
+
+if (!Reconocimiento) {
+  document.getElementById('avisoCompat').classList.add('visible');
+}
+
+// Convierte comandos hablados en puntuación real
+function aplicarPuntuacion(texto) {
+  return texto
+    .replace(/\s*punto y aparte\s*/gi, '.\n')
+    .replace(/\s*punto y coma\s*/gi, '; ')
+    .replace(/\s*signo de interrogación\s*/gi, '? ')
+    .replace(/\s*signo de exclamación\s*/gi, '! ')
+    .replace(/\s*dos puntos\s*/gi, ': ')
+    .replace(/\s*nueva línea\s*/gi, '\n')
+    .replace(/\s*punto\s*/gi, '. ')
+    .replace(/\s*coma\s*/gi, ', ');
+}
+
+/* ============ MOTOR DE DICTADO ============ */
+
+function arrancarMotor() {
+  if (!Reconocimiento) return false;
+  recon = new Reconocimiento();
+  recon.lang = 'es-MX';
+  recon.continuous = true;
+  recon.interimResults = true;
+
+  recon.onresult = (evento) => {
+    let interino = '';
+    for (let i = evento.resultIndex; i < evento.results.length; i++) {
+      const res = evento.results[i];
+      if (res.isFinal) textoFinal += aplicarPuntuacion(res[0].transcript);
+      else interino += res[0].transcript;
+    }
+    pintarTranscripcion(interino);
+  };
+
+  // Chrome corta solo tras unos segundos de silencio: lo re-arrancamos
+  recon.onend = () => { if (motorActivo) { try { recon.start(); } catch(e){} } };
+
+  recon.onerror = (e) => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      pararTodo();
+      mostrarToast('🎤 Permite el acceso al micrófono para dictar');
+    }
+  };
+
+  try { recon.start(); } catch(e) { return false; }
+  motorActivo = true;
+  return true;
+}
+
+function apagarMotor() {
+  motorActivo = false;
+  if (recon) { try { recon.stop(); } catch(e){} recon = null; }
+}
+
+/* ============ GRABADORA DEL AUDIO ORIGINAL ============ */
+
+async function arrancarGrabadora() {
+  try {
+    streamAudio = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+    const mime = (window.MediaRecorder && mimes.find(m => MediaRecorder.isTypeSupported(m))) || '';
+    grabadora = mime ? new MediaRecorder(streamAudio, { mimeType: mime }) : new MediaRecorder(streamAudio);
+    chunksAudio = [];
+    grabadora.ondataavailable = (e) => { if (e.data && e.data.size) chunksAudio.push(e.data); };
+    grabadora.start(1000); // guarda el audio en trocitos de 1 segundo
+    return true;
+  } catch (e) {
+    grabadora = null; streamAudio = null;
+    return false; // sin audio original, pero el dictado sigue funcionando
+  }
+}
+
+function pausarGrabadora()   { try { if (grabadora && grabadora.state === 'recording') grabadora.pause();  } catch(e){} }
+function reanudarGrabadora() { try { if (grabadora && grabadora.state === 'paused')    grabadora.resume(); } catch(e){} }
+
+// Detiene la grabadora y devuelve el audio como blob (o null)
+function detenerGrabadora(segundos) {
+  return new Promise((resolver) => {
+    if (!grabadora) { resolver(null); return; }
+    const g = grabadora;
+    grabadora = null;
+    g.onstop = () => {
+      const mime = (g.mimeType || 'audio/webm').split(';')[0];
+      const blob = new Blob(chunksAudio, { type: mime });
+      if (streamAudio) { streamAudio.getTracks().forEach(t => t.stop()); streamAudio = null; }
+      resolver(blob.size > 0 ? { blob, mime, seg: segundos } : null);
+    };
+    try { g.stop(); } catch(e) { resolver(null); }
+  });
+}
+
+function descartarAudio() {
+  if (audioActual && audioActual.url) URL.revokeObjectURL(audioActual.url);
+  audioActual = null;
+  reproductor.removeAttribute('src');
+}
+
+/* ============ CRONÓMETRO ============ */
+
+function msTranscurridos() {
+  return msAcumulados + (inicioTramo ? Date.now() - inicioTramo : 0);
+}
+
+function formatoSeg(seg) {
+  const m = String(Math.floor(seg / 60)).padStart(2, '0');
+  const s = String(seg % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+function pintarCronometro() {
+  cronometro.textContent = formatoSeg(Math.floor(msTranscurridos() / 1000));
+}
+
+/* ============ ESTADOS DEL PANEL ============ */
+
+function pintarEstado() {
+  const hayTexto = textoFinal.trim().length > 0;
+  const inactivo = (estadoApp === 'inactivo');
+
+  botonMic.style.display = inactivo ? 'flex' : 'none';
+  controlesSesion.classList.toggle('visible', !inactivo);
+  transcripcion.classList.toggle('dictando', estadoApp === 'grabando');
+  ondas.classList.toggle('activo', !inactivo);
+  ondas.classList.toggle('pausado', estadoApp === 'pausado');
+  cronometro.classList.toggle('activo', !inactivo);
+
+  // El audio original y los botones solo se ofrecen al terminar
+  tarjetaAudio.classList.toggle('visible', inactivo && !!audioActual);
+  btnAgregar.classList.toggle('visible', inactivo && hayTexto);
+  acciones.classList.toggle('visible', inactivo && hayTexto);
+
+  estado.classList.remove('grabando', 'pausado');
+  if (estadoApp === 'grabando') {
+    estado.classList.add('grabando');
+    estado.textContent = '● Grabando…';
+    instruccion.textContent = 'Habla con naturalidad · Pausa o Stop cuando termines';
+    etiquetaPausa.textContent = 'Pausa';
+    iconoPausa.innerHTML = ICONO_PAUSA;
+    btnPausa.classList.remove('reanudar');
+    btnStop.classList.add('pulsando');
+  } else if (estadoApp === 'pausado') {
+    estado.classList.add('pausado');
+    estado.textContent = '⏸ En pausa';
+    instruccion.textContent = 'Toca Reanudar para seguir dictando';
+    etiquetaPausa.textContent = 'Reanudar';
+    iconoPausa.innerHTML = ICONO_REANUDAR;
+    btnPausa.classList.add('reanudar');
+    btnStop.classList.remove('pulsando');
+  } else {
+    estado.textContent = 'Listo para escuchar';
+    instruccion.textContent = hayTexto ? 'Dictado listo · guarda tu nota abajo' : 'Toca el micrófono y empieza a hablar';
+    btnStop.classList.remove('pulsando');
+  }
+}
+
+async function empezarDictado() {
+  if (estadoApp !== 'inactivo') return;
+  descartarAudio();
+  if (!arrancarMotor()) return;
+  arrancarGrabadora(); // en paralelo; si falla, el dictado sigue
+  estadoApp = 'grabando';
+  msAcumulados = 0;
+  inicioTramo = Date.now();
+  timerCrono = setInterval(pintarCronometro, 500);
+  pintarCronometro();
+  pintarEstado();
+}
+
+function pausarDictado() {
+  if (estadoApp !== 'grabando') return;
+  apagarMotor();
+  pausarGrabadora();
+  msAcumulados += Date.now() - inicioTramo;
+  inicioTramo = null;
+  clearInterval(timerCrono);
+  estadoApp = 'pausado';
+  pintarTranscripcion('');
+  pintarEstado();
+}
+
+function reanudarDictado() {
+  if (estadoApp !== 'pausado') return;
+  if (!arrancarMotor()) return;
+  reanudarGrabadora();
+  estadoApp = 'grabando';
+  inicioTramo = Date.now();
+  timerCrono = setInterval(pintarCronometro, 500);
+  pintarEstado();
+}
+
+async function detenerDictado() {
+  if (estadoApp === 'inactivo') return;
+  apagarMotor();
+  if (inicioTramo) { msAcumulados += Date.now() - inicioTramo; inicioTramo = null; }
+  clearInterval(timerCrono);
+  const seg = Math.max(1, Math.round(msAcumulados / 1000));
+  const audio = await detenerGrabadora(seg);
+  if (audio) {
+    audio.url = URL.createObjectURL(audio.blob);
+    audioActual = audio;
+    reproductor.src = audio.url;
+    audioDur.textContent = formatoSeg(audio.seg);
+  }
+  estadoApp = 'inactivo';
+  pintarTranscripcion('');
+  pintarEstado();
+}
+
+async function pararTodo() {
+  apagarMotor();
+  await detenerGrabadora(0); // suelta el micrófono sin conservar el audio
+  if (inicioTramo) { msAcumulados += Date.now() - inicioTramo; inicioTramo = null; }
+  clearInterval(timerCrono);
+  estadoApp = 'inactivo';
+  pintarTranscripcion('');
+  pintarEstado();
+}
+
+/* ============ TRANSCRIPCIÓN ============ */
+
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'); }
+
+function pintarTranscripcion(interino) {
+  if (!textoFinal && !interino) {
+    transcripcion.innerHTML = '<span class="placeholder">Aquí aparece lo que dictes… tu voz también se graba por si quieres guardar el audio original.</span>';
+    contadorPalabras.textContent = '';
+    return;
+  }
+  transcripcion.innerHTML = esc(textoFinal) + (interino ? '<span class="interino"> ' + esc(interino) + '</span>' : '');
+  const palabras = textoFinal.trim() ? textoFinal.trim().split(/\s+/).length : 0;
+  contadorPalabras.textContent = palabras ? palabras + (palabras === 1 ? ' palabra' : ' palabras') : '';
+}
+
+/* ============ NUBE (Supabase) ============ */
+
+async function guardarNotaNube(texto, audioUrl, seg) {
+  const palabras = texto.trim() ? texto.trim().split(/\s+/).length : null;
+  const r = await fetch(SB_URL + '/rest/v1/vozz_notas', {
+    method: 'POST',
+    headers: { ...SBH, Prefer: 'return=minimal' },
+    body: JSON.stringify({ texto: texto, audio_url: audioUrl || null, duracion_seg: seg || null, palabras: palabras })
+  });
+  if (!r.ok) throw new Error('No se pudo guardar la nota');
+}
+
+async function subirAudioNube(audio) {
+  const ext = audio.mime.includes('mp4') ? 'm4a' : 'webm';
+  const nombre = 'vozz-' + Date.now() + '.' + ext;
+  const r = await fetch(SB_URL + '/storage/v1/object/vozz-audios/' + nombre, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': audio.mime },
+    body: audio.blob
+  });
+  if (!r.ok) throw new Error('No se pudo subir el audio');
+  return SB_URL + '/storage/v1/object/public/vozz-audios/' + nombre;
+}
+
+async function cargarNotas() {
+  const r = await fetch(SB_URL + '/rest/v1/vozz_notas?select=*&order=creado_en.desc&limit=100', { headers: SBH });
+  if (!r.ok) throw new Error('No se pudieron cargar las notas');
+  return r.json();
+}
+
+// Nombres bonitos de las bóvedas del Cerebro CEO (notas que vienen de la app)
+const NOMBRES_ORIGEN = {
+  'ceo-sinergia': '🤝 Sinergia', 'ceo-conexion': '❤️ Conexión', 'ceo-servir': '✝️ Servir',
+  'ceo-mindset': '🧠 Mindset', 'ceo-ftverdad': '🗂️ Fuente de Verdad', 'ceo-corazon': '👑 CEO del Corazón'
+};
+
+function formatearFecha(iso) {
+  const f = new Date(iso);
+  return f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) + ' · ' +
+         f.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+}
+
+let notasCache = [];
+
+async function pintarNotas() {
+  let notas;
+  try { notas = await cargarNotas(); }
+  catch(e) {
+    listaNotas.innerHTML = '<div class="sin-notas">⚠️ No se pudieron cargar las notas. Revisa tu internet.</div>';
+    return;
+  }
+  notasCache = notas;
+  if (!notas.length) {
+    listaNotas.innerHTML = '<div class="sin-notas">Aún no tienes notas guardadas.</div>';
+    return;
+  }
+  listaNotas.innerHTML = notas.map((n) => `
+    <div class="nota">
+      <div class="nota-encabezado">
+        <span class="nota-fecha">🕐 ${formatearFecha(n.creado_en)}${n.duracion_seg ? ' · ' + formatoSeg(n.duracion_seg) : ''}</span>
+        <span class="nota-chips">
+          ${n.origen && n.origen !== 'vozz' ? '<span class="nota-chip origen">🗄️ ' + (NOMBRES_ORIGEN[n.origen] || n.origen) + '</span>' : ''}
+          ${n.audio_url ? '<span class="nota-chip">🎙️ con audio</span>' : ''}
+        </span>
+      </div>
+      <div class="nota-texto ${n.texto ? '' : 'vacia'}">${n.texto ? esc(n.texto) : 'Nota de voz sin transcripción'}</div>
+      ${n.audio_url ? '<audio controls preload="none" src="' + n.audio_url + '"></audio>' : ''}
+      <div class="nota-acciones">
+        ${n.texto ? `<button onclick="copiarNota(${n.id})">📋 Copiar</button>
+        <button onclick="compartirWhats(${n.id})">💬 WhatsApp</button>` : ''}
+        ${n.audio_url ? `<button onclick="descargarNota(${n.id})">⬇️ Descargar</button>` : ''}
+        <button class="peligro" onclick="borrarNota(${n.id})">Borrar</button>
+      </div>
+    </div>`).join('');
+}
+
+window.copiarNota = async function(id) {
+  const nota = notasCache.find((n) => n.id === id);
+  if (!nota) return;
+  try { await navigator.clipboard.writeText(nota.texto); mostrarToast('✅ Copiado'); }
+  catch(e) { mostrarToast('No se pudo copiar'); }
+};
+
+// Descarga el audio original como archivo de nota de voz
+// (?download= le pide al almacén que fuerce la descarga con nombre bonito)
+window.descargarNota = function(id) {
+  const nota = notasCache.find((n) => n.id === id);
+  if (!nota || !nota.audio_url) return;
+  const f = new Date(nota.creado_en), p = (x) => String(x).padStart(2, '0');
+  const ext = nota.audio_url.split('.').pop();
+  const nombre = 'nota-voz-' + (nota.origen || 'vozz') + '-' + f.getFullYear() + p(f.getMonth() + 1) + p(f.getDate()) + '-' + p(f.getHours()) + p(f.getMinutes()) + '.' + ext;
+  const a = document.createElement('a');
+  a.href = nota.audio_url + '?download=' + encodeURIComponent(nombre);
+  a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  mostrarToast('⬇️ Descargando nota de voz…');
+};
+
+window.compartirWhats = function(id) {
+  const nota = notasCache.find((n) => n.id === id);
+  if (!nota) return;
+  window.open('https://wa.me/?text=' + encodeURIComponent(nota.texto), '_blank');
+};
+
+window.borrarNota = async function(id) {
+  const nota = notasCache.find((n) => n.id === id);
+  if (!nota) return;
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/vozz_notas?id=eq.' + id, { method: 'DELETE', headers: SBH });
+    if (!r.ok) throw new Error();
+    // Borra también el audio del almacén si existía
+    if (nota.audio_url) {
+      const nombre = nota.audio_url.split('/vozz-audios/')[1];
+      if (nombre) fetch(SB_URL + '/storage/v1/object/vozz-audios/' + nombre, { method: 'DELETE', headers: SBH });
+    }
+    mostrarToast('🗑️ Nota borrada');
+    pintarNotas();
+  } catch(e) { mostrarToast('No se pudo borrar'); }
+};
+
+/* ============ EVENTOS DE LOS CONTROLES ============ */
+
+botonMic.addEventListener('click', empezarDictado);
+btnStop.addEventListener('click', detenerDictado);
+btnPausa.addEventListener('click', () => {
+  if (estadoApp === 'grabando') pausarDictado();
+  else if (estadoApp === 'pausado') reanudarDictado();
+});
+
+// Agregar nota: guarda el texto en la nube y arranca un dictado nuevo
+btnAgregar.addEventListener('click', async () => {
+  const texto = textoFinal.trim();
+  if (texto) {
+    try {
+      await guardarNotaNube(texto, null, null);
+      mostrarToast('💾 Nota guardada · dictando la siguiente…');
+      pintarNotas();
+    } catch(e) { mostrarToast('⚠️ No se pudo guardar · revisa tu internet'); return; }
+  }
+  textoFinal = '';
+  pintarTranscripcion('');
+  empezarDictado();
+});
+
+// Guardar nota + audio original (el botón que pidió Dante)
+btnGuardarAudio.addEventListener('click', async () => {
+  if (!audioActual) return;
+  btnGuardarAudio.disabled = true;
+  btnGuardarAudio.textContent = '⬆️ Subiendo audio…';
+  try {
+    const url = await subirAudioNube(audioActual);
+    await guardarNotaNube(textoFinal.trim(), url, audioActual.seg);
+    textoFinal = '';
+    descartarAudio();
+    msAcumulados = 0;
+    cronometro.textContent = '00:00';
+    pintarTranscripcion('');
+    pintarEstado();
+    pintarNotas();
+    mostrarToast('💾 Nota y audio original guardados');
+  } catch(e) {
+    mostrarToast('⚠️ No se pudo subir el audio · intenta de nuevo');
+  }
+  btnGuardarAudio.disabled = false;
+  btnGuardarAudio.textContent = '💾 Guardar nota + audio original';
+});
+
+// Descargar el audio original al dispositivo
+btnDescargar.addEventListener('click', () => {
+  if (!audioActual) return;
+  const a = document.createElement('a');
+  a.href = audioActual.url;
+  a.download = 'vozz-' + new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-') +
+    (audioActual.mime.includes('mp4') ? '.m4a' : '.webm');
+  a.click();
+});
+
+document.getElementById('btnCopiar').addEventListener('click', async () => {
+  if (!textoFinal.trim()) { mostrarToast('Nada que copiar todavía'); return; }
+  try { await navigator.clipboard.writeText(textoFinal.trim()); mostrarToast('✅ Copiado al portapapeles'); }
+  catch(e) { mostrarToast('No se pudo copiar'); }
+});
+
+document.getElementById('btnLimpiar').addEventListener('click', () => {
+  textoFinal = '';
+  descartarAudio();
+  msAcumulados = 0;
+  cronometro.textContent = '00:00';
+  pintarTranscripcion('');
+  pintarEstado();
+});
+
+document.getElementById('btnGuardar').addEventListener('click', async () => {
+  const texto = textoFinal.trim();
+  if (!texto) { mostrarToast('Dicta algo primero 🎤'); return; }
+  try {
+    await guardarNotaNube(texto, null, null);
+    textoFinal = '';
+    descartarAudio();
+    msAcumulados = 0;
+    cronometro.textContent = '00:00';
+    pintarTranscripcion('');
+    pintarEstado();
+    pintarNotas();
+    mostrarToast('💾 Nota guardada');
+  } catch(e) { mostrarToast('⚠️ No se pudo guardar · revisa tu internet'); }
+});
+
+/* ============ TOAST ============ */
+
+let timerToast = null;
+function mostrarToast(mensaje) {
+  toast.textContent = mensaje;
+  toast.classList.add('visible');
+  clearTimeout(timerToast);
+  timerToast = setTimeout(() => toast.classList.remove('visible'), 2400);
+}
+
+// ---------- Arranque ----------
+pintarNotas();
+pintarEstado();
+</script>
+</body>
+</html>

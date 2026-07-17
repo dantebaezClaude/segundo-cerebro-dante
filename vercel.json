@@ -4,6 +4,9 @@
       "source": "/",
       "has": [{ "type": "host", "value": "ceo.dantebaez.com" }],
       "destination": "/v3.html"
-    }
+    },
+    { "source": "/Vozz", "destination": "/Vozz.html" },
+    { "source": "/vozz", "destination": "/Vozz.html" },
+    { "source": "/vozz-demo", "destination": "/vozz-demo.html" }
   ]
 }
