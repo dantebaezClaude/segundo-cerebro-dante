@@ -832,6 +832,56 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   .block.drag-over{outline:2px dashed var(--bc,var(--accent));outline-offset:2px}
 }
 
+/* === MIS NOTAS: bóveda unificada de todas las notas de voz === */
+.mn-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 20%,var(--panel)),var(--panel));border:1px solid var(--line);border-radius:18px;padding:18px 16px;margin-bottom:14px}
+.mn-hero-t{font-size:19px;font-weight:800;color:var(--text);margin-bottom:5px}
+.mn-hero-s{font-size:12.5px;color:var(--text2);line-height:1.5}
+.mn-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.mn-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center}
+.mn-stat b{display:block;font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.mn-stat span{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.02em}
+.mn-stat.alerta b{color:var(--amber)}
+.mn-bar{display:flex;gap:8px;margin-bottom:10px}
+.mn-bar input{flex:1;min-width:0;background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:13.5px;outline:none}
+.mn-bar input:focus{border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.mn-bar input::placeholder{color:var(--text3)}
+.mn-dictar{border:none;border-radius:12px;padding:0 15px;background:var(--accent);color:var(--on-accent);font-family:inherit;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+.mn-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.mn-chips::-webkit-scrollbar{display:none}
+.mn-chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--text3);border-radius:20px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.mn-chip.on{background:color-mix(in srgb,var(--cc,var(--accent)) 16%,transparent);border-color:color-mix(in srgb,var(--cc,var(--accent)) 45%,transparent);color:var(--cc,var(--accent))}
+.mn-item{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cc,var(--accent));border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.mn-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.mn-bov{font-size:11px;font-weight:800;color:var(--cc,var(--accent));background:color-mix(in srgb,var(--cc,var(--accent)) 14%,transparent);border:1px solid color-mix(in srgb,var(--cc,var(--accent)) 32%,transparent);border-radius:20px;padding:2px 10px}
+.mn-fecha{font-size:11px;color:var(--text3);font-weight:600}
+.mn-texto{font-size:13.5px;line-height:1.55;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.mn-texto.corta{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.mn-texto.pend{color:var(--text3);font-style:italic}
+.mn-mas{background:none;border:none;color:var(--text2);font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;padding:4px 0}
+.mn-item audio{width:100%;height:34px;margin-top:9px}
+.mn-acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px}
+.mn-acts button{background:none;border:none;color:var(--text2);font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;padding:2px 0}
+.mn-acts button:hover{color:var(--text)}
+.mn-acts button.tr{color:var(--green)}
+.mn-acts button.del{color:var(--red)}
+.mn-acts button:disabled{opacity:.55;cursor:default}
+.mn-trbadge{font-size:10px;font-weight:700;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 38%,transparent);border-radius:20px;padding:1px 8px}
+.mn-vacio{text-align:center;padding:34px 16px;color:var(--text3)}
+.mn-vacio .ico{font-size:34px;margin-bottom:8px}
+.mn-vacio .t{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:4px}
+.mn-vacio .s{font-size:12px;line-height:1.5}
+@keyframes mnpulso{0%,100%{opacity:1}50%{opacity:.45}}
+.mn-trabajando{animation:mnpulso 1.1s ease-in-out infinite}
+/* hoja para elegir a qué bóveda dictar */
+.mn-pick{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:60;display:none;align-items:flex-end;justify-content:center}
+.mn-pick.on{display:flex}
+.mn-pick-sheet{background:var(--panel);border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-height:82%;overflow-y:auto;padding:18px 16px 24px}
+.mn-pick-t{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px}
+.mn-pick-s{font-size:12px;color:var(--text3);margin-bottom:14px}
+.mn-pick-b{display:flex;align-items:center;gap:11px;width:100%;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cc);border-radius:13px;padding:13px 14px;margin-bottom:8px;color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left}
+.mn-pick-b small{margin-left:auto;color:var(--text3);font-size:11px;font-weight:700}
+@media(min-width:700px){.mn-pick{align-items:center}.mn-pick-sheet{border-radius:22px;max-width:440px}}
+
 /* === VOZZ: bóvedas de voz por módulo === */
 .vozzb{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .vozzb-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;gap:10px}
@@ -855,6 +905,8 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .vozzb-acts{display:flex;gap:14px;margin-top:8px}
 .vozzb-acts button{background:none;border:none;padding:0;font-size:12px;font-weight:700;cursor:pointer;color:var(--mc,var(--accent))}
 .vozzb-acts .del{color:var(--red)}
+.vozzb-acts .tr{color:var(--green)}
+.vozzb-acts{flex-wrap:wrap}
 /* hoja de dictado (colores con respaldo: la hoja vive fuera de .shell) */
 .vozz-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:9000;display:none;align-items:flex-end;justify-content:center}
 .vozz-ov.on{display:flex}
@@ -1366,6 +1418,28 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 
     </div><!-- /s-network -->
 
+    <div class="screen" id="s-notas">
+
+      <div class="mn-hero">
+        <div class="mn-hero-t">🎙️ Mis Notas</div>
+        <div class="mn-hero-s">Todo lo que has dictado, en un solo lugar. Lo que se te ocurre no se pierde: se guarda, se transcribe y se queda buscable para siempre.</div>
+      </div>
+
+      <div class="mn-stats" id="mnStats"></div>
+
+      <div class="mn-bar">
+        <input id="mnBuscar" placeholder="Buscar en tus notas…" oninput="mnSetQ(this.value)" />
+        <button class="mn-dictar" onclick="mnAbrirPicker()">🎙️ Dictar</button>
+      </div>
+
+      <div class="mn-chips" id="mnChips"></div>
+
+      <div id="mnLista">
+        <div class="mn-vacio"><div class="ico">🎙️</div><div class="t">Cargando tus notas…</div><div class="s">Un momento</div></div>
+      </div>
+
+    </div><!-- /s-notas -->
+
   </div><!-- /scroll -->
 
   <div class="nav" id="nav">
@@ -1374,6 +1448,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
     <button data-s="kpis"><span class="ic">📈</span>KPIs</button>
     <button data-s="config"><span class="ic">🧭</span>Ajustes</button>
     <button data-s="network"><span class="ic">🤝</span>Network</button>
+    <button data-s="notas"><span class="ic">🎙️</span>Mis Notas</button>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1703,6 +1778,7 @@ function go(s){
   document.getElementById('s-'+s).classList.add('on');
   document.getElementById('scroll').scrollTo&&document.getElementById('scroll').scrollTo(0,0);
   if(s==='network'&&typeof loadContacts==='function'){ loadContacts(); }
+  if(s==='notas'&&typeof mnCargar==='function'){ mnCargar(); }
   if(s==='cerebro'&&typeof MODS!=='undefined'){ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); }
 }
 
@@ -3222,6 +3298,15 @@ function renderWeekmap2(){
 
 </script>
 
+<!-- ============ MIS NOTAS: elegir bóveda para dictar ============ -->
+<div class="mn-pick" id="mnPick">
+  <div class="mn-pick-sheet">
+    <div class="mn-pick-t">¿A qué bóveda va esta nota?</div>
+    <div class="mn-pick-s">Cada bóveda guarda tus ideas por área de tu vida.</div>
+    <div id="mnPickList"></div>
+  </div>
+</div>
+
 <!-- ============ VOZZ: hoja de dictado (bóvedas por módulo) ============ -->
 <div class="vozz-ov" id="vozzOv">
   <div class="vozz-sheet" id="vozzSheet">
@@ -3396,6 +3481,7 @@ async function vozzGuardar(conAudio){
     toast('💾 Guardado en la bóveda de '+VOZZ_MODS[mod].n);
     vozzCargarBov(mod);
     const bov=document.getElementById('vozzb-'+mod);if(bov)bov.classList.add('open');
+    if(typeof mnCargar==='function'&&MN_NOTAS.length)mnCargar();
   }catch(e){toast('⚠️ No se pudo guardar · revisa tu internet');}
 }
 
@@ -3419,6 +3505,7 @@ async function vozzCargarBov(mod){
       +'<div class="vozzb-texto'+(n.texto?'':' vacia')+'">'+(n.texto?vozzEsc(n.texto):'Nota de voz sin transcripción')+'</div>'
       +(n.audio_url?'<audio controls preload="none" src="'+n.audio_url+'"></audio>':'')
       +'<div class="vozzb-acts">'+(n.texto?'<button onclick="vozzCopiar(\''+mod+'\','+n.id+')">📋 Copiar</button>':'')
+      +(n.audio_url?'<button class="tr" onclick="vozzTranscribir(\''+mod+'\','+n.id+')">✨ '+(n.texto?'Re-transcribir':'Transcribir')+'</button>':'')
       +(n.audio_url?'<button onclick="vozzDescargarNota(\''+mod+'\','+n.id+')">⬇️ Descargar</button>':'')
       +'<button class="del" onclick="vozzBorrar(\''+mod+'\','+n.id+')">Borrar</button></div></div>').join('');
   }catch(e){lista.innerHTML='<div class="vozzb-vacio">⚠️ No se pudo cargar la bóveda.</div>';}
@@ -3449,6 +3536,214 @@ async function vozzBorrar(mod,id){
     toast('🗑️ Nota borrada');vozzCargarBov(mod);
   }catch(e){toast('No se pudo borrar');}
 }
+
+/* === MIS NOTAS · bóveda unificada de notas de voz ==========================
+   Junta en una sola pantalla lo dictado en TODAS las bóvedas (Sinergia,
+   Conexión, Servir, Mindset, Fuente de Verdad y CEO del Corazón), con
+   buscador, filtro por bóveda y transcripción con Gemini para las notas
+   que sólo tienen audio. La transcripción vive en la edge function
+   'vozz-transcribir' de Supabase (usa la GEMINI_API_KEY del proyecto). */
+const MN_FN = SB_URL + '/functions/v1/vozz-transcribir';
+let MN_NOTAS = [], MN_FILTRO = 'todas', MN_Q = '', MN_ABIERTAS = new Set(), MN_TRABAJANDO = new Set();
+
+/* 'ceo-sinergia' -> 'sinergia' · 'ceo-corazon' -> 'ceo' */
+function mnModDe(origen){
+  if(origen === 'ceo-corazon') return 'ceo';
+  const m = String(origen || '').replace(/^ceo-/, '');
+  return VOZZ_MODS[m] ? m : null;
+}
+function mnVisibles(){
+  const q = MN_Q.trim().toLowerCase();
+  return MN_NOTAS.filter(n => {
+    if(MN_FILTRO !== 'todas' && mnModDe(n.origen) !== MN_FILTRO) return false;
+    if(!q) return true;
+    return (n.texto || '').toLowerCase().includes(q);
+  });
+}
+
+async function mnCargar(){
+  const lista = document.getElementById('mnLista');
+  try{
+    const r = await fetch(SB_URL + '/rest/v1/vozz_notas?origen=like.ceo-*&order=creado_en.desc&limit=500', {headers: SBH});
+    if(!r.ok) throw new Error();
+    MN_NOTAS = await r.json();
+    mnPintar();
+  }catch(e){
+    lista.innerHTML = '<div class="mn-vacio"><div class="ico">⚠️</div><div class="t">No se pudieron cargar tus notas</div><div class="s">Revisa tu internet y vuelve a entrar.</div></div>';
+  }
+}
+
+function mnPintar(){
+  mnPintarStats();
+  mnPintarChips();
+  mnPintarLista();
+}
+
+function mnPintarStats(){
+  const conAudio = MN_NOTAS.filter(n => n.audio_url).length;
+  const pend     = MN_NOTAS.filter(n => n.audio_url && !(n.texto || '').trim()).length;
+  const seg      = MN_NOTAS.reduce((a, n) => a + (n.duracion_seg || 0), 0);
+  const tiempo   = seg >= 3600 ? (seg / 3600).toFixed(1) + 'h' : Math.round(seg / 60) + 'm';
+  document.getElementById('mnStats').innerHTML =
+      '<div class="mn-stat"><b>' + MN_NOTAS.length + '</b><span>NOTAS</span></div>'
+    + '<div class="mn-stat"><b>' + conAudio + '</b><span>CON AUDIO</span></div>'
+    + '<div class="mn-stat' + (pend ? ' alerta' : '') + '"><b>' + pend + '</b><span>SIN TEXTO</span></div>'
+    + '<div class="mn-stat"><b>' + tiempo + '</b><span>GRABADO</span></div>';
+}
+
+function mnPintarChips(){
+  const tally = {};
+  MN_NOTAS.forEach(n => { const m = mnModDe(n.origen); if(m) tally[m] = (tally[m] || 0) + 1; });
+  let h = '<button class="mn-chip' + (MN_FILTRO === 'todas' ? ' on' : '') + '" onclick="mnSetFiltro(\'todas\')">Todas · ' + MN_NOTAS.length + '</button>';
+  Object.keys(VOZZ_MODS).forEach(m => {
+    h += '<button class="mn-chip' + (MN_FILTRO === m ? ' on' : '') + '" style="--cc:' + VOZZ_MODS[m].c + '" onclick="mnSetFiltro(\'' + m + '\')">'
+       + VOZZ_MODS[m].n + ' · ' + (tally[m] || 0) + '</button>';
+  });
+  document.getElementById('mnChips').innerHTML = h;
+}
+
+function mnPintarLista(){
+  const lista = document.getElementById('mnLista'), notas = mnVisibles();
+  if(!notas.length){
+    lista.innerHTML = MN_NOTAS.length
+      ? '<div class="mn-vacio"><div class="ico">🔍</div><div class="t">Nada por aquí</div><div class="s">Ninguna nota coincide con ese filtro o búsqueda.</div></div>'
+      : '<div class="mn-vacio"><div class="ico">🎙️</div><div class="t">Todavía no hay notas</div><div class="s">Toca <b>🎙️ Dictar</b> y suelta la primera idea.<br>Lo que dictes se guarda aquí para siempre.</div></div>';
+    return;
+  }
+  lista.innerHTML = notas.map(n => {
+    const m     = mnModDe(n.origen) || 'ceo';
+    const col   = VOZZ_MODS[m].c;
+    const texto = (n.texto || '').trim();
+    const largo = texto.length > 330;
+    const open  = MN_ABIERTAS.has(n.id);
+    const busy  = MN_TRABAJANDO.has(n.id);
+
+    let cuerpo;
+    if(busy){
+      cuerpo = '<div class="mn-texto pend mn-trabajando">✨ Transcribiendo con IA… esto tarda unos segundos, no cierres la app.</div>';
+    }else if(texto){
+      cuerpo = '<div class="mn-texto' + (largo && !open ? ' corta' : '') + '">' + vozzEsc(texto) + '</div>'
+             + (largo ? '<button class="mn-mas" onclick="mnToggle(' + n.id + ')">' + (open ? '▴ Ver menos' : '▾ Ver todo') + '</button>' : '');
+    }else{
+      cuerpo = '<div class="mn-texto pend">' + (n.audio_url ? 'Sin transcribir todavía — toca ✨ Transcribir.' : 'Nota vacía.') + '</div>';
+    }
+
+    let acts = '';
+    if(texto && !busy) acts += '<button onclick="mnCopiar(' + n.id + ')">📋 Copiar</button>';
+    if(n.audio_url && !busy) acts += '<button class="tr" onclick="mnTranscribir(' + n.id + ')">✨ ' + (texto ? 'Re-transcribir' : 'Transcribir') + '</button>';
+    if(n.audio_url && !busy) acts += '<button onclick="mnDescargar(' + n.id + ')">⬇️ Audio</button>';
+    if(!busy) acts += '<button class="del" onclick="mnBorrar(' + n.id + ')">🗑️ Borrar</button>';
+
+    return '<div class="mn-item" style="--cc:' + col + '">'
+      + '<div class="mn-top"><span class="mn-bov">' + VOZZ_MODS[m].n + '</span>'
+      + '<span class="mn-fecha">🕐 ' + vozzFmtFecha(n.creado_en) + (n.duracion_seg ? ' · ' + vozzFmtSeg(n.duracion_seg) : '')
+      + (n.transcrito_en ? ' <span class="mn-trbadge">✨ IA</span>' : '') + '</span></div>'
+      + cuerpo
+      + (n.audio_url ? '<audio controls preload="none" src="' + n.audio_url + '"></audio>' : '')
+      + '<div class="mn-acts">' + acts + '</div></div>';
+  }).join('');
+}
+
+function mnSetFiltro(m){ MN_FILTRO = m; mnPintarChips(); mnPintarLista(); }
+function mnSetQ(v){ MN_Q = v; mnPintarLista(); }
+function mnToggle(id){ MN_ABIERTAS.has(id) ? MN_ABIERTAS.delete(id) : MN_ABIERTAS.add(id); mnPintarLista(); }
+
+function mnCopiar(id){
+  const n = MN_NOTAS.find(x => x.id === id); if(!n || !n.texto) return;
+  navigator.clipboard.writeText(n.texto).then(() => toast('✅ Copiado'), () => toast('No se pudo copiar'));
+}
+
+function mnDescargar(id){
+  const n = MN_NOTAS.find(x => x.id === id); if(!n || !n.audio_url) return;
+  const f = new Date(n.creado_en), p = x => String(x).padStart(2, '0');
+  const nombre = 'nota-voz-' + n.origen + '-' + f.getFullYear() + p(f.getMonth() + 1) + p(f.getDate())
+               + '-' + p(f.getHours()) + p(f.getMinutes()) + '.' + n.audio_url.split('.').pop();
+  const a = document.createElement('a');
+  a.href = n.audio_url + '?download=' + encodeURIComponent(nombre);
+  a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+  toast('⬇️ Descargando…');
+}
+
+async function mnBorrar(id){
+  const n = MN_NOTAS.find(x => x.id === id); if(!n) return;
+  if(!confirm('¿Borrar esta nota? El audio también se elimina y no se puede recuperar.')) return;
+  try{
+    const r = await fetch(SB_URL + '/rest/v1/vozz_notas?id=eq.' + id, {method: 'DELETE', headers: SBH});
+    if(!r.ok) throw new Error();
+    if(n.audio_url){
+      const nom = n.audio_url.split('/vozz-audios/')[1];
+      if(nom) fetch(SB_URL + '/storage/v1/object/vozz-audios/' + nom, {method: 'DELETE', headers: SBH});
+    }
+    MN_NOTAS = MN_NOTAS.filter(x => x.id !== id);
+    const mod = mnModDe(n.origen); if(mod) vozzCacheB[mod] = null;
+    toast('🗑️ Nota borrada'); mnPintar();
+  }catch(e){ toast('No se pudo borrar'); }
+}
+
+/* Manda el audio a Gemini (edge function) y guarda el texto en la nota */
+async function mnTranscribir(id){
+  const n = MN_NOTAS.find(x => x.id === id);
+  if(!n || !n.audio_url) return;
+  if(n.texto && !confirm('Esta nota ya tiene texto. ¿Volver a transcribirla y reemplazarlo?')) return;
+  MN_TRABAJANDO.add(id); mnPintarLista();
+  try{
+    const r = await fetch(MN_FN, {
+      method: 'POST',
+      headers: {apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+      body: JSON.stringify({nota_id: id})
+    });
+    const j = await r.json().catch(() => ({}));
+    if(!r.ok || !j.ok) throw new Error(j.error || 'falló la transcripción');
+    n.texto = j.texto; n.palabras = j.palabras; n.transcrito_en = new Date().toISOString();
+    const mod = mnModDe(n.origen); if(mod) vozzCacheB[mod] = null;
+    toast('✨ Transcrita · ' + j.palabras + ' palabras');
+  }catch(e){
+    toast('⚠️ ' + (e.message || 'No se pudo transcribir'));
+  }finally{
+    MN_TRABAJANDO.delete(id); mnPintar();
+  }
+}
+
+/* --- elegir bóveda antes de dictar --- */
+function mnAbrirPicker(){
+  if(MN_FILTRO !== 'todas'){ mnDictarEn(MN_FILTRO); return; }
+  const tally = {};
+  MN_NOTAS.forEach(n => { const m = mnModDe(n.origen); if(m) tally[m] = (tally[m] || 0) + 1; });
+  document.getElementById('mnPickList').innerHTML = Object.keys(VOZZ_MODS).map(m =>
+    '<button class="mn-pick-b" style="--cc:' + VOZZ_MODS[m].c + '" onclick="mnDictarEn(\'' + m + '\')">'
+    + VOZZ_MODS[m].n + '<small>' + (tally[m] || 0) + '</small></button>').join('');
+  document.getElementById('mnPick').classList.add('on');
+}
+function mnCerrarPicker(){ document.getElementById('mnPick').classList.remove('on'); }
+function mnDictarEn(mod){ mnCerrarPicker(); vozzAbrir(mod); }
+
+/* La hoja debe vivir dentro de .shell para heredar colores y modo claro */
+(function(){
+  const sh = document.querySelector('.shell'), pick = document.getElementById('mnPick');
+  if(sh && pick) sh.appendChild(pick);
+  if(pick) pick.addEventListener('click', e => { if(e.target.id === 'mnPick') mnCerrarPicker(); });
+})();
+
+/* Transcribir desde la bóveda de cada módulo (mismo motor que Mis Notas) */
+async function vozzTranscribir(mod, id){
+  const n = (vozzCacheB[mod] || []).find(x => x.id === id);
+  if(!n || !n.audio_url) return;
+  if(n.texto && !confirm('Esta nota ya tiene texto. ¿Volver a transcribirla y reemplazarlo?')) return;
+  toast('✨ Transcribiendo… tarda unos segundos');
+  try{
+    const r = await fetch(MN_FN, {
+      method: 'POST',
+      headers: {apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+      body: JSON.stringify({nota_id: id})
+    });
+    const j = await r.json().catch(() => ({}));
+    if(!r.ok || !j.ok) throw new Error(j.error || 'falló la transcripción');
+    toast('✨ Transcrita · ' + j.palabras + ' palabras');
+    vozzCargarBov(mod);
+    if(MN_NOTAS.length) mnCargar();
+  }catch(e){ toast('⚠️ ' + (e.message || 'No se pudo transcribir')); }
+}
+
 /* contadores al arrancar */
 (async function(){
   // La hoja debe vivir dentro de .shell para heredar los colores y el modo claro
