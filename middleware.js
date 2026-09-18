@@ -10,5 +10,7 @@ export default function middleware(request) {
     // rewrite interno: la URL sigue siendo ceo.dantebaez.com pero el contenido es v3.html
     return new Response(null, { headers: { 'x-middleware-rewrite': url.toString() } });
   }
-  // cualquier otro host (app real) continúa normal
+  // La versión vieja (index.html) queda descontinuada el 18-sep-2026: su raíz
+  // manda a la buena. Solo afecta '/' (matcher), así que /vozz y /vozz-demo siguen vivos.
+  return new Response(null, { status: 308, headers: { location: 'https://ceo.dantebaez.com/' } });
 }
