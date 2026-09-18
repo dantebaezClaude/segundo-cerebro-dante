@@ -77,13 +77,21 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const post = (ruta, carga, tope) => alCrm(ruta, { method: 'POST', body: JSON.stringify(carga || {}) }, tope);
+    // La sesión de Dante viaja al bot SOLO para hablar: con ella Jesús escribe
+    // dentro de su app (tareas, proyectos, cumpleaños) como él mismo, sin que
+    // exista ninguna llave maestra de su Supabase fuera de aquí.
+    const sesion = (req.headers.authorization || req.headers.Authorization || '').replace(/^Bearer\s+/i, '');
+    const post = (ruta, carga, tope, conSesionDeDante) => alCrm(ruta, {
+      method: 'POST',
+      body: JSON.stringify(carga || {}),
+      headers: conSesionDeDante ? { 'X-Cerebro-Token': sesion } : {},
+    }, tope);
 
     switch (body.accion) {
       case 'hablar':
         if (!String(body.mensaje || '').trim()) { res.status(400).json({ ok: false, detalle: 'escribe algo' }); return; }
         // El chat piensa y consulta el CRM: se le da aire.
-        res.status(200).json(await post('/api/ceo/hablar', { mensaje: body.mensaje }, 55000));
+        res.status(200).json(await post('/api/ceo/hablar', { mensaje: body.mensaje }, 55000, true));
         return;
       case 'atender':
         if (!body.conversacion_id) { res.status(400).json({ ok: false, detalle: 'falta conversacion_id' }); return; }

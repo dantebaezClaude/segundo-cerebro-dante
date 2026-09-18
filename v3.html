@@ -985,6 +985,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .jch-b.pensando{align-self:flex-start;color:var(--text3);font-style:italic;background:none;border:none}
 .jch-acc{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;margin-top:-4px}
 .jch-acc span{background:color-mix(in srgb,var(--green) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--green) 32%,transparent);color:var(--green);border-radius:8px;padding:3px 9px;font-size:10.5px;font-weight:700}
+.jch-acc span.gratis{background:var(--tile);border-color:var(--line);color:var(--text3)}
 .jch-vacio{color:var(--text3);font-size:12px;text-align:center;padding:22px 10px;line-height:1.6}
 .jch-sugs{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 10px}
 .jch-sug{background:var(--tile);border:1px solid var(--line);color:var(--text2);border-radius:20px;padding:6px 12px;font-size:11px;cursor:pointer;font-weight:600}
@@ -2574,7 +2575,7 @@ const JES_MOTIVOS={
   sin_conexion:'No se pudo hablar con el CRM.',
   respuesta_rara:'El CRM contestó algo que no entendí.'
 };
-const JCH_SUGS=['¿Quién me está esperando?','¿Cómo vamos este mes?','Dame los 3 leads que más valen hoy','Redáctame un mensaje para reactivar a alguien'];
+const JCH_SUGS=['¿Quién me está esperando?','tarea: llamar a Alejandra mañana','el cumple de mi compadre Beto es el 12 de julio','proyecto: lanzar el webinar de octubre','Redáctame un mensaje para reactivar a alguien'];
 
 async function jPedir(vista){
   const r=await fetch('/api/jesus'+(vista?('?vista='+vista):''),{headers:hApi()});
@@ -2707,13 +2708,17 @@ async function jchCargar(){
 function jchPintar(pensando){
   const log=document.getElementById('jchLog'); if(!log) return;
   if(!JCH.length&&!pensando){
-    log.innerHTML='<div class="jch-vacio">Aquí le hablas a Jesús como a tu asistente.<br>Sabe todo lo del CRM: tus leads, el embudo, quién espera.<br>Lo que redacte te lo entrega a ti — él no manda nada solo.</div>';
+    log.innerHTML='<div class="jch-vacio">Aquí le hablas a Jesús como a tu asistente.<br>'+
+      'Sabe todo lo del CRM y puede escribir <b>dentro de esta app</b>: tareas, proyectos, cumpleaños, lo que aprendes.<br><br>'+
+      'Órdenes directas como <b>“tarea: …”</b>, <b>“nota: …”</b> o <b>“el cumple de Beto es el 12 de julio”</b> las hace al instante, sin gastar IA.<br>'+
+      'Lo que redacte para un lead te lo entrega a ti — él no manda nada solo.</div>';
   } else {
     log.innerHTML=JCH.map(function(m){
       const mio=m.rol==='dante';
       let h='<div class="jch-b '+(mio?'yo':'el')+'">'+escapeHtml(m.texto||'')+'</div>';
-      if(!mio&&(m.acciones||[]).length){
-        h+='<div class="jch-acc">'+m.acciones.map(function(a){ return '<span>✓ '+escapeHtml(a)+'</span>'; }).join('')+'</div>';
+      if(!mio&&((m.acciones||[]).length||m.sin_ia)){
+        h+='<div class="jch-acc">'+(m.acciones||[]).map(function(a){ return '<span>✓ '+escapeHtml(a)+'</span>'; }).join('')+
+          (m.sin_ia?'<span class="gratis">⚡ sin gastar IA</span>':'')+'</div>';
       }
       return h;
     }).join('')+(pensando?'<div class="jch-b pensando" id="jchPensando">Jesús está viendo el CRM…</div>':'');
@@ -2742,7 +2747,7 @@ async function jesusEnviar(){
   try{ d=await jMandar({accion:'hablar',mensaje:texto}); }
   catch(e){ d={ok:false,motivo:'sin_conexion',detalle:String((e&&e.message)||e)}; }
   JCH_ENVIANDO=false; if(btn) btn.disabled=false;
-  if(d&&d.ok&&d.respuesta){ JCH.push({rol:'jesus',texto:d.respuesta,acciones:d.acciones||[]}); }
+  if(d&&d.ok&&d.respuesta){ JCH.push({rol:'jesus',texto:d.respuesta,acciones:d.acciones||[],sin_ia:!!d.sin_ia}); }
   else { JCH.push({rol:'jesus',texto:'⚠️ '+((d&&(d.error||jMotivo(d)))||'no pude contestar')}); }
   jchPintar();
   if((d&&d.acciones||[]).length) jesusCargar(true);
