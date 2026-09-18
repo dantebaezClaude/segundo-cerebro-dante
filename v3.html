@@ -2577,14 +2577,22 @@ const JES_MOTIVOS={
 };
 const JCH_SUGS=['¿Quién me está esperando?','tarea: llamar a Alejandra mañana','el cumple de mi compadre Beto es el 12 de julio','proyecto: lanzar el webinar de octubre','Redáctame un mensaje para reactivar a alguien'];
 
+function jSesionVencida(){
+  /* El token de Supabase dura una hora. Si venció, lo honesto es volver a
+     pedir la contraseña, no dejar la pantalla fallando en silencio. */
+  try{ if(typeof renovarSesion==='function') renovarSesion(); }catch(e){}
+  const c=document.getElementById('cerrojo');
+  if(c) c.classList.remove('off');
+  if(typeof toast==='function') toast('🔒 Tu sesión venció, vuelve a entrar');
+}
 async function jPedir(vista){
   const r=await fetch('/api/jesus'+(vista?('?vista='+vista):''),{headers:hApi()});
-  if(r.status===401) return {ok:false,motivo:'sin_sesion'};
+  if(r.status===401){ jSesionVencida(); return {ok:false,motivo:'sin_sesion'}; }
   return await r.json().catch(function(){ return {ok:false,motivo:'respuesta_rara'}; });
 }
 async function jMandar(carga){
   const r=await fetch('/api/jesus',{method:'POST',headers:hApi(),body:JSON.stringify(carga)});
-  if(r.status===401) return {ok:false,motivo:'sin_sesion'};
+  if(r.status===401){ jSesionVencida(); return {ok:false,motivo:'sin_sesion'}; }
   return await r.json().catch(function(){ return {ok:false,motivo:'respuesta_rara'}; });
 }
 function jMotivo(d){ const m=(d&&d.motivo)||'sin_conexion'; return (JES_MOTIVOS[m]||m)+((d&&d.detalle)?' ('+d.detalle+')':''); }
