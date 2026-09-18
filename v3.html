@@ -4035,6 +4035,13 @@ function abrirCerebro(){
   document.getElementById('cerrojo').classList.add('off');
   if(!window.__cerebroArrancado){ window.__cerebroArrancado=true; bootApp(); }
   setInterval(renovarSesion, 40*60*1000);
+  // Atajos por link: ceo.dantebaez.com/#jesus abre directo el tab de Jesús
+  // (sirve para guardarlo en la pantalla de inicio del celular).
+  const atajo=(location.hash||'').replace('#','').toLowerCase();
+  if(atajo==='jesus'){ setTimeout(function(){ go('kpis'); switchKpiTab('jesus'); }, 120); }
+  else if(atajo==='kpis'||atajo==='network'||atajo==='notas'||atajo==='proyectos'){
+    setTimeout(function(){ go(atajo); }, 120);
+  }
 }
 </script>
 
