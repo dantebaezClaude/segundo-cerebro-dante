@@ -945,6 +945,37 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .vozz-btns button{flex:1;min-width:130px;padding:12px 8px;border-radius:12px;border:1px solid var(--line,#3C261E);background:var(--tile,#30201A);color:var(--text,#FFEEE2);font-size:13px;font-weight:700;cursor:pointer}
 .vozz-btns .g1{background:var(--mc,var(--accent,#FF7E4D));border-color:var(--mc,var(--accent,#FF7E4D));color:#fff}
 .vozz-btns .g2{background:rgba(67,181,132,.18);border-color:var(--green,#43B584);color:var(--green,#43B584)}
+/* ── 🤖 Jesús: el bot de WhatsApp y su CRM, dentro del Cerebro ── */
+.jes-head{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.jes-dot{width:9px;height:9px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.jes-dot.on{background:var(--green);box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 22%,transparent)}
+.jes-dot.off{background:var(--red)}
+.jes-head-txt{flex:1;font-size:12px;font-weight:800;color:var(--text2)}
+.jes-head-txt small{display:block;font-size:10px;font-weight:600;color:var(--text3)}
+.jes-refresh{background:var(--tile);border:1px solid var(--line);color:var(--text2);border-radius:9px;padding:5px 10px;cursor:pointer;font-size:12px}
+.jes-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:4px}
+.jes-kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+.jes-kpi .n{font-size:22px;font-weight:800;line-height:1.1}
+.jes-kpi .l{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.jes-alert{display:flex;gap:8px;align-items:flex-start;background:color-mix(in srgb,var(--amber) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--amber) 30%,transparent);border-radius:11px;padding:9px 11px;font-size:12px;color:var(--text2);margin-bottom:7px;line-height:1.45}
+.jes-lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:4px 14px 14px 4px;padding:12px 13px;margin-bottom:9px}
+.jes-lead-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.jes-lead-name{font-size:13px;font-weight:800}
+.jes-lead-meta{font-size:10px;color:var(--text3);margin-top:2px}
+.jes-lead-res{font-size:11.5px;color:var(--text2);line-height:1.5;margin-top:7px}
+.jes-lead-ult{font-size:11px;color:var(--text3);font-style:italic;margin-top:5px}
+.jes-lead-acts{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.jes-btn{background:var(--tile);border:1px solid var(--line);color:var(--text2);border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.jes-btn.pri{background:color-mix(in srgb,var(--accent) 16%,var(--surface));border-color:color-mix(in srgb,var(--accent) 34%,transparent);color:var(--accent)}
+.jes-btn:disabled{opacity:.5;cursor:default}
+.jes-espera{font-size:10px;font-weight:800;color:var(--amber);white-space:nowrap}
+.jes-espera.frio{color:var(--text3)}
+.jes-aviso{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:16px;font-size:12px;color:var(--text2);line-height:1.6}
+.jes-aviso b{color:var(--text)}
+.jes-mini{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:4px 12px 12px 4px;padding:11px 13px;display:flex;align-items:center;gap:11px;cursor:pointer;margin-bottom:13px}
+.jes-mini-n{font-size:19px;font-weight:800;color:var(--accent);min-width:26px;text-align:center}
+.jes-mini-t{flex:1;font-size:12px;font-weight:700}
+.jes-mini-t small{display:block;font-size:10px;font-weight:600;color:var(--text3);margin-top:2px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -1007,6 +1038,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 
         <!-- COL DERECHA: empresas + bloques del día -->
         <div class="hoy-col">
+          <div id="jesusMini"></div>
           <div class="sect">🏢 Hoy por empresa</div>
           <div class="minis" id="hoyMinis"></div>
           <div class="sect">⏰ Tu día por bloques</div>
@@ -1102,6 +1134,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="seg" style="margin-bottom:14px">
         <button class="on" id="kpiTab-kpis" onclick="switchKpiTab('kpis')">📈 KPIs</button>
         <button id="kpiTab-semana" onclick="switchKpiTab('semana')">🌐 Vista global</button>
+        <button id="kpiTab-jesus" onclick="switchKpiTab('jesus')">🤖 Jesús</button>
       </div>
 
       <!-- Panel KPIs -->
@@ -1143,6 +1176,16 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
         <div class="gold"><div class="num">2</div><div class="tx"><b>La libreta de fugas.</b> Si algo urgente aparece → al Inbox → se atiende a las 12 PM. No rompe tu enfoque.</div></div>
         <div class="gold"><div class="num">3</div><div class="tx"><b>El Lanzamiento avanza diario</b> (9–10:30 AM). Tu capitalización más rápida.</div></div>
       </div><!-- /kpiPanel-semana -->
+
+      <!-- Panel Jesús: el bot de WhatsApp y su CRM -->
+      <div id="kpiPanel-jesus" style="display:none">
+        <div class="jes-head">
+          <div class="jes-dot" id="jesDot"></div>
+          <div class="jes-head-txt">Jesús · bot de WhatsApp<small id="jesSello">consultando…</small></div>
+          <button class="jes-refresh" onclick="jesusCargar(true)" title="Actualizar">↻</button>
+        </div>
+        <div id="jesusBody"><div class="art-note">Consultando a Jesús…</div></div>
+      </div><!-- /kpiPanel-jesus -->
 
     </div>
 
@@ -2436,6 +2479,139 @@ async function bootApp(){
   updateClock(); // re-detectar bloque activo con bloques reales de Supabase
   render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();renderMetas();animateRing();
   setTimeout(maybeShowPanic,600);
+  jesusCargar(); // el pulso de Jesús se pide aparte: si falla, la app sigue igual
+}
+
+
+/* ===== 🤖 JESÚS — el bot de WhatsApp y su CRM, dentro del Cerebro =====
+   La llave del CRM vive en /api/jesus (servidor). Aquí solo se pinta. */
+let JESUS=null, JESUS_PIDIENDO=false;
+const JES_MOTIVOS={
+  sin_llave:'Falta pegar la llave del CRM en Vercel (JESUS_API_KEY) del proyecto del Cerebro.',
+  llave_no_coincide:'La llave del Cerebro y la del bot no son la misma. Vuelve a pegarla en los dos lados.',
+  sin_sesion:'Tu sesión venció. Vuelve a entrar al Cerebro.',
+  timeout:'El CRM tardó demasiado en contestar. Intenta otra vez en un momento.',
+  sin_conexion:'No se pudo hablar con el CRM.',
+  respuesta_rara:'El CRM contestó algo que no entendí.'
+};
+function jesFmtMin(m){
+  if(m===null||m===undefined) return '';
+  if(m<60) return m+' min';
+  const h=Math.floor(m/60), r=m%60;
+  if(h<24) return h+' h'+(r?' '+r+'m':'');
+  return Math.floor(h/24)+' d';
+}
+function jesDinero(v){ return '$'+Number(v||0).toLocaleString('es-MX',{maximumFractionDigits:0}); }
+function jesBarra(label,n,total,color){
+  const pct = total? Math.round(n*100/total) : 0;
+  return '<div class="hrow"><div class="hl">'+label+'</div><div class="htrack"><i style="width:'+pct+'%;background:'+color+'"></i></div><div class="hval">'+n+'<small> ·'+pct+'%</small></div></div>';
+}
+async function jesusCargar(forzar){
+  if(JESUS_PIDIENDO) return;
+  if(JESUS && !forzar && (Date.now()-(JESUS._en||0) < 60000)){ jesusPintar(JESUS); return; }
+  JESUS_PIDIENDO=true;
+  const body=document.getElementById('jesusBody');
+  if(body && forzar) body.innerHTML='<div class="art-note">Consultando a Jesús…</div>';
+  let d;
+  try{
+    const r=await fetch('/api/jesus',{headers:hApi()});
+    d = r.status===401 ? {ok:false,motivo:'sin_sesion'} : await r.json();
+  }catch(e){
+    d={ok:false,motivo:'sin_conexion',detalle:String((e&&e.message)||e)};
+  }
+  d._en=Date.now(); JESUS=d;
+  JESUS_PIDIENDO=false;
+  jesusPintar(d); jesusMini(d);
+}
+function jesusPintar(d){
+  const body=document.getElementById('jesusBody'); if(!body) return;
+  const dot=document.getElementById('jesDot'), sello=document.getElementById('jesSello');
+  if(!d || d.ok!==true){
+    if(dot){ dot.className='jes-dot off'; }
+    if(sello){ sello.textContent='sin conexión con el CRM'; }
+    const motivo=(d&&d.motivo)||'sin_conexion';
+    body.innerHTML='<div class="jes-aviso"><b>Jesús no está conectado a esta app todavía.</b><br>'+
+      escapeHtml(JES_MOTIVOS[motivo]||motivo)+
+      ((d&&d.detalle)?'<br><span style="color:var(--text3);font-size:11px">'+escapeHtml(String(d.detalle))+'</span>':'')+
+      '</div>';
+    return;
+  }
+  const h=d.hoy||{}, e=d.embudo||{}, v=d.ventas||{}, s=d.seguimientos||{};
+  if(dot){ dot.className='jes-dot '+((d.bot&&d.bot.responde)?'on':'off'); }
+  if(sello){
+    const t=new Date(d.generado_en||Date.now());
+    sello.textContent='al '+t.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})+
+      ((d.bot&&d.bot.responde)?' · contestando':' · NO puede contestar');
+  }
+  let html='<div class="jes-kpis">'+
+    '<div class="jes-kpi"><div class="n">'+(h.leads_nuevos||0)+'</div><div class="l">Leads hoy'+(h.leads_nuevos_ctwa?' · '+h.leads_nuevos_ctwa+' de anuncio':'')+'</div></div>'+
+    '<div class="jes-kpi"><div class="n" style="color:'+((h.sin_responder||0)?'var(--amber)':'var(--green)')+'">'+(h.sin_responder||0)+'</div><div class="l">Sin responder'+(h.espera_max_min?' · '+jesFmtMin(h.espera_max_min):'')+'</div></div>'+
+    '<div class="jes-kpi"><div class="n">'+(e.total||0)+'</div><div class="l">Leads en total</div></div>'+
+    '<div class="jes-kpi"><div class="n" style="color:var(--green)">'+jesDinero(v.total)+'</div><div class="l">Vendido este mes'+(v.compras?' · '+v.compras+' compras':'')+'</div></div>'+
+  '</div>';
+
+  if((d.alertas||[]).length){
+    html+='<div class="sect">⚠️ Lo que pide tu atención</div>';
+    d.alertas.forEach(function(a){ html+='<div class="jes-alert"><span>•</span><span>'+escapeHtml(a)+'</span></div>'; });
+  }
+
+  const tot=e.total||0;
+  html+='<div class="sect">📊 Embudo de Jesús</div><div class="card" style="padding:14px">'+
+    jesBarra('Llegaron', tot, tot, 'var(--blue)')+
+    jesBarra('Contestaron', e.contestaron||0, tot, 'var(--accent)')+
+    jesBarra('Calificados', e.calificados||0, tot, 'var(--purple)')+
+    jesBarra('Compraron', e.vendidos||0, tot, 'var(--green)')+
+    '<div style="display:flex;gap:14px;font-size:11px;color:var(--text3);margin-top:10px;flex-wrap:wrap">'+
+      '<span>📣 '+(e.ctwa||0)+' de anuncios</span>'+
+      (s.activos!==undefined?'<span>🔁 '+(s.activos||0)+' en seguimiento</span>':'')+
+      (s.rescatados!==undefined?'<span>💚 '+(s.rescatados||0)+' rescatados</span>':'')+
+    '</div></div>';
+
+  const cal=d.calientes||[];
+  html+='<div class="sect">🔥 Leads calientes <span class="cnt">'+cal.length+'</span></div>';
+  if(!cal.length){
+    html+='<div class="art-note">Ningún lead calificado esperando. Jesús sigue trabajando.</div>';
+  } else {
+    cal.forEach(function(l){
+      const esp=l.espera_min, frio=!l.la_pelota_es_nuestra;
+      html+='<div class="jes-lead">'+
+        '<div class="jes-lead-top"><div><div class="jes-lead-name">'+escapeHtml(l.nombre||'Sin nombre')+'</div>'+
+        '<div class="jes-lead-meta">'+[l.giro,l.zona,l.etapa].filter(Boolean).map(escapeHtml).join(' · ')+'</div></div>'+
+        (esp!==null&&esp!==undefined?'<div class="jes-espera'+(frio?' frio':'')+'">'+(frio?'':'⏳ ')+jesFmtMin(esp)+'</div>':'')+
+        '</div>'+
+        (l.resumen?'<div class="jes-lead-res">'+escapeHtml(l.resumen)+'</div>':'')+
+        (l.ultimo_texto?'<div class="jes-lead-ult">“'+escapeHtml(l.ultimo_texto)+'”</div>':'')+
+        '<div class="jes-lead-acts">'+
+          '<a class="jes-btn pri" href="https://wa.me/'+encodeURIComponent(String(l.wa_id||'').replace(/\D/g,''))+'" target="_blank" rel="noopener">💬 Escribirle</a>'+
+          (l.modo!=='humano'&&l.conversacion_id?'<button class="jes-btn" onclick="jesusAtender(\''+l.conversacion_id+'\',this)">🙋 Yo lo atiendo</button>':'<span class="jes-btn" style="cursor:default">🙋 En manos humanas</span>')+
+        '</div></div>';
+    });
+  }
+  html+='<div style="margin-top:14px;text-align:center"><a class="jes-btn" href="'+(d.panel_url||'#')+'" target="_blank" rel="noopener">Abrir el CRM completo →</a></div>';
+  body.innerHTML=html;
+}
+function jesusMini(d){
+  const el=document.getElementById('jesusMini'); if(!el) return;
+  if(!d||d.ok!==true){ el.innerHTML=''; return; }
+  const h=d.hoy||{}, pend=h.sin_responder||0, nuevos=h.leads_nuevos||0;
+  const urgente=pend>0;
+  el.innerHTML='<div class="jes-mini" onclick="go(\'kpis\');switchKpiTab(\'jesus\')">'+
+    '<div class="jes-mini-n" style="color:'+(urgente?'var(--amber)':'var(--accent)')+'">'+(urgente?pend:nuevos)+'</div>'+
+    '<div class="jes-mini-t">'+(urgente?'leads esperando respuesta':'leads nuevos hoy')+
+    '<small>🤖 Jesús · '+nuevos+' hoy · '+((d.embudo||{}).total||0)+' en el embudo</small></div>'+
+    '<span style="color:var(--text3)">›</span></div>';
+}
+async function jesusAtender(convId,btn){
+  if(!convId) return;
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    const r=await fetch('/api/jesus',{method:'POST',headers:hApi(),body:JSON.stringify({accion:'atender',conversacion_id:convId})});
+    const d=await r.json();
+    if(d&&d.ok){ toast('🙋 Listo: Jesús ya no le contesta, es tuyo'); jesusCargar(true); }
+    else { toast('No se pudo: '+((d&&(d.detalle||d.motivo))||'error')); if(btn){btn.disabled=false;btn.textContent='🙋 Yo lo atiendo';} }
+  }catch(e){
+    toast('No se pudo hablar con el CRM'); if(btn){btn.disabled=false;btn.textContent='🙋 Yo lo atiendo';}
+  }
 }
 
 /* Arranque: con sesión viva entra directo; si no, pide correo y contraseña. */
@@ -3310,12 +3486,14 @@ function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 // ---- Cargar al entrar a la pantalla ----
 // ---- Tab switcher KPIs / Semana ----
 function switchKpiTab(tab){
-  document.getElementById('kpiPanel-kpis').style.display = tab==='kpis'?'block':'none';
-  document.getElementById('kpiPanel-semana').style.display = tab==='semana'?'block':'none';
-  document.getElementById('kpiTab-kpis').classList.toggle('on', tab==='kpis');
-  document.getElementById('kpiTab-semana').classList.toggle('on', tab==='semana');
+  ['kpis','semana','jesus'].forEach(function(t){
+    var p=document.getElementById('kpiPanel-'+t), b=document.getElementById('kpiTab-'+t);
+    if(p) p.style.display = (t===tab)?'block':'none';
+    if(b) b.classList.toggle('on', t===tab);
+  });
   if(tab==='semana'){ renderWeekmap2(); renderInbox2(); }
   if(tab==='kpis'){ renderKpis(kpiPeriod); }
+  if(tab==='jesus'){ jesusCargar(); }
 }
 // Inbox del panel Semana (espejo del inbox de s-semana)
 function renderInbox2(){

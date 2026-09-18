@@ -31,6 +31,7 @@ api/cerebro.js        ← tubería Claude: chat con contexto del cerebro
 api/cerebro-upload.js ← tubería Claude: archivos/visión
 api/chat.js           ← tubería Claude: chat genérico
 api/networking-msg.js ← tubería Claude: redactor de mensajes de networking
+api/jesus.js          ← puente con Jesús (bot de WhatsApp) y su CRM: guarda la llave
 ```
 
 ## Conexiones (quién habla con quién)
@@ -40,6 +41,24 @@ api/networking-msg.js ← tubería Claude: redactor de mensajes de networking
 | Cerebro (tareas, bloques, notas, conocimiento, frases, contactos…) | Supabase **viasana-cfo** (`qetocoxizvumespgocij`), tablas `cerebro_*` | Base COMPARTIDA con Vía Sana. Llave pública embebida en `v3.html` (así se diseñó). ⚠️ Deuda conocida: políticas anon abiertas — el plan largo es mudar `cerebro_*` a un proyecto propio del CEO. |
 | Kit Vozz (notas de voz) | Supabase **mkt-hq-dante** (`lwoeqegztghkexumhige`), tabla `vozz_notas` + bucket `vozz-audios` | Mudado el 17-jul-2026 (antes vivía en la base del dinero de Vía Sana). Permisos mínimos: anon solo lee e inserta; nadie lista ni borra. |
 | Tuberías `api/*` | Claude API (modelo `claude-sonnet-4-6`) | La llave vive SOLO en Vercel → Settings → Environment Variables → `ANTHROPIC_API_KEY`. Jamás en código. |
+| 🤖 Jesús (KPIs → tab Jesús) | `api/jesus.js` → `wa-bot-mkt.vercel.app/api/ceo/*` | El bot de WhatsApp y su CRM. La llave (`JESUS_API_KEY`) vive solo en Vercel: el HTML es público. Detalle completo en el repo `wa-bot-mkt` → `PUENTE-CEO.md`. |
+
+## 🤖 Jesús dentro del Cerebro
+
+La pantalla **📈 KPIs → tab 🤖 Jesús** muestra el pulso del bot de WhatsApp:
+leads de hoy, cuántos esperan respuesta y desde cuándo, el embudo completo, lo
+vendido del mes y los leads calientes con el resumen de lo que Jesús ya sabe de
+cada uno. Desde ahí Dante puede escribirle a un lead o tomar la conversación
+("Yo lo atiendo" → el bot se calla en ese chat).
+
+Variables en Vercel → `segundo-cerebro-dante`:
+
+| Variable | Para qué |
+|---|---|
+| `JESUS_API_KEY` | mismo valor que `CEO_API_KEY` en el proyecto `wa-bot-mkt` |
+| `JESUS_API_URL` | opcional; por defecto `https://wa-bot-mkt.vercel.app` |
+
+Sin la llave la tarjeta no truena: dice exactamente qué falta.
 
 ## Protocolo de deploy
 
@@ -64,7 +83,7 @@ producción quedó ADELANTE del repo durante 4 días sin que git lo supiera (rec
 
 - Repo público: auditado el 17-jul-2026 — **0 secretos** en código e historial reciente; solo
   llaves públicas de Supabase (anon/publishable, públicas por diseño).
-- ⚠️ **Riesgo conocido**: las rutas `/api/*` no piden autenticación — cualquiera que descubra
-  la URL puede gastar créditos de Claude. Pendiente decidir el candado (la app no tiene login).
+- Las rutas `/api/*` piden sesión del Cerebro desde el 18-sep-2026 (validan el token contra
+  `/auth/v1/user` de Supabase): sin login no se gastan créditos de Claude ni se lee el CRM.
 - Vozz retirado de la base de Vía Sana el 17-jul-2026 (tabla borrada allá; respaldo en
   `Desktop/VIA SANA APP/_ARCHIVO/vozz-respaldo-2026-07-17/`).
