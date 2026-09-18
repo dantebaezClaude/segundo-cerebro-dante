@@ -982,7 +982,14 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .jch-b{max-width:86%;padding:10px 13px;border-radius:15px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .jch-b.yo{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:5px;font-weight:600}
 .jch-b.el{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}
-.jch-b.pensando{align-self:flex-start;color:var(--text3);font-style:italic;background:none;border:none}
+.jch-b.pensando{align-self:flex-start;color:var(--text2);background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;display:flex;align-items:center;gap:8px}
+.jch-dots{display:inline-flex;gap:3px}
+.jch-dots i{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:jchb 1s infinite ease-in-out}
+.jch-dots i:nth-child(2){animation-delay:.15s}
+.jch-dots i:nth-child(3){animation-delay:.3s}
+@keyframes jchb{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.jch-ack{align-self:flex-end;font-size:9.5px;color:var(--text3);margin-top:-6px;margin-right:3px}
+.jch-b.error{background:color-mix(in srgb,var(--red) 12%,var(--surface));border-color:color-mix(in srgb,var(--red) 35%,transparent)}
 .jch-acc{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;margin-top:-4px}
 .jch-acc span{background:color-mix(in srgb,var(--green) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--green) 32%,transparent);color:var(--green);border-radius:8px;padding:3px 9px;font-size:10.5px;font-weight:700}
 .jch-acc span.gratis{background:var(--tile);border-color:var(--line);color:var(--text3)}
@@ -2575,26 +2582,49 @@ const JES_MOTIVOS={
   sin_conexion:'No se pudo hablar con el CRM.',
   respuesta_rara:'El CRM contestó algo que no entendí.'
 };
+const JCH_ESTADOS=['Te leí — voy a eso','Revisando tu CRM','Armando la respuesta','Sigo en eso, aguántame tantito'];
+let JCH_PASO=0, JCH_RELOJ=null;
 const JCH_SUGS=['¿Quién me está esperando?','tarea: llamar a Alejandra mañana','el cumple de mi compadre Beto es el 12 de julio','proyecto: lanzar el webinar de octubre','Redáctame un mensaje para reactivar a alguien'];
 
+/* ===== La conexión con Supabase no se cae sola =====
+   El token dura una hora. En vez de esperar a que truene: se renueva antes de
+   vencer, y si aun así sale un 401 se renueva y se REINTENTA la misma llamada.
+   Solo si eso también falla se vuelve a pedir la contraseña. */
+async function jSesionFresca(){
+  try{
+    const s=sesionGuardada();
+    if(!s||!s.access_token) return false;
+    // margen de 3 min: nunca mandar una llamada con el token agonizando
+    if(s.expira_en && (s.expira_en - 180000) < Date.now()) return await renovarSesion();
+    return true;
+  }catch(e){ return false; }
+}
 function jSesionVencida(){
-  /* El token de Supabase dura una hora. Si venció, lo honesto es volver a
-     pedir la contraseña, no dejar la pantalla fallando en silencio. */
-  try{ if(typeof renovarSesion==='function') renovarSesion(); }catch(e){}
   const c=document.getElementById('cerrojo');
   if(c) c.classList.remove('off');
   if(typeof toast==='function') toast('🔒 Tu sesión venció, vuelve a entrar');
 }
-async function jPedir(vista){
-  const r=await fetch('/api/jesus'+(vista?('?vista='+vista):''),{headers:hApi()});
-  if(r.status===401){ jSesionVencida(); return {ok:false,motivo:'sin_sesion'}; }
+async function jLlamar(url, opciones){
+  await jSesionFresca();
+  let r=await fetch(url,{...opciones,headers:{...hApi(),...((opciones||{}).headers||{})}});
+  if(r.status===401){
+    // un reintento honesto: renovar y volver a tocar la puerta
+    const renovada=await renovarSesion();
+    if(renovada) r=await fetch(url,{...opciones,headers:{...hApi(),...((opciones||{}).headers||{})}});
+    if(r.status===401){ jSesionVencida(); return {ok:false,motivo:'sin_sesion'}; }
+  }
   return await r.json().catch(function(){ return {ok:false,motivo:'respuesta_rara'}; });
+}
+async function jPedir(vista){
+  return await jLlamar('/api/jesus'+(vista?('?vista='+vista):''), {});
 }
 async function jMandar(carga){
-  const r=await fetch('/api/jesus',{method:'POST',headers:hApi(),body:JSON.stringify(carga)});
-  if(r.status===401){ jSesionVencida(); return {ok:false,motivo:'sin_sesion'}; }
-  return await r.json().catch(function(){ return {ok:false,motivo:'respuesta_rara'}; });
+  return await jLlamar('/api/jesus', {method:'POST',body:JSON.stringify(carga)});
 }
+/* Al volver a la pestaña (o al despertar la compu) la sesión se refresca sola */
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden && typeof sesionGuardada==='function' && sesionGuardada()) jSesionFresca();
+});
 function jMotivo(d){ const m=(d&&d.motivo)||'sin_conexion'; return (JES_MOTIVOS[m]||m)+((d&&d.detalle)?' ('+d.detalle+')':''); }
 
 /* ---- sub-pestañas ---- */
@@ -2707,10 +2737,19 @@ function jesusMini(d){
 function jchCrecer(t){ t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,120)+'px'; }
 function jchTecla(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); jesusEnviar(); } }
 async function jchCargar(){
-  const log=document.getElementById('jchLog'); if(log) log.innerHTML='<div class="jch-vacio">Abriendo tu conversación…</div>';
+  const log=document.getElementById('jchLog');
+  if(log&&!JCH.length) log.innerHTML='<div class="jch-vacio">Abriendo tu conversación…</div>';
   const d=await jPedir('chat');
-  JCH=(d&&d.ok&&Array.isArray(d.hilo))?d.hilo:[];
-  if(d&&d.ok!==true&&d.motivo){ if(log) log.innerHTML='<div class="jes-aviso">'+escapeHtml(jMotivo(d))+'</div>'; return; }
+  // Esta respuesta puede llegar TARDE. Si mientras tanto ya escribiste algo,
+  // no se pisa: lo que está en vuelo manda.
+  if(JCH_ENVIANDO) return;
+  const traido=(d&&d.ok&&Array.isArray(d.hilo))?d.hilo:null;
+  if(traido===null){
+    if(d&&d.motivo&&log&&!JCH.length) log.innerHTML='<div class="jes-aviso">'+escapeHtml(jMotivo(d))+'</div>';
+    return;   // sin hilo del servidor: se queda lo que ya había en pantalla
+  }
+  if(!traido.length&&JCH.length) return;   // servidor vacío no borra lo tuyo
+  JCH=traido;
   jchPintar();
 }
 function jchPintar(pensando){
@@ -2723,13 +2762,14 @@ function jchPintar(pensando){
   } else {
     log.innerHTML=JCH.map(function(m){
       const mio=m.rol==='dante';
-      let h='<div class="jch-b '+(mio?'yo':'el')+'">'+escapeHtml(m.texto||'')+'</div>';
+      let h='<div class="jch-b '+(mio?'yo':(m.error?'el error':'el'))+'">'+escapeHtml(m.texto||'')+'</div>';
       if(!mio&&((m.acciones||[]).length||m.sin_ia)){
         h+='<div class="jch-acc">'+(m.acciones||[]).map(function(a){ return '<span>✓ '+escapeHtml(a)+'</span>'; }).join('')+
           (m.sin_ia?'<span class="gratis">⚡ sin gastar IA</span>':'')+'</div>';
       }
+      if(mio&&m.mandado) h+='<div class="jch-ack">✓ mandado</div>';
       return h;
-    }).join('')+(pensando?'<div class="jch-b pensando" id="jchPensando">Jesús está viendo el CRM…</div>':'');
+    }).join('')+(pensando?'<div class="jch-b pensando" id="jchPensando"><span id="jchPensandoTx">'+JCH_ESTADOS[0]+'</span><span class="jch-dots"><i></i><i></i><i></i></span></div>':'');
   }
   const sugs=document.getElementById('jchSugs');
   if(sugs) sugs.innerHTML=JCH.length?'':JCH_SUGS.map(function(s){
@@ -2748,15 +2788,27 @@ async function jesusEnviar(){
   const inp=document.getElementById('jchIn'), btn=document.getElementById('jchSend');
   const texto=(inp&&inp.value||'').trim(); if(!texto) return;
   inp.value=''; jchCrecer(inp);
-  JCH.push({rol:'dante',texto:texto});
+  JCH.push({rol:'dante',texto:texto,mandado:true});   // acuse al instante: sí te leí
   JCH_ENVIANDO=true; if(btn) btn.disabled=true;
   jchPintar(true);
+  // Mientras piensa, va contando en qué anda: nadie se queda mirando la nada.
+  JCH_PASO=0; clearInterval(JCH_RELOJ);
+  JCH_RELOJ=setInterval(function(){
+    JCH_PASO=Math.min(JCH_PASO+1, JCH_ESTADOS.length-1);
+    const tx=document.getElementById('jchPensandoTx');
+    if(tx) tx.textContent=JCH_ESTADOS[JCH_PASO];
+  }, 4000);
   let d;
   try{ d=await jMandar({accion:'hablar',mensaje:texto}); }
   catch(e){ d={ok:false,motivo:'sin_conexion',detalle:String((e&&e.message)||e)}; }
+  clearInterval(JCH_RELOJ);
   JCH_ENVIANDO=false; if(btn) btn.disabled=false;
   if(d&&d.ok&&d.respuesta){ JCH.push({rol:'jesus',texto:d.respuesta,acciones:d.acciones||[],sin_ia:!!d.sin_ia}); }
-  else { JCH.push({rol:'jesus',texto:'⚠️ '+((d&&(d.error||jMotivo(d)))||'no pude contestar')}); }
+  else {
+    const porque=(d&&(d.error||jMotivo(d)))||'no pude contestar';
+    JCH.push({rol:'jesus',texto:'⚠️ '+porque+'\n\nNo se perdió lo que escribiste: vuelve a mandarlo.',error:true});
+    if(typeof toast==='function') toast('⚠️ '+String(porque).slice(0,60));
+  }
   jchPintar();
   if((d&&d.acciones||[]).length) jesusCargar(true);
 }
