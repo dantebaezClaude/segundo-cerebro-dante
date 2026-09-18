@@ -2,11 +2,30 @@
   "rewrites": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "ceo.dantebaez.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "ceo.dantebaez.com"
+        }
+      ],
       "destination": "/v3.html"
     },
-    { "source": "/Vozz", "destination": "/Vozz.html" },
-    { "source": "/vozz", "destination": "/Vozz.html" },
-    { "source": "/vozz-demo", "destination": "/vozz-demo.html" }
-  ]
+    {
+      "source": "/Vozz",
+      "destination": "/Vozz.html"
+    },
+    {
+      "source": "/vozz",
+      "destination": "/Vozz.html"
+    },
+    {
+      "source": "/vozz-demo",
+      "destination": "/vozz-demo.html"
+    }
+  ],
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 60
+    }
+  }
 }
