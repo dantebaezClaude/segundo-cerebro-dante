@@ -50,7 +50,22 @@ const TIPO_LABEL = {
   reflexion: '🙏 Reflexión'
 };
 
+
+// ── Puerta: solo con sesión del Segundo Cerebro ──────────────────────────────
+// Sin esto, cualquiera con la URL podía gastar la llave de Anthropic de Dante.
+const SB_AUTH = 'https://qetocoxizvumespgocij.supabase.co/auth/v1/user';
+const SB_PUB = 'sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
+async function conSesion(req) {
+  const h = req.headers.authorization || req.headers.Authorization || '';
+  if (!h.startsWith('Bearer ') || h.length < 20) return false;
+  try {
+    const r = await fetch(SB_AUTH, { headers: { apikey: SB_PUB, Authorization: h } });
+    return r.ok;
+  } catch (e) { return false; }
+}
+
 export default async function handler(req, res) {
+  if (!(await conSesion(req))) { res.status(401).json({ error: 'Entra al Segundo Cerebro para usar esto.' }); return; }
   if (req.method !== 'POST') {
     res.status(405).json({ reply: 'Método no permitido.' });
     return;

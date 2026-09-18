@@ -1149,7 +1149,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
     <!-- ================= AJUSTES ================= -->
     <div class="screen" id="s-config">
       <div class="top"><div><div class="hi-date">Cómo quieres ejecutar tu agenda</div><div class="hi-name">🧭 Configurador</div></div>
-        <div class="top-actions"><button class="iconbtn" id="themeBtn2" onclick="toggleTheme()">🌙</button></div></div>
+        <div class="top-actions"><button class="iconbtn" onclick="salirSesion()" title="Cerrar sesión">🔒</button><button class="iconbtn" id="themeBtn2" onclick="toggleTheme()">🌙</button></div></div>
       <div class="seg" id="periodCfg"><button data-p="dia">Día</button><button class="on" data-p="sem">Semana</button><button data-p="mes">Mes</button></div>
 
       <div class="desk-grid">
@@ -1722,6 +1722,53 @@ let TASKS=[];
 const SB_URL='https://qetocoxizvumespgocij.supabase.co';
 const SB_KEY='sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
 const SBH={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+/* ===== SESIÓN (login real: la llave pública ya no abre nada por sí sola) ===== */
+const SES_KEY='cerebro_sesion';
+/* Cuenta dueña del Cerebro. Las demás cuentas del Supabase (panel de Vía Sana,
+   equipo) NO entran aquí: la base también lo bloquea por RLS. */
+const UID_DUENO='b885d688-c198-461a-833b-ed89760b2ef0';
+function sesionGuardada(){ try{ return JSON.parse(localStorage.getItem(SES_KEY)||'null'); }catch(e){ return null; } }
+function aplicarSesion(s){
+  if(!s||!s.access_token) return false;
+  if(!s.expira_en) s.expira_en = Date.now() + ((s.expires_in||3600)*1000);
+  SBH.Authorization='Bearer '+s.access_token;
+  localStorage.setItem(SES_KEY, JSON.stringify(s));
+  return true;
+}
+function hApi(){ const s=sesionGuardada(); return {'content-type':'application/json', authorization:'Bearer '+((s&&s.access_token)||'')}; }
+async function entrar(email, clave){
+  const r = await fetch(SB_URL+'/auth/v1/token?grant_type=password', {
+    method:'POST', headers:{apikey:SB_KEY,'Content-Type':'application/json'},
+    body: JSON.stringify({email:email, password:clave})
+  });
+  const d = await r.json().catch(function(){ return {}; });
+  if(!r.ok || !d.access_token){
+    var m = String(d.error_description || d.msg || d.error || '');
+    if(/invalid login/i.test(m)) m='Correo o contraseña incorrectos';
+    else if(/not confirmed/i.test(m)) m='Falta confirmar ese correo en Supabase';
+    else if(/rate|many/i.test(m)) m='Demasiados intentos, espera un minuto';
+    else if(!m) m='No se pudo entrar, intenta de nuevo';
+    return {ok:false, error:m};
+  }
+  if(d.user && d.user.id !== UID_DUENO) return {ok:false, error:'Esta cuenta no tiene acceso'};
+  aplicarSesion(d);
+  return {ok:true};
+}
+async function renovarSesion(){
+  const s = sesionGuardada();
+  if(!s || !s.refresh_token) return false;
+  try{
+    const r = await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token', {
+      method:'POST', headers:{apikey:SB_KEY,'Content-Type':'application/json'},
+      body: JSON.stringify({refresh_token:s.refresh_token})
+    });
+    const d = await r.json().catch(function(){ return {}; });
+    if(!r.ok || !d.access_token) return false;
+    return aplicarSesion(d);
+  }catch(e){ return false; }
+}
+function salirSesion(){ localStorage.removeItem(SES_KEY); location.reload(); }
+
 const PRIO2F={fuego:3,importante:2,sistema:1,idea:1};
 function rowToTask(r){return {id:r.id,t:r.title,e:(COMPANIES[r.project]?r.project:'general'),ty:r.type==='mecanico'?'🔧 Mec':'🏛️ Arq',d:(r.dur||30)+'m',f:PRIO2F[r.prio]||2,block:r.block,done:r.stage==='done',stage:r.stage,gcal:r.gcal_event_id,panic:!!r.panic,foco:!!r.foco,creado:r.creado_en,done_at:r.done_at};}
 /* ---- antigüedad de tareas (tracking de rezagadas) ---- */
@@ -1999,7 +2046,7 @@ async function wsSend(){
   w.temas.forEach(t=>ctx.push({tipo:'idea',contenido:'Tema a futuro: '+t.contenido}));
   w.ideas.forEach(x=>ctx.push({tipo:'idea',contenido:'Idea: '+x.contenido}));
   try{
-    const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({modulo:'mindset',conocimiento:ctx,messages:wsChatHist[wsKey]})});
+    const r=await fetch('/api/cerebro',{method:'POST',headers:hApi(),body:JSON.stringify({modulo:'mindset',conocimiento:ctx,messages:wsChatHist[wsKey]})});
     const d=await r.json();
     const reply=(d&&d.reply)||'Sin respuesta.';
     wsChatHist[wsKey].push({role:'assistant',content:reply});
@@ -2372,7 +2419,7 @@ setInterval(updateClock,60000); // actualiza cada minuto
 
 /* init: carga las tareas desde la nube y luego pinta */
 renderInbox();renderNotes();renderProj();
-(async function init(){
+async function bootApp(){
   try{ const b=await cloudLoadBlocks(); if(b&&b.length)BLOCKS=b; }catch(e){ console.warn('Nube de bloques offline; uso los de ejemplo',e); }
   try{ TASKS=await cloudLoad(); }catch(e){ console.warn('Nube de tareas offline; arranca vacío',e); }
   try{ FOCO=await cloudLoadFoco(); }catch(e){ console.warn('Nube de foco offline',e); }
@@ -2389,6 +2436,14 @@ renderInbox();renderNotes();renderProj();
   updateClock(); // re-detectar bloque activo con bloques reales de Supabase
   render();renderProj();renderTrash();renderBlocksEditor();renderFocoHistorial();renderNotes();renderInbox();renderDiario();renderMetas();animateRing();
   setTimeout(maybeShowPanic,600);
+}
+
+/* Arranque: con sesión viva entra directo; si no, pide correo y contraseña. */
+(async function arranque(){
+  var s = sesionGuardada();
+  var viva = !!(s && s.access_token && s.expira_en && s.expira_en - 60000 > Date.now() && aplicarSesion(s));
+  if(!viva && s && s.refresh_token) viva = await renovarSesion();
+  if(viva) abrirCerebro();
 })();
 
 /* ===== 🧠 CEREBRO ===== */
@@ -2449,7 +2504,7 @@ async function insertImagen(mod){
   wrap.innerHTML=`<div class="ck-processing"><div class="ck-spinner"></div>Claude está leyendo la imagen…</div>`;
   try{
     const base64=await fileToBase64(f);
-    const r=await fetch('/api/cerebro-upload',{method:'POST',headers:{'content-type':'application/json'},
+    const r=await fetch('/api/cerebro-upload',{method:'POST',headers:hApi(),
       body:JSON.stringify({modulo:mod,base64,mediaType:f.type||'image/jpeg',nota})});
     const data=await r.json();
     if(data.error){ wrap.innerHTML=`<div style="color:var(--red);padding:12px">${escapeHtml(data.error)}</div>`; return; }
@@ -2534,7 +2589,7 @@ async function sendCerebro(mod){
   logEl.innerHTML+=`<div class="cerebro-bubble ai" id="c-think-${mod}">Pensando…</div>`; logEl.scrollTop=logEl.scrollHeight;
   try{
     const ftGlobal=FT_MODS.flatMap(m=>ckData[m]||[]);
-    const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},
+    const r=await fetch('/api/cerebro',{method:'POST',headers:hApi(),
       body:JSON.stringify({modulo:mod,conocimiento:[...ckData[mod],...ftGlobal],messages:log.map(m=>({role:m.role,content:m.content}))})});
     const data=await r.json();
     const reply=(data&&data.reply)||'Sin respuesta.';
@@ -2620,7 +2675,7 @@ async function generarFrase(mod){
   if(!ckData[mod].length){ alert('Primero inserta conocimiento en este cerebro para que la IA pueda generar frases tuyas.'); return; }
   const btn=document.getElementById('fgen-'+mod); btn.disabled=true; btn.textContent='Generando…';
   try{
-    const r=await fetch('/api/cerebro',{method:'POST',headers:{'content-type':'application/json'},
+    const r=await fetch('/api/cerebro',{method:'POST',headers:hApi(),
       body:JSON.stringify({modulo:mod,conocimiento:ckData[mod],messages:[{role:'user',content:'Basándote ÚNICAMENTE en el conocimiento que tengo guardado en este módulo, genera UNA sola frase poderosa, concisa y propia que destile mi esencia y pensamiento en este tema. Que suene a mí, no a libro de autoayuda genérico. Solo la frase, sin explicación.'}]})});
     const data=await r.json();
     if(data&&data.reply) await saveFrase(mod,'ia',data.reply.replace(/^["\'\']|["\'\']$/g,'').trim());
@@ -3151,7 +3206,7 @@ async function generateWAMsg(){
     gestos?`Gestos previos: ${gestos}`:'',
   ].filter(Boolean).join('\n');
   try{
-    const r=await fetch('/api/networking-msg',{method:'POST',headers:{'content-type':'application/json'},
+    const r=await fetch('/api/networking-msg',{method:'POST',headers:hApi(),
       body:JSON.stringify({contacto:c.apodo||c.nombre, motivo:netCurrentMotivo, contexto:contexto||'No hay contexto aún'})});
     const data=await r.json();
     ta.value=data.text||'Error generando mensaje';
@@ -3757,6 +3812,52 @@ async function vozzTranscribir(mod, id){
     Object.keys(VOZZ_MODS).forEach(m=>{const el=document.getElementById('vozzb-n-'+m);if(el)el.textContent=tally[vozzOrigen(m)]||0;});
   }catch(e){}
 })();
+</script>
+
+
+<div id="cerrojo" class="cerrojo">
+  <form class="cerrojo-caja" onsubmit="return intentarEntrar(event)">
+    <div class="cerrojo-ic">🔒</div>
+    <h1 class="cerrojo-title">Acceso</h1>
+    <input id="ceMail" class="cerrojo-input" type="email" placeholder="Correo" autocomplete="username" required>
+    <input id="ceClave" class="cerrojo-input" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+    <button id="ceBtn" class="cerrojo-btn" type="submit">Entrar</button>
+    <div id="ceMsg" class="cerrojo-msg"></div>
+  </form>
+</div>
+<style>
+/* Puerta genérica: nada aquí dice de quién es la app ni qué guarda. */
+.cerrojo{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:22px;
+  background:#06090F;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.cerrojo.off{display:none}
+.cerrojo-caja{display:flex;flex-direction:column;gap:11px;width:100%;max-width:320px;background:#111923;
+  border:1px solid rgba(120,190,255,0.16);border-radius:16px;padding:24px 20px;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.cerrojo-ic{font-size:22px;line-height:1}
+.cerrojo-title{font-size:19px;font-weight:700;margin:0 0 6px;color:#E6EEF7}
+.cerrojo-input{background:#16202C;border:1px solid rgba(120,190,255,0.16);border-radius:12px;padding:12px 14px;
+  color:#E6EEF7;font-size:15px;width:100%;font-family:inherit}
+.cerrojo-input::placeholder{color:#62788F}
+.cerrojo-input:focus{outline:none;border-color:#20C7FF;box-shadow:0 0 0 3px rgba(32,199,255,0.14)}
+.cerrojo-btn{background:#20C7FF;color:#06141C;border:none;border-radius:12px;padding:13px 0;font-size:14px;
+  font-weight:800;cursor:pointer;font-family:inherit;transition:.15s}
+.cerrojo-btn:hover{filter:brightness(1.08)}
+.cerrojo-btn:disabled{opacity:.55;cursor:default}
+.cerrojo-msg{font-size:12.5px;color:#FF6B35;min-height:16px}
+</style>
+<script>
+async function intentarEntrar(ev){
+  ev.preventDefault();
+  var btn=document.getElementById('ceBtn'), msg=document.getElementById('ceMsg');
+  btn.disabled=true; msg.textContent='Entrando…';
+  var r=await entrar(document.getElementById('ceMail').value.trim(), document.getElementById('ceClave').value);
+  if(r.ok){ msg.textContent=''; abrirCerebro(); } else { msg.textContent=r.error; btn.disabled=false; }
+  return false;
+}
+function abrirCerebro(){
+  document.getElementById('cerrojo').classList.add('off');
+  if(!window.__cerebroArrancado){ window.__cerebroArrancado=true; bootApp(); }
+  setInterval(renovarSesion, 40*60*1000);
+}
 </script>
 
 </body>
