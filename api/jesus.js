@@ -5,6 +5,8 @@
 //
 //   GET  /api/jesus?vista=pulso|leads|chat|hilo|cerebro
 //   POST /api/jesus {accion:'hablar', mensaje}          -> Jesús le contesta a Dante
+//                   {accion:'avisos_tarea', titulo, avisar} -> 🔕/🔔 de una tarea
+//                   {accion:'estado_tarea', titulo, estado} -> por hacer/en curso/hecha
 //                   {accion:'atender', conversacion_id} -> Dante toma ese chat
 //                   {accion:'limpiar'}                  -> borra el hilo del chat
 //                   {accion:'personalidad', texto}      -> cambia cómo habla Jesús
@@ -97,6 +99,20 @@ export default async function handler(req, res) {
       case 'atender':
         if (!body.conversacion_id) { res.status(400).json({ ok: false, detalle: 'falta conversacion_id' }); return; }
         res.status(200).json(await post('/api/ceo/atender', { conversacion_id: body.conversacion_id }));
+        return;
+      case 'avisos_tarea':
+        // 🔕 / 🔔 de una tarea. Va con la sesión de Dante: el bot busca la
+        // tarea en SU app y le quita (o le devuelve) los avisos.
+        if (!String(body.titulo || '').trim()) { res.status(400).json({ ok: false, detalle: 'falta la tarea' }); return; }
+        res.status(200).json(await post('/api/ceo/tarea/avisos', {
+          titulo: body.titulo, avisar: !!body.avisar,
+        }, 20000, true));
+        return;
+      case 'estado_tarea':
+        if (!String(body.titulo || '').trim()) { res.status(400).json({ ok: false, detalle: 'falta la tarea' }); return; }
+        res.status(200).json(await post('/api/ceo/tarea/estado', {
+          titulo: body.titulo, estado: body.estado || '',
+        }, 20000, true));
         return;
       case 'limpiar':
         res.status(200).json(await post('/api/ceo/chat/limpiar'));
