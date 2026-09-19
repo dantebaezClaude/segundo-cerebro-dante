@@ -5,6 +5,7 @@
 //
 //   GET  /api/jesus?vista=pulso|leads|chat|hilo|cerebro
 //   POST /api/jesus {accion:'hablar', mensaje}          -> Jesús le contesta a Dante
+//                   {accion:'agendar_tarea', tarea_id, cuando, minutos} -> 📅 le pone hora (y enciende sus avisos)
 //                   {accion:'avisos_tarea', titulo, avisar} -> 🔕/🔔 de una tarea
 //                   {accion:'estado_tarea', titulo, estado} -> por hacer/en curso/hecha
 //                   {accion:'atender', conversacion_id} -> Dante toma ese chat
@@ -99,6 +100,17 @@ export default async function handler(req, res) {
       case 'atender':
         if (!body.conversacion_id) { res.status(400).json({ ok: false, detalle: 'falta conversacion_id' }); return; }
         res.status(200).json(await post('/api/ceo/atender', { conversacion_id: body.conversacion_id }));
+        return;
+      case 'agendar_tarea':
+        // 📅 El botón que SÍ enciende las notificaciones: esta tarea tiene
+        // hora. Sin este clic, una tarea no avisa aunque esté en un bloque.
+        if (!String(body.titulo || '').trim() && !String(body.tarea_id || '').trim()) {
+          res.status(400).json({ ok: false, detalle: 'falta la tarea' }); return;
+        }
+        res.status(200).json(await post('/api/ceo/tarea/agendar', {
+          tarea_id: body.tarea_id || '', titulo: body.titulo || '',
+          cuando: body.cuando || '', minutos: body.minutos || 0, quitar: !!body.quitar,
+        }, 25000, true));
         return;
       case 'avisos_tarea':
         // 🔕 / 🔔 de una tarea. Va con la sesión de Dante: el bot busca la

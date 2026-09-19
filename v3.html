@@ -399,6 +399,19 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 @keyframes latido{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
 .task.encurso{border-left-color:var(--accent);box-shadow:0 0 0 1px rgba(32,199,255,.35) inset}
 .btask.encurso{border-left-color:var(--accent)}
+/* 📅 La hora: la ÚNICA señal que enciende las notificaciones.
+   El bloque del día es control mental; hasta que Dante no le pone hora a una
+   tarea, el bot no le manda nada. */
+.cal-btn{display:inline-flex;align-items:center;gap:5px;border:1px dashed var(--line);background:none;
+  color:var(--text3);border-radius:999px;padding:4px 10px;font-size:10.5px;font-weight:800;
+  cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+.cal-btn:hover{border-color:var(--accent);color:var(--accent);border-style:solid}
+.cal-btn.on{border-style:solid;border-color:var(--green);color:var(--green);background:rgba(67,181,132,.10)}
+.calform{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0}
+.calform input{background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:10px 12px;
+  color:var(--text);font-family:inherit;font-size:14px;outline:none;flex:1;min-width:120px;color-scheme:dark}
+.shell.light .calform input{color-scheme:light}
+.calform input:focus{border-color:var(--accent)}
 .mudo{font-size:11px;opacity:.75;cursor:help}
 .task.ultra{border-left-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
 .task.ultra .tt::after{content:' 🚨';font-size:12px}
@@ -1937,6 +1950,63 @@ function abierta(t){return t&&(t.stage==='todo'||t.stage==='doing');}
 function statChip(t){const e=ESTADOS[t.stage]||ESTADOS.todo;
   return `<button class="stat ${e.cls}" onclick="event.stopPropagation();cycleStage('${t.id}')" title="Cambiar estatus"><span class="dot"></span>${e.txt}</button>`;}
 function mudoBadge(t){return t.avisar===false?'<span class="mudo" title="No te avisa por WhatsApp">🔕</span>':'';}
+/* 📅 El interruptor real de las notificaciones.
+   Regla de Dante (19-sep-2026): estar en un bloque NO hace que el bot te
+   escriba — el bloque es control mental. Una tarea empieza a avisar cuando
+   TÚ le pones fecha y hora, y solo entonces. Por eso el botón vive aquí,
+   en las ultra importantes y en el menú de cada tarea. */
+function calChip(t){
+  return t.gcal
+    ? `<button class="cal-btn on" onclick="event.stopPropagation();abrirCalForm('${t.id}')" title="Tiene hora en tu calendario y te avisa. Clic para cambiarla o quitarla">🔔 Te avisa</button>`
+    : `<button class="cal-btn" onclick="event.stopPropagation();abrirCalForm('${t.id}')" title="Sin hora: el bot no te manda nada. Clic para ponerle hora">📅 Ponerle hora</button>`;
+}
+function _proximaMediaHora(){
+  const d=new Date(); d.setSeconds(0,0); d.setMinutes(d.getMinutes()+30-(d.getMinutes()%30));
+  const p=n=>String(n).padStart(2,'0');
+  return {dia:`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`,hora:`${p(d.getHours())}:${p(d.getMinutes())}`};
+}
+function abrirCalForm(id){
+  const t=TASKS.find(x=>x.id===id); if(!t)return;
+  closePanic();
+  const d=_proximaMediaHora();
+  const cuerpo=`<div class="mt">📅 ${escapeHtml(t.t)}</div>
+    <div class="art-note" style="margin:2px 0 6px">${t.gcal?'Ya tiene hora en tu calendario: aquí la cambias o se la quitas.':'Ponerle hora es lo que enciende sus avisos. Sin hora, el bot no te manda nada.'}</div>
+    <div class="calform">
+      <input type="date" id="calDia" value="${d.dia}">
+      <input type="time" id="calHora" value="${d.hora}">
+      <input type="number" id="calDur" min="5" step="5" value="${parseInt(t.d)||30}" title="minutos">
+    </div>
+    <button onclick="guardarCalTarea('${id}')">${t.gcal?'✓ Cambiar la hora':'✓ Ponerle hora (y encender sus avisos)'}</button>
+    ${t.gcal?`<button class="danger" onclick="quitarCalTarea('${id}')">🔕 Quitarle la hora (deja de avisarte)</button>`:''}
+    <button onclick="openTaskMenu('${id}')">← Volver</button>`;
+  document.getElementById('taskMenuTitle').textContent=t.t.length>32?t.t.slice(0,32)+'…':t.t;
+  document.getElementById('taskActions').innerHTML=cuerpo;
+  openSheet('taskSheet');
+}
+async function guardarCalTarea(id){
+  const t=TASKS.find(x=>x.id===id); if(!t)return;
+  const dia=(document.getElementById('calDia')||{}).value, hora=(document.getElementById('calHora')||{}).value;
+  const dur=parseInt((document.getElementById('calDur')||{}).value)||30;
+  if(!dia||!hora){toast('Ponle día y hora');return;}
+  closeSheets(); toast('📅 Apartando tu hora…');
+  try{
+    const r=await jMandar({accion:'agendar_tarea',tarea_id:id,cuando:dia+' '+hora,minutos:dur});
+    if(r&&r.ok){
+      t.gcal=r.id||t.gcal; render(); renderPanic();
+      const choque=(r.se_encima_con||[]).length?' · ⚠️ se encima con '+r.se_encima_con.join(', '):'';
+      toast('🔔 '+(r.cuando||'')+' · ya te avisa'+choque);
+    } else toast('⚠️ No se pudo: '+((r&&(r.error||r.detalle))||'el bot no contestó'));
+  }catch(e){toast('⚠️ El bot no contestó');}
+}
+async function quitarCalTarea(id){
+  const t=TASKS.find(x=>x.id===id); if(!t)return;
+  closeSheets();
+  try{
+    const r=await jMandar({accion:'agendar_tarea',tarea_id:id,quitar:true});
+    if(r&&r.ok){t.gcal=null;render();renderPanic();toast('🔕 Sin hora: ya no te avisa');}
+    else toast('⚠️ No se pudo quitar');
+  }catch(e){toast('⚠️ El bot no contestó');}
+}
 /* Un clic: por hacer → en curso → por hacer. Para terminarla está la palomita. */
 function cycleStage(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   t.stage=t.stage==='doing'?'todo':'doing';t.done=false;cloudPatch(t);render();
@@ -2019,7 +2089,7 @@ function render(){
   document.getElementById('looseList').innerHTML=loose.length?loose.map(t=>`
     <div class="task${t.stage==='doing'?' encurso':''}${t.panic?' ultra':''}" draggable="true" ondragstart="onTaskDragStart(event,'${t.id}')" style="--tc:${t.panic?'var(--red)':(TC[t.id]||'var(--accent)')}">
       <div class="tt"><div class="chk" onclick="toggleDone('${t.id}')"></div><span>${t.t}</span>${mudoBadge(t)}</div>
-      <div class="meta">${statChip(t)}<span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>${ageBadge(t)}
+      <div class="meta">${statChip(t)}${calChip(t)}<span class="tag">${etag(t.e)}</span><span class="tag">${t.ty}</span><span class="tag">⏱️ ${t.d}</span>${ageBadge(t)}
         <div class="fire"><button onclick="bumpPrio('${t.id}',-1)">−</button><div class="fl">${fire(t.f)}</div><button onclick="bumpPrio('${t.id}',1)">+</button></div>
         <button class="panic-btn${t.foco?' focon':''}" onclick="setFocus('${t.id}')" title="Hacer foco de hoy">⭐</button>
         <button class="panic-btn${t.panic?' on':''}" onclick="togglePanic('${t.id}')" title="Botón de pánico: ultra importante">🚨</button>
@@ -2337,7 +2407,9 @@ function renderPanic(){
   const list=panicPending(),el=document.getElementById('panicList');if(!el)return;
   el.innerHTML=list.length?list.map(t=>`<div class="panic-item" onclick="panicOpenEdit('${t.id}',event)">
       <div class="pchk" onclick="panicCheck('${t.id}');event.stopPropagation()" title="Marcar realizada"></div>
-      <div style="flex:1;min-width:0"><div class="ptxt">${escapeHtml(t.t)}</div><div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div></div>
+      <div style="flex:1;min-width:0"><div class="ptxt">${escapeHtml(t.t)}</div>
+        <div class="ptag">${etag(t.e)} · ⏱️ ${t.d}${t.block?' · 📌 '+blockName(t.block):''}</div>
+        <div style="margin-top:7px">${calChip(t)}</div></div>
     </div>`).join(''):'<div class="panic-empty">🎉 ¡Todas hechas! Sin pendientes ultra importantes.</div>';
 }
 function panicOpenEdit(id,e){
@@ -2432,12 +2504,15 @@ function startFocusTask(id){const t=TASKS.find(x=>x.id===id);if(t)startFocus(t.t
 function openTaskMenu(id){const t=TASKS.find(x=>x.id===id);if(!t)return;
   document.getElementById('taskMenuTitle').textContent=t.t.length>32?t.t.slice(0,32)+'…':t.t;
   const est=(ESTADOS[t.stage]||ESTADOS.todo).txt;
-  let h=`<div class="mt">${t.block?'📌 En bloque: '+blockName(t.block):'📥 Sin bloque · Por acomodar'} · ${t.done?'✅ Hecha':(t.stage==='doing'?'▶️ En curso':'⬜ Por hacer')}${t.avisar===false?' · 🔕 no te avisa':(t.block?' · 🔔 te avisa 10 min antes':'')}</div>`;
+  /* El bloque NO avisa: solo la hora. Que el menú lo diga sin ambigüedad. */
+  const avisa=t.gcal?(t.avisar===false?'🔕 tiene hora, pero la silenciaste':'🔔 te avisa'):'🔕 sin hora · no te manda nada';
+  let h=`<div class="mt">${t.block?'📌 En bloque: '+blockName(t.block):'📥 Sin bloque · Por acomodar'} · ${t.done?'✅ Hecha':(t.stage==='doing'?'▶️ En curso':'⬜ Por hacer')} · ${avisa}</div>`;
   if(!t.done){
+    h+=`<button onclick="abrirCalForm('${id}')">${t.gcal?'📅 Cambiar su hora en el calendario':'📅 Ponerle hora (y encender sus avisos)'}</button>`;
     h+=`<button onclick="cycleStage('${id}');closeSheets()">${t.stage==='doing'?'⬜ Quitar de en curso':'▶️ Marcar en curso'}</button>`;
     h+=`<button onclick="startFocusTask('${id}');closeSheets()">▶ Empezar en foco</button>`;
     h+=`<button onclick="toggleDone('${id}');closeSheets()">✅ Marcar realizada</button>`;
-    if(t.block)h+=`<button onclick="toggleAvisos('${id}')">${t.avisar===false?'🔔 Que sí me avise':'🔕 Que ya no me avise'}</button>`;
+    if(t.gcal)h+=`<button onclick="toggleAvisos('${id}')">${t.avisar===false?'🔔 Que vuelva a avisarme':'🔕 Callar sus avisos (sin quitarle la hora)'}</button>`;
     h+=`<button onclick="setFocus('${id}');closeSheets()">${t.foco?'⭐ Es tu foco de hoy':'⭐ Hacer foco de hoy'}</button>`;
   } else h+=`<button onclick="toggleDone('${id}');closeSheets()">↩️ Reabrir tarea</button>`;
   h+=`<button onclick="togglePanic('${id}');closeSheets()">${t.panic?'✅ Quitar de ultra importante':'🚨 Botón de pánico (ultra importante)'}</button>`;
