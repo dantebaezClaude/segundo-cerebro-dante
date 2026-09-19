@@ -1014,6 +1014,13 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .jc-item-co{font-size:11.5px;color:var(--text2);line-height:1.5}
 .jc-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;opacity:.6;flex-shrink:0}
 .jc-del:hover{opacity:1;color:var(--red)}
+.jag-row{display:grid;grid-template-columns:52px 1fr;gap:11px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.jag-row:first-child{border-top:none}
+.jag-h{font-size:11px;font-weight:800;color:var(--accent)}
+.jag-h.dia{color:var(--text3);font-weight:700}
+.jag-t{font-size:12.5px;font-weight:600;line-height:1.45}
+.jag-d{font-size:10px;color:var(--text3);margin-top:2px}
+.jag-ahora{color:var(--green)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -1227,6 +1234,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <button class="on" id="jsub-chat" onclick="jesusSub('chat')">💬 Chat</button>
           <button id="jsub-wa" onclick="jesusSub('wa')">📱 WhatsApp</button>
           <button id="jsub-cerebro" onclick="jesusSub('cerebro')">🧠 Su cerebro</button>
+          <button id="jsub-agenda" onclick="jesusSub('agenda')">📅 Agenda</button>
           <button id="jsub-num" onclick="jesusSub('num')">📊 Números</button>
         </div>
 
@@ -1267,6 +1275,11 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
               <span class="jes-lead-meta" id="jcSabeMsg"></span>
             </div>
           </div>
+        </div>
+
+        <!-- Agenda de Google, prestada por el bot -->
+        <div id="jpanel-agenda" style="display:none">
+          <div id="jagBody"><div class="art-note">Cargando tu agenda…</div></div>
         </div>
 
         <!-- Números (el tablero, ahora secundario) -->
@@ -2630,7 +2643,7 @@ function jMotivo(d){ const m=(d&&d.motivo)||'sin_conexion'; return (JES_MOTIVOS[
 /* ---- sub-pestañas ---- */
 function jesusSub(t){
   JSUB=t;
-  ['chat','wa','cerebro','num'].forEach(function(x){
+  ['chat','wa','cerebro','agenda','num'].forEach(function(x){
     const p=document.getElementById('jpanel-'+x), b=document.getElementById('jsub-'+x);
     if(p) p.style.display=(x===t)?'block':'none';
     if(b) b.classList.toggle('on',x===t);
@@ -2638,6 +2651,7 @@ function jesusSub(t){
   if(t==='chat'&&!JCARGADO.chat){ JCARGADO.chat=true; jchCargar(); }
   if(t==='wa'&&!JCARGADO.wa){ JCARGADO.wa=true; jwaCargar(); }
   if(t==='cerebro'&&!JCARGADO.cerebro){ JCARGADO.cerebro=true; jcCargar(); }
+  if(t==='agenda'){ jagCargar(); }
   if(t==='num'){ jesusCargar(); }
 }
 
@@ -2832,6 +2846,44 @@ async function jwaCargar(){
     const f=m.cuando?new Date(m.cuando).toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
     return '<div class="jwa-b '+(mio?'yo':'el')+'">'+escapeHtml(m.texto||'('+(m.tipo||'sin texto')+')')+'<div class="jwa-t">'+f+'</div></div>';
   }).join('');
+}
+
+/* ---- AGENDA de Google (el bot la presta: la app no guarda llaves de Google) ---- */
+async function jagCargar(){
+  const b=document.getElementById('jagBody'); if(!b) return;
+  b.innerHTML='<div class="art-note">Cargando tu agenda…</div>';
+  const d=await jPedir('agenda');
+  if(!d||d.ok!==true){
+    b.innerHTML='<div class="jes-aviso"><b>Tu agenda no está conectada.</b><br>'+escapeHtml(jMotivo(d))+'</div>';
+    return;
+  }
+  const hoy=d.hoy||[], prox=d.proximos||[];
+  function fila(e, conDia){
+    const cuando=e.todo_el_dia?'todo el día':(e.hora||'');
+    let dia='';
+    if(conDia&&e.inicio){
+      const f=new Date(e.inicio), n=new Date();
+      const mismo=f.toDateString()===n.toDateString();
+      dia=mismo?'hoy':f.toLocaleDateString('es-MX',{weekday:'short',day:'numeric'});
+    }
+    return '<div class="jag-row"><div class="jag-h'+(conDia?' dia':'')+'">'+escapeHtml(conDia?dia:cuando)+'</div>'+
+      '<div><div class="jag-t">'+escapeHtml(e.titulo||'')+'</div>'+
+      (conDia?'<div class="jag-d">'+escapeHtml(cuando)+(e.donde?' · '+escapeHtml(e.donde):'')+'</div>'
+             :(e.donde?'<div class="jag-d">'+escapeHtml(e.donde)+'</div>':''))+
+      '</div></div>';
+  }
+  let h='<div class="sect">📅 Hoy <span class="cnt">'+hoy.length+'</span></div><div class="card" style="padding:13px">'+
+    (hoy.length?hoy.map(function(e){return fila(e,false);}).join(''):'<div class="art-note" style="margin:0">Hoy no traes nada agendado.</div>')+'</div>';
+  const otros=prox.filter(function(e){
+    if(!e.inicio) return true;
+    return new Date(e.inicio).toDateString()!==new Date().toDateString();
+  });
+  if(otros.length){
+    h+='<div class="sect">⏭️ Lo que viene</div><div class="card" style="padding:13px">'+
+       otros.map(function(e){return fila(e,true);}).join('')+'</div>';
+  }
+  h+='<div class="art-note">Pídele a Jesús por el chat: «agéndame una llamada con Rubén el viernes a las 5».</div>';
+  b.innerHTML=h;
 }
 
 /* ---- SU CEREBRO ---- */

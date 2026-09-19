@@ -36,6 +36,7 @@ const VISTAS = {
   chat: '/api/ceo/chat',
   hilo: '/api/ceo/hilo?limite=30',
   cerebro: '/api/ceo/cerebro',
+  agenda: '/api/ceo/agenda?horas=30',
 };
 
 async function alCrm(ruta, opciones = {}, msTope = 20000) {
