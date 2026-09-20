@@ -412,6 +412,16 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   color:var(--text);font-family:inherit;font-size:14px;outline:none;flex:1;min-width:120px;color-scheme:dark}
 .shell.light .calform input{color-scheme:light}
 .calform input:focus{border-color:var(--accent)}
+/* Cambiar de qué tipo es alguien, desde su propia ficha */
+.cat-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--tile);
+  color:var(--text2);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:.15s}
+.cat-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cat-pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cat-pick button{border:1px solid var(--line);background:var(--tile);color:var(--text2);border-radius:999px;
+  padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.cat-pick button:hover{border-color:var(--accent);color:var(--text)}
+.cat-pick button.on{border-color:var(--accent);color:var(--accent);background:rgba(32,199,255,.12)}
 .mudo{font-size:11px;opacity:.75;cursor:help}
 .task.ultra{border-left-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
 .task.ultra .tt::after{content:' 🚨';font-size:12px}
@@ -768,6 +778,10 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
 .net-entry-date{font-size:10px;color:var(--text3);margin-top:3px}
 .net-entry-del{background:transparent;border:none;color:var(--text3);font-size:15px;cursor:pointer;flex-shrink:0;padding:0 2px;align-self:flex-start;opacity:.6}
 .net-entry-del:hover{color:var(--red);opacity:1}
+.net-import{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.net-import textarea{width:100%;background:var(--tile);border:1.5px solid var(--line);border-radius:11px;
+  padding:10px 12px;color:var(--text);font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box}
+.net-import textarea:focus{outline:none;border-color:var(--accent)}
 .net-add-row{display:flex;gap:8px;margin-bottom:14px}
 .net-add-row textarea,.net-add-row input{flex:1;background:var(--tile);border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:13px;resize:none}
 .net-add-row textarea:focus,.net-add-row input:focus{outline:none;border-color:var(--accent)}
@@ -1548,6 +1562,21 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <div class="net-searchbar">
         <input id="netSearch" placeholder="Buscar contacto…" oninput="filterContacts()" />
         <button onclick="openAddContact()" title="Agregar contacto">＋</button>
+        <button onclick="toggleImport()" title="Cargar varios de golpe">📥</button>
+      </div>
+
+      <!-- Cargar varios contactos de una vez (una línea por persona) -->
+      <div id="netImport" class="net-import" hidden>
+        <div class="art-note" style="margin-bottom:8px">
+          Una línea por persona: <b>Nombre | tipo | día/mes | notas</b><br>
+          El tipo es amigo, mentor, socio, familiar o cliente. El día/mes puede ir vacío.
+        </div>
+        <textarea id="netImportTxt" rows="7" placeholder="Krystal Perez | amigo | 19/10 | Vive en Morelia&#10;Balam Ramírez | amigo | | Le encantan los tiramisú"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="net-add-btn" style="padding:9px 16px;font-size:13px" onclick="importarContactos()">Cargar</button>
+          <button class="net-add-btn" style="padding:9px 16px;font-size:13px;background:var(--tile);color:var(--text2)" onclick="toggleImport()">Cancelar</button>
+        </div>
+        <div id="netImportOut" class="art-note" style="margin-top:8px"></div>
       </div>
 
       <!-- Categorías -->
@@ -3646,7 +3675,8 @@ async function openContact(id, tabOverride){
     <div class="net-sh-avatar">${c.foto_url?`<img src="${escapeHtml(c.foto_url)}" />`:(c.emoji||'😊')}</div>
     <div style="flex:1">
       <div class="net-sh-name">${escapeHtml(c.nombre)}</div>
-      <div class="net-sh-meta">${escapeHtml(c.categoria||'amigo')}${c.ciudad?' · '+escapeHtml(c.ciudad):''}</div>
+      <div class="net-sh-meta">${catBtn(c)}${c.ciudad?' · '+escapeHtml(c.ciudad):''}</div>
+      <div id="catPick"></div>
       ${c.telefono?`<div class="net-sh-phone">📞 ${escapeHtml(c.telefono)}</div>`:''}
     </div>`;
   // Perfil content
@@ -3665,6 +3695,83 @@ async function openContact(id, tabOverride){
   document.getElementById('ovl').classList.add('on');
 }
 
+/* Los tipos de gente, con su emoji — los mismos que el formulario. */
+const CATS={amigo:'🙂 Amigo',mentor:'🎯 Mentor',socio:'🤝 Socio',familiar:'❤️ Familiar',cliente:'💼 Cliente'};
+function catBtn(c){
+  const cat=c.categoria||'amigo';
+  return `<button class="cat-btn" onclick="abrirCatPick('${c.id}')" title="Cambiar de tipo">${CATS[cat]||cat} ▾</button>`;
+}
+function abrirCatPick(id){
+  const c=NET_CONTACTS.find(x=>x.id===id); if(!c)return;
+  const caja=document.getElementById('catPick'); if(!caja)return;
+  if(caja.innerHTML){ caja.innerHTML=''; return; }   // segundo toque: se cierra
+  caja.innerHTML='<div class="cat-pick">'+Object.keys(CATS).map(k=>
+    `<button class="${(c.categoria||'amigo')===k?'on':''}" onclick="setCategoria('${id}','${k}')">${CATS[k]}</button>`
+  ).join('')+'</div>';
+}
+async function setCategoria(id,cat){
+  const c=NET_CONTACTS.find(x=>x.id===id); if(!c)return;
+  const antes=c.categoria; c.categoria=cat;
+  const caja=document.getElementById('catPick'); if(caja)caja.innerHTML='';
+  openContact(id);                      // repinta la ficha con el tipo nuevo
+  renderContacts();
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/cerebro_contactos?id=eq.${id}`,{method:'PATCH',
+      headers:sbHeaders,body:JSON.stringify({categoria:cat,updated_at:new Date().toISOString()})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    showToast('✅ Ahora es '+CATS[cat]);
+  }catch(e){
+    c.categoria=antes; openContact(id); renderContacts();
+    showToast('⚠️ No se pudo guardar el cambio');
+  }
+}
+/* Cargar varias personas de un jalón: una línea por persona.
+   Nace de las capturas de cumpleaños que Dante manda por WhatsApp — pasarlas
+   una por una a mano era el cuello de botella. */
+function toggleImport(){
+  const c=document.getElementById('netImport'); if(!c)return;
+  c.hidden=!c.hidden;
+  if(!c.hidden)document.getElementById('netImportTxt').focus();
+}
+function _pelaNombre(t){return (t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+async function importarContactos(){
+  const txt=(document.getElementById('netImportTxt').value||'').trim();
+  const out=document.getElementById('netImportOut');
+  if(!txt){out.textContent='Pega la lista primero.';return;}
+  const lineas=txt.split('\n').map(l=>l.trim()).filter(Boolean);
+  const validas=Object.keys(CATS);
+  let nuevos=0,fechas=0,repetidos=0,fallas=0;
+  out.textContent='Cargando…';
+  for(const linea of lineas){
+    const p=linea.split('|').map(x=>x.trim());
+    const nombre=p[0]; if(!nombre)continue;
+    if(NET_CONTACTS.some(c=>_pelaNombre(c.nombre)===_pelaNombre(nombre))){repetidos++;continue;}
+    const cat=validas.includes((p[1]||'').toLowerCase())?p[1].toLowerCase():'amigo';
+    const notas=p[3]||null;
+    try{
+      const r=await fetch(`${SB_URL}/rest/v1/cerebro_contactos`,{method:'POST',
+        headers:{...sbHeaders,Prefer:'return=representation'},
+        body:JSON.stringify({nombre,categoria:cat,notas_generales:notas,
+          emoji:cat==='mentor'?'🎯':'🙂',updated_at:new Date().toISOString()})});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json(); const c=Array.isArray(data)&&data[0];
+      if(!c)throw new Error('sin respuesta');
+      NET_CONTACTS.push(c); nuevos++;
+      const dm=(p[2]||'').match(/^(\d{1,2})\s*\/\s*(\d{1,2})$/);
+      if(dm){
+        const rf=await fetch(`${SB_URL}/rest/v1/cerebro_fechas_especiales`,{method:'POST',
+          headers:{...sbHeaders,Prefer:'return=representation'},
+          body:JSON.stringify({contacto_id:c.id,tipo:'cumpleaños',descripcion:null,
+            dia:parseInt(dm[1]),mes:parseInt(dm[2]),recordatorio_dias:3,active:true})});
+        if(rf.ok){const df=await rf.json(); if(Array.isArray(df)&&df[0]){NET_FECHAS.push(df[0]);fechas++;}}
+      }
+    }catch(e){fallas++;}
+  }
+  renderContacts(); if(typeof checkUpcomingDates==='function')checkUpcomingDates();
+  out.innerHTML=`✅ ${nuevos} contacto${nuevos===1?'':'s'} · 🎂 ${fechas} cumpleaño${fechas===1?'':'s'}`
+    +(repetidos?` · ↩️ ${repetidos} ya estaban`:'')+(fallas?` · ⚠️ ${fallas} fallaron`:'');
+  if(nuevos)document.getElementById('netImportTxt').value='';
+}
 function switchNetTab(btn, tab){
   document.querySelectorAll('.net-tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===tab));
   document.querySelectorAll('.net-panel').forEach(p=>p.classList.toggle('on', p.id==='netPanel-'+tab));
