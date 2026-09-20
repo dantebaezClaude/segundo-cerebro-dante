@@ -422,6 +422,9 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
   padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
 .cat-pick button:hover{border-color:var(--accent);color:var(--text)}
 .cat-pick button.on{border-color:var(--accent);color:var(--accent);background:rgba(32,199,255,.12)}
+.net-huellas{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.huella-chip{background:var(--tile);border:1px solid var(--line);border-radius:999px;
+  padding:3px 9px;font-size:10.5px;font-weight:700;color:var(--text2)}
 .mudo{font-size:11px;opacity:.75;cursor:help}
 .task.ultra{border-left-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
 .task.ultra .tt::after{content:' 🚨';font-size:12px}
@@ -1723,6 +1726,7 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
       <button class="net-tab" onclick="switchNetTab(this,'gustos')" data-tab="gustos">❤️ Gustos</button>
       <button class="net-tab" onclick="switchNetTab(this,'metas')" data-tab="metas">🎯 Metas</button>
       <button class="net-tab" onclick="switchNetTab(this,'gestos')" data-tab="gestos">🎁 Gestos</button>
+      <button class="net-tab" onclick="switchNetTab(this,'huella')" data-tab="huella">🔎 Huellas</button>
       <button class="net-tab" onclick="switchNetTab(this,'fechas')" data-tab="fechas">📅 Fechas</button>
       <button class="net-tab" onclick="switchNetTab(this,'mensajes')" data-tab="mensajes">📲 WA</button>
     </div>
@@ -1753,6 +1757,19 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <button class="net-add-btn" onclick="addRelEntry('gustos')">＋</button>
         </div>
         <div id="netList-gustos"></div>
+      </div>
+
+      <!-- TAB: HUELLAS — las señas que lo distinguen de un tocayo -->
+      <div class="net-panel" id="netPanel-huella">
+        <div class="art-note" style="margin-bottom:9px">
+          Las señas que lo distinguen de otro con su mismo nombre: “tiene un hijo”,
+          “el de Morelia”, “el del gimnasio”. Jesús las usa para no confundirlos.
+        </div>
+        <div class="net-add-row" style="margin-bottom:11px">
+          <textarea id="netInpHuella" placeholder="Tiene un hijo · El de Morelia · El del gym…" rows="2"></textarea>
+          <button class="net-add-btn" onclick="addRelEntry('huella')">＋</button>
+        </div>
+        <div id="netList-huella"></div>
       </div>
 
       <!-- TAB: METAS -->
@@ -3677,6 +3694,7 @@ async function openContact(id, tabOverride){
       <div class="net-sh-name">${escapeHtml(c.nombre)}</div>
       <div class="net-sh-meta">${catBtn(c)}${c.ciudad?' · '+escapeHtml(c.ciudad):''}</div>
       <div id="catPick"></div>
+      <div id="netHuellas" class="net-huellas"></div>
       ${c.telefono?`<div class="net-sh-phone">📞 ${escapeHtml(c.telefono)}</div>`:''}
     </div>`;
   // Perfil content
@@ -3686,6 +3704,7 @@ async function openContact(id, tabOverride){
     ${!c.notas_generales&&!c.apodo?`<div class="net-empty" style="padding:16px 0"><div class="ne-ico" style="font-size:30px">📝</div><div class="ne-txt">Sin notas generales</div><div class="ne-sub">Edita el perfil para agregar contexto</div></div>`:''}`;
   // Cargar relación
   await loadRelacion(id);
+  pintarHuellas(id);
   // Cargar fechas del contacto
   renderFechasContacto(id);
   // Activar tab
@@ -3758,7 +3777,9 @@ async function importarContactos(){
       if(!c)throw new Error('sin respuesta');
       NET_CONTACTS.push(c); nuevos++;
       const dm=(p[2]||'').match(/^(\d{1,2})\s*\/\s*(\d{1,2})$/);
-      if(dm){
+      const yaEsaFecha=dm&&(NET_FECHAS||[]).some(f=>f.contacto_id===c.id&&f.tipo==='cumpleaños'
+        &&f.dia===parseInt(dm[1])&&f.mes===parseInt(dm[2]));
+      if(dm&&!yaEsaFecha){
         const rf=await fetch(`${SB_URL}/rest/v1/cerebro_fechas_especiales`,{method:'POST',
           headers:{...sbHeaders,Prefer:'return=representation'},
           body:JSON.stringify({contacto_id:c.id,tipo:'cumpleaños',descripcion:null,
@@ -3771,6 +3792,14 @@ async function importarContactos(){
   out.innerHTML=`✅ ${nuevos} contacto${nuevos===1?'':'s'} · 🎂 ${fechas} cumpleaño${fechas===1?'':'s'}`
     +(repetidos?` · ↩️ ${repetidos} ya estaban`:'')+(fallas?` · ⚠️ ${fallas} fallaron`:'');
   if(nuevos)document.getElementById('netImportTxt').value='';
+}
+/* Las señas, a la vista: si tienes dos Rubén, aquí ves cuál es cuál. */
+function pintarHuellas(id){
+  const caja=document.getElementById('netHuellas'); if(!caja)return;
+  const señas=(NET_REL[id]||[]).filter(e=>e.tipo==='huella').map(e=>e.contenido).filter(Boolean);
+  caja.innerHTML=señas.length
+    ? señas.slice(0,4).map(h=>`<span class="huella-chip">🔎 ${escapeHtml(h)}</span>`).join('')
+    : '';
 }
 function switchNetTab(btn, tab){
   document.querySelectorAll('.net-tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===tab));
@@ -3785,7 +3814,7 @@ async function loadRelacion(contactoId){
     const data=await r.json();
     NET_REL[contactoId]=Array.isArray(data)?data:[];
   }catch(e){ NET_REL[contactoId]=[]; }
-  ['conversaciones','gustos','metas','gestos'].forEach(tipo=>renderRelList(tipo));
+  ['conversaciones','gustos','metas','gestos','huella'].forEach(tipo=>renderRelList(tipo));
 }
 function renderRelList(tipo){
   const el=document.getElementById('netList-'+tipo); if(!el)return;
@@ -3816,6 +3845,7 @@ async function addRelEntry(tipo){
       if(!NET_REL[id]) NET_REL[id]=[];
       NET_REL[id].unshift(data[0]);
       renderRelList(tipo);
+      if(tipo==='huella')pintarHuellas(id);
       inp.value='';
       showToast('✅ Guardado en el cerebro de '+escapeHtml(netCurrentContact.apodo||netCurrentContact.nombre));
     }
@@ -3865,6 +3895,25 @@ async function saveFechaEspecial(){
   const rec=parseInt(document.getElementById('nfRecordatorio').value);
   const id=netCurrentContact?.id;
   if(!dia||!mes||!id){ alert('Ingresa día y mes'); return; }
+  /* Candado: si Dante se acuerda de un cumple que ya registró, no se guarda
+     dos veces; y si la fecha no coincide con la que ya tenía, se le pregunta
+     en vez de dejarle dos fechas peleadas en la misma ficha. */
+  const yaTiene=(NET_FECHAS||[]).filter(f=>f.contacto_id===id&&f.tipo===tipo&&f.active!==false);
+  const igual=yaTiene.find(f=>f.dia===dia&&f.mes===mes);
+  if(igual){ showToast('↩️ Ya lo tenías registrado'); document.getElementById('netFechaForm').classList.remove('on'); return; }
+  if(yaTiene.length){
+    const v=yaTiene[0];
+    if(!confirm(`Ya tenías ${tipo} el ${v.dia}/${v.mes} y ahora dices ${dia}/${mes}.\n\n¿Cambio la fecha por la nueva?`))return;
+    try{
+      await fetch(`${SB_URL}/rest/v1/cerebro_fechas_especiales?id=eq.${v.id}`,{method:'PATCH',
+        headers:sbHeaders,body:JSON.stringify({dia,mes})});
+      v.dia=dia; v.mes=mes;
+      renderFechasContacto(id); checkUpcomingDates();
+      document.getElementById('netFechaForm').classList.remove('on');
+      showToast('✅ Fecha corregida');
+    }catch(e){ showToast('⚠️ No se pudo cambiar'); }
+    return;
+  }
   try{
     const r=await fetch(`${SB_URL}/rest/v1/cerebro_fechas_especiales`,{method:'POST',headers:{...sbHeaders,Prefer:'return=representation'},
       body:JSON.stringify({contacto_id:id,tipo,descripcion:desc||null,dia,mes,recordatorio_dias:rec,active:true})});
