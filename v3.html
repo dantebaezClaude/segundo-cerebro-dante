@@ -4324,7 +4324,7 @@ async function vozzGuardar(conAudio){
     if(conAudio&&vozzAudio){
       const ext=vozzAudio.mime.includes('mp4')?'m4a':'webm';
       const nombre='vozz-'+vozzOrigen(mod)+'-'+Date.now()+'.'+ext;
-      const rs=await fetch(SB_URL+'/storage/v1/object/vozz-audios/'+nombre,{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':vozzAudio.mime},body:vozzAudio.blob});
+      const rs=await fetch(SB_URL+'/storage/v1/object/vozz-audios/'+nombre,{method:'POST',headers:{apikey:SB_KEY,Authorization:SBH.Authorization,'Content-Type':vozzAudio.mime},body:vozzAudio.blob});
       if(!rs.ok)throw new Error('storage');
       audioUrl=SB_URL+'/storage/v1/object/public/vozz-audios/'+nombre;seg=vozzAudio.seg;
     }
