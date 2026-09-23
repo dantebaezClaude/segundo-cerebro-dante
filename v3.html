@@ -1541,6 +1541,36 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="kc-list" id="kcList"><div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div></div>
           <div class="kc-add-form"><input id="kcPersona" placeholder="¿Con quién fue la conversación?"><textarea id="kcTexto" placeholder="¿Qué le dijiste? ¿Cómo reaccionó?"></textarea><input id="kcResultado" placeholder="Resultado o seguimiento (opcional)…"><button onclick="addKC()">Registrar conversación Kind Candor</button></div>
         </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">📚 La doctrina — libros, marcos y principios</div>
+          <div class="ck-wrap" id="ck-ceo">
+            <div class="ck-header" onclick="toggleCK('ceo')"><div class="ck-header-left">📖 Mi conocimiento <span class="ck-count" id="ck-count-ceo">0 entradas</span></div><span class="ck-arrow">▾</span></div>
+            <div class="ck-body">
+              <div class="ck-input-row">
+                <select class="ck-tipo" id="ck-tipo-ceo">
+                  <option value="libro">📖 Libro/Podcast</option>
+                  <option value="idea">💡 Idea</option>
+                  <option value="conclusion">🏆 Conclusión</option>
+                  <option value="mentor">🎯 Mentor</option>
+                  <option value="reflexion">🙏 Reflexión</option>
+                </select>
+                <textarea class="ck-text" id="ck-text-ceo" placeholder="Un marco, un capítulo, una regla de la casa…"></textarea>
+                <button class="ck-add" onclick="addKnowledge('ceo')">＋ Insertar</button>
+              </div>
+              <div class="ck-list" id="ck-list-ceo"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ceo-section">
+          <div class="ceo-sect-label">✨ Frases que te recuerdan cómo liderar</div>
+          <div class="frases-wrap">
+            <div class="frases-header"><div class="frases-title">✨ Frases del CEO del Corazón</div><div class="frases-actions"><button class="frase-add-btn" onclick="showFraseInput('ceo')">✏️ Escribir frase</button></div></div>
+            <div class="frases-body">
+              <div class="frase-input-row" id="fi-row-ceo" style="display:none"><input id="fi-inp-ceo" placeholder="Escribe tu frase…"><button onclick="saveFrase('ceo','dante')">Guardar</button></div>
+              <div class="frases-list" id="frases-list-ceo"></div>
+            </div>
+          </div>
+        </div>
       </div><!-- last ceo-section -->
       </div><!-- /desk-col panels -->
       </div><!-- /desk-grid cerebro -->
@@ -2114,7 +2144,7 @@ function go(s){
   document.getElementById('scroll').scrollTo&&document.getElementById('scroll').scrollTo(0,0);
   if(s==='network'&&typeof loadContacts==='function'){ loadContacts(); }
   if(s==='notas'&&typeof mnCargar==='function'){ mnCargar(); }
-  if(s==='cerebro'&&typeof MODS!=='undefined'){ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); }
+  if(s==='cerebro'&&typeof MODS!=='undefined'){ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); CK_SOLOS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); }
 }
 
 /* ---- tema ---- */
@@ -3101,9 +3131,13 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 const sbHeaders=SBH; // alias — SB_URL + SBH already defined above
 const MODS=['sinergia','conexion','servir','mindset'];
 const FT_MODS=['ft_esposo','ft_mentor','ft_iglesia','ft_metas','ft_gustos'];
+/* 👑 CEO del Corazón guarda conocimiento y frases como los demás módulos,
+   pero su panel es táctico: no lleva chat propio. Por eso va aparte de MODS. */
+const CK_SOLOS=['ceo'];
 const cerebroChats={sinergia:[],conexion:[],servir:[],mindset:[]};
 const ckData={sinergia:[],conexion:[],servir:[],mindset:[]};
 FT_MODS.forEach(m=>{ckData[m]=[];});
+CK_SOLOS.forEach(m=>{ckData[m]=[];frasesData[m]=[];});
 const frasesData={sinergia:[],conexion:[],servir:[],mindset:[]};
 const CEREBRO_SYS_MSG={
   sinergia:'Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.',
@@ -3286,6 +3320,7 @@ async function delKnowledge(mod,id){
 }
 MODS.forEach(mod=>{ const t=document.getElementById('ck-text-'+mod); if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addKnowledge(mod); } }); });
 FT_MODS.forEach(mod=>{ const t=document.getElementById('ck-text-'+mod); if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addKnowledge(mod); } }); });
+CK_SOLOS.forEach(mod=>{ const t=document.getElementById('ck-text-'+mod); if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addKnowledge(mod); } }); const i=document.getElementById('fi-inp-'+mod); if(i) i.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); saveFrase(mod,'dante'); } }); });
 
 function renderFrases(mod){
   const list=frasesData[mod], el=document.getElementById('frases-list-'+mod); if(!el)return;
@@ -3537,7 +3572,7 @@ function renderConexMini(){
   if(NET_CONTACTS.length>5){ const more=document.createElement('div'); more.style.cssText='font-size:10px;color:var(--text3);text-align:center;padding:4px 0'; more.textContent=`+${NET_CONTACTS.length-5} más`; el.appendChild(more); }
 }
 const _cerebroNav=document.querySelector('[data-s="cerebro"]');
-if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); loadConclusions(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); renderConexMini(); },{ once:false }); }
+if(_cerebroNav){ _cerebroNav.addEventListener('click',()=>{ MODS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); loadConclusions(mod); }); FT_MODS.forEach(mod=>{ loadKnowledge(mod); }); CK_SOLOS.forEach(mod=>{ loadKnowledge(mod); loadFrases(mod); }); renderConexMini(); },{ once:false }); }
 
 /* ===================================================================
    🤝  NETWORKING — Panel de Relaciones CEO
