@@ -3118,12 +3118,22 @@ async function jesusOlvidar(id){
   if(d&&d.ok){ toast('Olvidado'); jcCargar(); } else toast('No se pudo');
 }
 
-/* Arranque: con sesión viva entra directo; si no, pide correo y contraseña. */
+/* Arranque: con sesión viva entra directo; si no, pide correo y contraseña.
+
+   OJO con el orden: abrirCerebro() vive en el ÚLTIMO bloque <script> de la
+   página, y este corre en el PRIMERO. Llamarla aquí de una tiraba
+   "abrirCerebro is not defined", el arranque moría y te dejaba en el login —
+   justo cuando tu sesión seguía viva. Por eso se espera a que la página
+   termine de cargar, que es cuando ya existen todas las funciones. */
+function alCargarTodo(fn){
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+  else setTimeout(fn, 0);
+}
 (async function arranque(){
   var s = sesionGuardada();
   var viva = !!(s && s.access_token && s.expira_en && s.expira_en - 60000 > Date.now() && aplicarSesion(s));
   if(!viva && s && s.refresh_token) viva = await renovarSesion();
-  if(viva) abrirCerebro();
+  if(viva) alCargarTodo(function(){ abrirCerebro(); });
 })();
 
 /* ===== 🧠 CEREBRO ===== */
