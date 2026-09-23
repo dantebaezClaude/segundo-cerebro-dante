@@ -1537,6 +1537,20 @@ body{background:#06090F;min-height:100vh;display:flex;justify-content:center;ali
           <div class="tracker-add"><input id="trackerName" placeholder="Agregar persona al tracker…"><button onclick="addTracker()">+</button></div>
         </div>
         <div class="ceo-section">
+          <div class="ceo-sect-label">🎙️ Juntas del equipo</div>
+          <div class="art-note" style="margin-bottom:9px">
+            Dale a grabar al empezar la junta. Queda el audio y su transcripción,
+            y de ahí sacas los acuerdos sin escribir nada durante la reunión.
+          </div>
+          <div class="vozzb" id="vozzb-juntas">
+            <div class="vozzb-head" onclick="vozzToggleBov('juntas')">
+              <div class="vozzb-l">🎙️ Juntas grabadas <span class="vozzb-n" id="vozzb-n-juntas">0</span></div>
+              <div class="vozzb-r"><button class="vozzb-dictar" onclick="event.stopPropagation();vozzAbrir('juntas')">🔴 Grabar junta</button><span class="vozzb-arrow">▾</span></div>
+            </div>
+            <div class="vozzb-body"><div class="vozzb-list" id="vozzb-list-juntas"></div></div>
+          </div>
+        </div>
+        <div class="ceo-section">
           <div class="ceo-sect-label">💬 Kind Candor Log</div>
           <div class="kc-list" id="kcList"><div style="font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:9px">Aún no hay conversaciones registradas. El Kind Candor que das hoy es el liderazgo que construyes mañana.</div></div>
           <div class="kc-add-form"><input id="kcPersona" placeholder="¿Con quién fue la conversación?"><textarea id="kcTexto" placeholder="¿Qué le dijiste? ¿Cómo reaccionó?"></textarea><input id="kcResultado" placeholder="Resultado o seguimiento (opcional)…"><button onclick="addKC()">Registrar conversación Kind Candor</button></div>
@@ -4197,7 +4211,7 @@ function renderWeekmap2(){
 /* === VOZZ: dictado por voz con bóveda independiente por módulo ===
    Motor: reconocimiento de voz del navegador (gratis) + MediaRecorder
    para el audio original. Guarda en vozz_notas con origen='ceo-<módulo>'. */
-const VOZZ_MODS={sinergia:{n:'🤝 Sinergia',c:'#4A90D9'},conexion:{n:'❤️ Conexión',c:'#E87EA1'},servir:{n:'✝️ Servir',c:'#E0A53C'},mindset:{n:'🧠 Mindset',c:'#9B6BD6'},ftverdad:{n:'🗂️ Fuente de Verdad',c:'#43B584'},ceo:{n:'👑 CEO del Corazón',c:'#FF7E4D'}};
+const VOZZ_MODS={sinergia:{n:'🤝 Sinergia',c:'#4A90D9'},conexion:{n:'❤️ Conexión',c:'#E87EA1'},servir:{n:'✝️ Servir',c:'#E0A53C'},mindset:{n:'🧠 Mindset',c:'#9B6BD6'},ftverdad:{n:'🗂️ Fuente de Verdad',c:'#43B584'},ceo:{n:'👑 CEO del Corazón',c:'#FF7E4D'},juntas:{n:'🎙️ Juntas del equipo',c:'#20C7FF'}};
 const vozzOrigen=(m)=> m==='ceo' ? 'ceo-corazon' : 'ceo-'+m;
 const VozzRec=window.SpeechRecognition||window.webkitSpeechRecognition;
 let vozzMod=null,vozzEstado='inactivo',vozzTexto='',vozzRecon=null,vozzMotorOn=false;
