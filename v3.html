@@ -3137,8 +3137,9 @@ const CK_SOLOS=['ceo'];
 const cerebroChats={sinergia:[],conexion:[],servir:[],mindset:[]};
 const ckData={sinergia:[],conexion:[],servir:[],mindset:[]};
 FT_MODS.forEach(m=>{ckData[m]=[];});
-CK_SOLOS.forEach(m=>{ckData[m]=[];frasesData[m]=[];});
+CK_SOLOS.forEach(m=>{ckData[m]=[];});
 const frasesData={sinergia:[],conexion:[],servir:[],mindset:[]};
+CK_SOLOS.forEach(m=>{frasesData[m]=[];});   // después de declararlo: const no se puede tocar antes
 const CEREBRO_SYS_MSG={
   sinergia:'Cuéntame la reunión que tienes o el perfil con el que quieres conectar. Te ayudo a prepararte para que dejes huella.',
   conexion:'¿Qué situación relacional quieres trabajar hoy? Pareja, familia, amigos. Aquí no hay prisa — hay profundidad.',
