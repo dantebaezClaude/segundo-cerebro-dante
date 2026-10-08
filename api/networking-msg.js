@@ -4,8 +4,8 @@ const SYSTEM = 'Eres el asistente personal de Dante Baez, CEO y lider. Genera me
 
 // ── Puerta: solo con sesión del Segundo Cerebro ──────────────────────────────
 // Sin esto, cualquiera con la URL podía gastar la llave de Anthropic de Dante.
-const SB_AUTH = 'https://qetocoxizvumespgocij.supabase.co/auth/v1/user';
-const SB_PUB = 'sb_publishable_CiI6eCBZIcgwViXzkV9YXw_684eJYcf';
+const SB_AUTH = 'https://zmkwsqaotkchbnzrkmlj.supabase.co/auth/v1/user';
+const SB_PUB = 'sb_publishable_zgN8RyLfishcnPw9S-M97g_WVePrnPs';
 async function conSesion(req) {
   const h = req.headers.authorization || req.headers.Authorization || '';
   if (!h.startsWith('Bearer ') || h.length < 20) return false;

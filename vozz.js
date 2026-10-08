@@ -24,8 +24,8 @@
 
   /* ---------- Configuración ---------- */
   var CFG = Object.assign({
-    url: 'https://lwoeqegztghkexumhige.supabase.co',
-    key: 'sb_publishable_EAvbpsNabCKYEPhUan_aQQ_GX3hAaPG',
+    url: 'https://zmkwsqaotkchbnzrkmlj.supabase.co',
+    key: 'sb_publishable_zgN8RyLfishcnPw9S-M97g_WVePrnPs',
     tabla: 'vozz_notas',
     bucket: 'vozz-audios'
   }, window.VOZZ_CONFIG || {});

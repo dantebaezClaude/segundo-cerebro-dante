@@ -38,8 +38,8 @@ api/jesus.js          ← puente con Jesús (bot de WhatsApp) y su CRM: guarda l
 
 | Módulo | Backend | Detalle |
 |---|---|---|
-| Cerebro (tareas, bloques, notas, conocimiento, frases, contactos…) | Supabase **viasana-cfo** (`qetocoxizvumespgocij`), tablas `cerebro_*` | Base COMPARTIDA con Vía Sana. Llave pública embebida en `v3.html` (así se diseñó). ⚠️ Deuda conocida: políticas anon abiertas — el plan largo es mudar `cerebro_*` a un proyecto propio del CEO. |
-| Kit Vozz (notas de voz) | Supabase **mkt-hq-dante** (`lwoeqegztghkexumhige`), tabla `vozz_notas` + bucket `vozz-audios` | Mudado el 17-jul-2026 (antes vivía en la base del dinero de Vía Sana). Permisos mínimos: anon solo lee e inserta; nadie lista ni borra. |
+| Cerebro (tareas, bloques, notas, conocimiento, frases, contactos…) | Supabase **DANTE proyectos varios** (`zmkwsqaotkchbnzrkmlj`), tablas `cerebro_*` + `vozz_notas` + bucket `vozz-audios` + edge function `vozz-transcribir` | Mudado el 8-oct-2026 desde viasana-cfo (`qetocoxizvumespgocij`), que ya no comparte base con el Cerebro. Mismos usuarios (dueño y Jesús, mismos UIDs) y mismas políticas RLS. Llave pública embebida en `v3.html` (así se diseñó). |
+| Kit Vozz (notas de voz) | Supabase **DANTE proyectos varios** (`zmkwsqaotkchbnzrkmlj`), tabla `vozz_notas` + bucket `vozz-audios` | Mudado el 8-oct-2026 (el proyecto mkt-hq-dante donde vivía fue eliminado). Anon no escribe: subir audio requiere sesión del dueño o de Jesús. |
 | Tuberías `api/*` | Claude API (modelo `claude-sonnet-4-6`) | La llave vive SOLO en Vercel → Settings → Environment Variables → `ANTHROPIC_API_KEY`. Jamás en código. |
 | 🤖 Jesús (KPIs → tab Jesús) | `api/jesus.js` → `wa-bot-mkt.vercel.app/api/ceo/*` | El bot de WhatsApp y su CRM. La llave (`JESUS_API_KEY`) vive solo en Vercel: el HTML es público. Detalle completo en el repo `wa-bot-mkt` → `PUENTE-CEO.md`. |
 
